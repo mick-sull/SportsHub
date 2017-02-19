@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:background="@drawable/chamfer_corners"
+        android:weightSum="1"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_weight="0.75"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            app:srcCompat="@drawable/com_facebook_profile_picture_blank_square"
+            android:layout_marginTop="44dp"
+            android:id="@+id/imgDialogUserProfile"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <View
+            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colordevider"
+            android:padding="16dp"
+            />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:weightSum="1">
+
+            <ImageButton
+                android:id="@+id/imgBtnMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                app:srcCompat="@drawable/ic_chat_bubble_outline_black_24dp"
+                android:background="#ffffff"
+                android:layout_weight="0.333" />
+
+            <ImageButton
+                android:id="@+id/imgBtnViewProfile"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                app:srcCompat="@drawable/ic_person_outline_black_24dp"
+                android:background="#ffffff"
+                android:layout_weight="0.333" />
+
+            <ImageButton
+                android:id="@+id/imgBtnAddUser"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                app:srcCompat="@drawable/ic_person_add_black_24dp"
+                android:background="#ffffff"
+                android:layout_weight="0.333" />
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

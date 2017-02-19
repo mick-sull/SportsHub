@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "712793215325",
+    "firebase_url": "https://sportshub-58a38.firebaseio.com",
+    "project_id": "sportshub-58a38",
+    "storage_bucket": "sportshub-58a38.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:712793215325:android:7145906e476f25fb",
+        "android_client_info": {
+          "package_name": "com.cit.michael.sportshub"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "712793215325-k3b75ml1tqdfrlhgv43hb7s2v40ovb0s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cit.michael.sportshub",
+            "certificate_hash": "54E7CE84D9029974D42E4FAA877E348A05E8F1B3"
+          }
+        },
+        {
+          "client_id": "712793215325-l73iigsves2dgig9h23euk6va1737ocr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1Ljh_3Zy0Da0drypFxY68F44cqk3S1Wg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "712793215325-l73iigsves2dgig9h23euk6va1737ocr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

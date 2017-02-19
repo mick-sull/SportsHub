@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/list_selector"
+    android:orientation="horizontal"
+    android:padding="5dip" >
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#f2f2f2">
+
+        <TextView
+            android:id="@+id/eventName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:textColor="@color/secondary_text"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginLeft="5px"/>
+
+        <TextView
+            android:id="@+id/eventSpaces"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@color/ProfileSecondary"
+            android:layout_marginLeft="5px"/>
+
+        <TextView
+            android:id="@+id/eventTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@color/secondary_text"
+            android:layout_marginLeft="5px"/>
+
+        <TextView
+            android:id="@+id/eventCost"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@color/ProfileSecondary"
+            android:layout_marginLeft="5px"/>
+
+        <View
+            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/colordevider"
+            android:padding="16dp"
+            />
+    </LinearLayout>
+
+
+    <!-- Rightend Arrow -->
+    <ImageView
+        android:layout_height="wrap_content"
+        android:src="@drawable/arrow2"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_width="10dp" />
+
+</RelativeLayout>
+
+
+
+
+
