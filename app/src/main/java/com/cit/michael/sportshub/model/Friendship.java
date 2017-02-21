@@ -18,7 +18,7 @@ public class Friendship {
     private String user_two_id;
 
 
-    @SerializedName("user_two_id")
+    @SerializedName("status")
     @Expose
     private int status;
 

@@ -10,6 +10,7 @@ import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.model.RestAttendee;
 import com.cit.michael.sportshub.rest.model.RestEvent;
 import com.cit.michael.sportshub.rest.model.RestEventDetails;
+import com.cit.michael.sportshub.rest.model.RestRelationship;
 import com.cit.michael.sportshub.rest.model.RestLocation;
 import com.cit.michael.sportshub.rest.model.RestProfile;
 import com.cit.michael.sportshub.rest.model.RestSport;
@@ -53,7 +54,7 @@ public interface NetworkService {
     Call<RestUsers> getUserFriends(@Query("user_id") String userID);
 
     @POST("user/friends/request")
-    void sendFriendRequest (@Body Friendship friendship);
+    Call<RestRelationship> sendFriendRequest (@Body Friendship friendship);
 
 
 

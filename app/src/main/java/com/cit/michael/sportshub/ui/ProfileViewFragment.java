@@ -21,8 +21,13 @@ import com.cit.michael.sportshub.model.Friendship;
 import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
+import com.cit.michael.sportshub.rest.model.RestRelationship;
 import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by micha on 14/02/2017.
@@ -97,12 +102,17 @@ public class ProfileViewFragment extends DialogFragment {
                 dismiss();
                 Toast.makeText(getContext(), "Friend Request Sent...", Toast.LENGTH_SHORT).show();
                 Friendship friendship = new Friendship(auth.getCurrentUser().getUid(), uID, 0, auth.getCurrentUser().getUid());
-                try {
-                    service.sendFriendRequest(friendship);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.d("DIALOG ERROR", e.getMessage().toString());
-                }
+                service.sendFriendRequest(friendship).enqueue(new Callback<RestRelationship>() {
+                    @Override
+                    public void onResponse(Call<RestRelationship> call, Response<RestRelationship> response) {
+                       // Toast.makeText(getContext(), ""+ response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(Call<RestRelationship> call, Throwable t) {
+
+                    }
+                });
 
             }
 
