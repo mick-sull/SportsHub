@@ -2,6 +2,7 @@ package com.cit.michael.sportshub.rest;
 
 import com.cit.michael.sportshub.model.Attendee;
 import com.cit.michael.sportshub.model.Event;
+import com.cit.michael.sportshub.model.Friendship;
 import com.cit.michael.sportshub.model.Location;
 import com.cit.michael.sportshub.model.Search;
 import com.cit.michael.sportshub.model.Sport;
@@ -51,6 +52,8 @@ public interface NetworkService {
     @GET("user/friends/{user_id}")
     Call<RestUsers> getUserFriends(@Query("user_id") String userID);
 
+    @POST("user/friends/request")
+    void sendFriendRequest (@Body Friendship friendship);
 
 
 

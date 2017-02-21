@@ -4,6 +4,9 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +14,7 @@ import android.view.ViewGroup;
 
 import com.cit.michael.sportshub.R;
 import com.cit.michael.sportshub.adapter.ExpandableHeightListView;
-import com.cit.michael.sportshub.adapter.ProfileListView;
+import com.cit.michael.sportshub.adapter.User_Friends_Adapter;
 import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
@@ -40,10 +43,11 @@ public class Fragment_Friends_List extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private ExpandableHeightListView listview;
-    private ProfileListView profileListView;
     private List<User> listFriends;
     NetworkService service;
     private FirebaseAuth auth;
+    private RecyclerView recyclerView;
+    private User_Friends_Adapter mAdapter;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -87,7 +91,7 @@ public class Fragment_Friends_List extends Fragment {
         return inflater.inflate(R.layout.fragment_fragement__friends__list, container, false);*/
         View rootView = inflater.inflate(R.layout.fragment_fragement__friends__list, container, false);
         listFriends = new ArrayList<User>();
-        listview = (ExpandableHeightListView) rootView.findViewById(R.id.listview);
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.friends_list_recycler_view);
         ButterKnife.bind(this, rootView);
 
         auth = FirebaseAuth.getInstance();
@@ -112,10 +116,14 @@ public class Fragment_Friends_List extends Fragment {
     }
 
     private void displayFriends() {
-        profileListView = new ProfileListView(getContext(), listFriends) {
-        };
 
-        listview.setAdapter(profileListView);
+
+
+        mAdapter = new User_Friends_Adapter(listFriends, getContext());
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(mAdapter);
     }
 
     // TODO: Rename method, update argument and hook method into UI event

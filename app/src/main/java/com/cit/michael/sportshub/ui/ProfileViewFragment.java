@@ -17,6 +17,11 @@ import android.widget.Toast;
 
 import com.cit.michael.sportshub.R;
 import com.cit.michael.sportshub.activities.Activity_Profile;
+import com.cit.michael.sportshub.model.Friendship;
+import com.cit.michael.sportshub.model.User;
+import com.cit.michael.sportshub.rest.NetworkService;
+import com.cit.michael.sportshub.rest.RestClient;
+import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -27,12 +32,22 @@ public class ProfileViewFragment extends DialogFragment {
     private ImageView profileImage;
     private ImageButton mMessage, mAdd, viewProfile;
     private String imageUrl, uID;
+    private FirebaseAuth auth;
+    NetworkService service;
+    User user;
 
 
 
-    public ProfileViewFragment(String imageUrl, String uID ){
+/*    public ProfileViewFragment(String imageUrl, String uID ){
         this.imageUrl = imageUrl;
         this.uID = uID;
+    }*/
+    public ProfileViewFragment(User user ){
+        //this.imageUrl = imageUrl;
+        this.user = user;
+        this.imageUrl = user.getUserProfileUrl();
+        this.uID = user.getUserId();
+
     }
 
 
@@ -40,6 +55,9 @@ public class ProfileViewFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        auth = FirebaseAuth.getInstance();
+        service = RestClient.getSportsHubApiClient();
+
         Dialog dialog = new Dialog(getActivity());
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN);
@@ -77,7 +95,15 @@ public class ProfileViewFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 dismiss();
-                Toast.makeText(getContext(), "Send Message to", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Friend Request Sent...", Toast.LENGTH_SHORT).show();
+                Friendship friendship = new Friendship(auth.getCurrentUser().getUid(), uID, 0, auth.getCurrentUser().getUid());
+                try {
+                    service.sendFriendRequest(friendship);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.d("DIALOG ERROR", e.getMessage().toString());
+                }
+
             }
 
         });

@@ -215,7 +215,9 @@ public class Activity_Event_Details extends AppCompatActivity  {
                                     int position, long id) {
                 // WORKING
                FragmentManager fm = getSupportFragmentManager();
-                ProfileViewFragment editNameDialogFragment = new ProfileViewFragment(listUserAttending.get(position).getUserProfileUrl(), listUserAttending.get(position).getUserId());
+                //ProfileViewFragment editNameDialogFragment = new ProfileViewFragment(listUserAttending.get(position).getUserProfileUrl(), listUserAttending.get(position).getUserId());
+                User user = listUserAttending.get(0);
+                ProfileViewFragment editNameDialogFragment = new ProfileViewFragment(user);
                 editNameDialogFragment.show(fm, "test");
 
 /*                LayoutInflater inflater = LayoutInflater.from(getApplicationContext());

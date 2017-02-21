@@ -106,14 +106,14 @@ public class Fragment_Profile extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        // Setup any handles to view objects here
-        // EditText etFoo = (EditText) view.findViewById(R.id.etFoo);
         auth = FirebaseAuth.getInstance();
         listEvents = new ArrayList<Event>();
         listLocaton = new ArrayList<Location>();
         user = new ArrayList<User>();
         recyclerView = (RecyclerView) view.findViewById(R.id.profile_recycler_view);
-        Log.d("TEST123", "Activity PROFILE");
+
+
+
         service = RestClient.getSportsHubApiClient();
         service.getUser(auth.getCurrentUser().getUid()).enqueue(new Callback<RestProfile>() {
             @Override
