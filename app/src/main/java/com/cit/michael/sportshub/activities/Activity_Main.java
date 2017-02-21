@@ -2,37 +2,35 @@ package com.cit.michael.sportshub.activities;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.Button;
 
-import com.cit.michael.sportshub.*;
 import com.cit.michael.sportshub.R;
 import com.cit.michael.sportshub.chat.ui.Activity_Chat;
 import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
 import com.cit.michael.sportshub.rest.model.RestUsers;
-import com.facebook.*;
+import com.facebook.FacebookSdk;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -41,7 +39,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Activity_Main extends AppCompatActivity implements Fragment_Profile.OnFragmentInteractionListener, Frag_Group.OnFragmentInteractionListener {
+public class Activity_Main extends AppCompatActivity implements Fragment_Profile.OnFragmentInteractionListener, Frag_Group.OnFragmentInteractionListener, Fragment_Friends_List.OnFragmentInteractionListener {
 
     @BindView(com.cit.michael.sportshub.R.id.btnOrganizeEvent) Button btnOrganizeEvent;
     @BindView(R.id.btnNearby) Button btnNearby;
@@ -65,6 +63,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
     private FirebaseAuth auth;
     String newUser;
     NetworkService service;
+    FirebaseInstanceId firebaseInstanceId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +74,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         FacebookSdk.sdkInitialize(getApplicationContext());
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        firebaseInstanceId = FirebaseInstanceId.getInstance();
 
         String newUser = getIntent().getStringExtra("user");
 
@@ -99,11 +99,13 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         Log.d("Name ", "" + auth.getCurrentUser().getDisplayName());
         Log.d("Name PHOTO ", "" + auth.getCurrentUser().getPhotoUrl());
         Log.d("Name getEmail", "" + auth.getCurrentUser().getEmail());
+        Log.d("User token: ", "" +   firebaseInstanceId.getToken().toString() );
+        Log.d("User token: ", "" +   auth.getCurrentUser().getUid() );
 
     }
 
     private void addUserToDatabase() {
-        User newUser = new User(auth.getCurrentUser().getUid(),auth.getCurrentUser().getDisplayName(), auth.getCurrentUser().getPhotoUrl().toString(), null, null);
+        User newUser = new User(auth.getCurrentUser().getUid(),auth.getCurrentUser().getDisplayName(), auth.getCurrentUser().getPhotoUrl().toString(), null, null, firebaseInstanceId.getToken().toString());
 
         service.addUser(newUser).enqueue(new Callback<RestUsers>() {
             @Override
@@ -244,13 +246,21 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
                 //return Frag_Profile.newInstance(null,null);
                 return Fragment_Profile.newInstance(auth.getCurrentUser().getUid(),null);
             }
+            if(position == 3){
+                //return Frag_Profile.newInstance(null,null);
+                return Fragment_Friends_List.newInstance();
+            }
+   /*         if(position == 3){
+                //return Frag_Profile.newInstance(null,null);
+                return Frag_Friends_List.newInstance(4);
+            }*/
             return PlaceholderFragment.newInstance(position + 1);
         }
 
         @Override
         public int getCount() {
             // Show 3 total pages.
-            return 3;
+            return 4;
         }
 
         @Override
@@ -262,6 +272,8 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
                     return "Home";
                 case 2:
                     return "Profile";
+                case 3:
+                    return "Friends";
             }
             return null;
         }

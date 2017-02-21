@@ -183,8 +183,7 @@
                 android:text="PREVIOUS EVENTS"
                 android:padding="16dp"
                 android:textSize="13dp"
-
-                />
+                android:id="@+id/lblPerviousEvents" />
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"

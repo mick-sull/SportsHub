@@ -1,5 +1,7 @@
 package com.cit.michael.sportshub.model;
 
+import android.support.annotation.Nullable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -27,12 +29,20 @@ public class User {
         @SerializedName("failed_attendances")
         @Expose
         private Integer failedAttendances;
-
-
-
-    @SerializedName("organized")
+        @SerializedName("organized")
         @Expose
         private Integer organized;
+
+
+        @SerializedName("userToken")
+        @Expose
+        private String userToken;
+
+
+        @SerializedName("status")
+        @Expose
+        @Nullable
+        private int status;
 
         /**
          * No args constructor for use in serialization
@@ -47,13 +57,14 @@ public class User {
          * @param userProfileUrl
          * @param failedAttendances
          */
-        public User(String userId, String userFullName, String userProfileUrl, Integer attendances, Integer failedAttendances) {
+        public User(String userId, String userFullName, String userProfileUrl, Integer attendances, Integer failedAttendances, String userToken) {
             super();
             this.userId = userId;
             this.userFullName = userFullName;
             this.userProfileUrl = userProfileUrl;
             this.attendances = attendances;
             this.failedAttendances = failedAttendances;
+            this.userToken = userToken;
         }
 
         public String getUserId() {
@@ -103,65 +114,24 @@ public class User {
         public void setOrganized(Integer organized) {
             this.organized = organized;
         }
-/*
 
-    private String id;
-    private String name;
-    private String phoneNumber;
-    private String email;
-    private String password;
-
-
-    public User() {
+    public String getUserToken() {
+        return userToken;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setUserToken(String userToken) {
+        this.userToken = userToken;
     }
 
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    @Nullable
+    public int getStatus() {
+        return status;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setStatus(@Nullable int status) {
+        this.status = status;
     }
 
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-*/
-
-/*    public void saveUser() {
-        //Add YOUR Firebase Reference URL instead of the following URL
-        Firebase myFirebaseRef = new Firebase("https://androidbashfirebase.firebaseio.com/");
-        myFirebaseRef = myFirebaseRef.child("users").child(getId());
-        myFirebaseRef.setValue(this);
-    }*/
 }

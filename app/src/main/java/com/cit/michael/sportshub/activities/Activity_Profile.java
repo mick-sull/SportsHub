@@ -18,7 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cit.michael.sportshub.R;
-import com.cit.michael.sportshub.RecyclerItemClickListener;
+import com.cit.michael.sportshub.adapter.RecyclerItemClickListener;
 import com.cit.michael.sportshub.adapter.Profile_Events_Attended_Adapter;
 import com.cit.michael.sportshub.model.Event;
 import com.cit.michael.sportshub.model.Location;
@@ -49,6 +49,7 @@ public class Activity_Profile extends AppCompatActivity {
     @BindView(R.id.txtPlayedProfile) TextView txtPlayedProfile;
     @BindView(R.id.txtReliability) TextView txtReliability;
     @BindView(R.id.txtUsernameProfile) TextView txtUsernameProfile;
+    @BindView(R.id.lblPerviousEvents) TextView lblPerviousEvents;
 
 
     Context ctx;
@@ -87,7 +88,8 @@ public class Activity_Profile extends AppCompatActivity {
                 listLocaton = response.body().getLocation();
                 user = response.body().getUser();
                 if(listEvents.isEmpty()){
-                    Toast.makeText(ctx, "No Previous Events...", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(ctx, "No Previous Events...", Toast.LENGTH_SHORT).show();
+                    lblPerviousEvents.setText("NO PREVIOUS EVENTS");
                 }
                 else{
                     displayEvents();

@@ -45,8 +45,11 @@ public interface NetworkService {
     @POST("users/new")
     Call<RestUsers> addUser(@Body User user);
 
-    @GET("profile/{user_id}")
+    @GET("user/{user_id}")
     Call<RestProfile> getUser(@Query("user_id") String userID);
+
+    @GET("user/friends/{user_id}")
+    Call<RestUsers> getUserFriends(@Query("user_id") String userID);
 
 
 

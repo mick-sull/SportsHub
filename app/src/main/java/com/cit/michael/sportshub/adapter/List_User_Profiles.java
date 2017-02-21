@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,10 +19,10 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 /**
- * Created by micha on 10/02/2017.
+ * Created by micha on 21/02/2017.
  */
 
-public class ProfileListView extends BaseAdapter {
+public class List_User_Profiles  extends BaseAdapter {
     Context context;
 
     List<User> users;
@@ -31,7 +32,7 @@ public class ProfileListView extends BaseAdapter {
 
 
 
-    public ProfileListView(Context context, List<User> users) {
+    public List_User_Profiles(Context context, List<User> users) {
         this.context = context;
         this.users = users;
     }
@@ -65,14 +66,15 @@ public class ProfileListView extends BaseAdapter {
 
         if (convertView == null){
             LayoutInflater layoutInflater = (LayoutInflater)context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-            convertView = layoutInflater.inflate(R.layout.profile_list,null);
+            convertView = layoutInflater.inflate(R.layout.list_profile_list,null);
 
             viewHolder = new ViewHolder();
 
             viewHolder.image = (ImageView)convertView.findViewById(R.id.image);
-            viewHolder.title = (TextView)convertView.findViewById(R.id.title);
-            viewHolder.totalAttedances = (TextView)convertView.findViewById(R.id.description);
-            viewHolder.faileAttedances = (TextView)convertView.findViewById(R.id.date);
+            viewHolder.title = (TextView)convertView.findViewById(R.id.lblUserFullname);
+            viewHolder.totalAttedances = (TextView)convertView.findViewById(R.id.lblNoAttendences);
+            viewHolder.faileAttedances = (TextView)convertView.findViewById(R.id.lblFaileAttendences);
+            viewHolder.btnUnfriend = (Button) convertView.findViewById(R.id.btnUnfriend);
 
 
 
@@ -108,6 +110,7 @@ public class ProfileListView extends BaseAdapter {
         TextView title;
         TextView totalAttedances;
         TextView faileAttedances;
+        Button btnUnfriend;
 
 
     }

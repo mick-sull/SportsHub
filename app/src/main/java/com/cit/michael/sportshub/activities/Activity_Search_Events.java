@@ -1,5 +1,5 @@
 
-package com.cit.michael.sportshub;
+package com.cit.michael.sportshub.activities;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cit.michael.sportshub.R;
 import com.cit.michael.sportshub.model.Event;
 import com.cit.michael.sportshub.model.Location;
 import com.cit.michael.sportshub.model.Search;

@@ -218,9 +218,6 @@ public class Activity_Event_Details extends AppCompatActivity  {
                 ProfileViewFragment editNameDialogFragment = new ProfileViewFragment(listUserAttending.get(position).getUserProfileUrl(), listUserAttending.get(position).getUserId());
                 editNameDialogFragment.show(fm, "test");
 
-
-
-
 /*                LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
                 View dialogLayout = inflater.inflate(R.layout.profile_dialog, null);
                 AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());

@@ -10,7 +10,7 @@
     android:orientation="vertical"
     android:background="#f2f2f2"
     android:fitsSystemWindows="true"
-    tools:context="com.cit.michael.sportshub.Activity_Search_Events">
+    tools:context="com.cit.michael.sportshub.activities.Activity_Search_Events">
 
 
     <LinearLayout

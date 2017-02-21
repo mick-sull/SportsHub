@@ -1,4 +1,4 @@
-package com.cit.michael.sportshub;
+package com.cit.michael.sportshub.adapter;
 
 /**
  * Created by micha on 01/02/2017.

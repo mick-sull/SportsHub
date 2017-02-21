@@ -12,10 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cit.michael.sportshub.R;
-import com.cit.michael.sportshub.RecyclerItemClickListener;
+import com.cit.michael.sportshub.adapter.RecyclerItemClickListener;
 import com.cit.michael.sportshub.adapter.Profile_Events_Attended_Adapter;
 import com.cit.michael.sportshub.model.Event;
 import com.cit.michael.sportshub.model.Location;
@@ -24,6 +23,7 @@ import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
 import com.cit.michael.sportshub.rest.model.RestProfile;
 import com.cit.michael.sportshub.ui.CircleTransform;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
@@ -58,12 +58,14 @@ public class Fragment_Profile extends Fragment {
     @BindView(R.id.txtPlayedProfile) TextView txtPlayedProfile;
     @BindView(R.id.txtReliability) TextView txtReliability;
     @BindView(R.id.txtUsernameProfile) TextView txtUsernameProfile;
+    @BindView(R.id.lblPerviousEvents) TextView lblPerviousEvents;
 
     //Context ctx;
     NetworkService service;
     List<Event> listEvents;
     List<Location> listLocaton;
     List<User>  user;
+    private FirebaseAuth auth;
 
     // TODO: Rename and change types of parameters
     private String userID;
@@ -106,13 +108,14 @@ public class Fragment_Profile extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         // Setup any handles to view objects here
         // EditText etFoo = (EditText) view.findViewById(R.id.etFoo);
+        auth = FirebaseAuth.getInstance();
         listEvents = new ArrayList<Event>();
         listLocaton = new ArrayList<Location>();
         user = new ArrayList<User>();
         recyclerView = (RecyclerView) view.findViewById(R.id.profile_recycler_view);
         Log.d("TEST123", "Activity PROFILE");
         service = RestClient.getSportsHubApiClient();
-        service.getUser(userID).enqueue(new Callback<RestProfile>() {
+        service.getUser(auth.getCurrentUser().getUid()).enqueue(new Callback<RestProfile>() {
             @Override
             public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
                 Log.w("TEST123", "JSON: " + new Gson().toJson(response));
@@ -121,7 +124,9 @@ public class Fragment_Profile extends Fragment {
                 listLocaton = response.body().getLocation();
                 user = response.body().getUser();
                 if(listEvents.isEmpty()){
-                    Toast.makeText(getContext(), "No Previous Events...", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getContext(), "No Previous Events...", Toast.LENGTH_SHORT).show();
+                    lblPerviousEvents.setText("NO PREVIOUS EVENTS");
+
                 }
                 else{
                     displayEvents();
@@ -163,7 +168,7 @@ public class Fragment_Profile extends Fragment {
 
     private void displayUserInfo() {
         Log.d(TAG, "displayUserInfo");
-        String uri = user.get(0).getUserProfileUrl();
+        String uri = auth.getCurrentUser().getPhotoUrl().toString();
         Picasso.with(getContext())
                 .load(uri)
                 .placeholder(R.drawable.img_circle_placeholder)

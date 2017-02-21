@@ -1,4 +1,4 @@
-package com.cit.michael.sportshub;
+package com.cit.michael.sportshub.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,7 +10,8 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
-import com.cit.michael.sportshub.activities.Activity_Event_Details;
+import com.cit.michael.sportshub.R;
+import com.cit.michael.sportshub.adapter.RecyclerItemClickListener;
 import com.cit.michael.sportshub.adapter.Event_Adapter;
 import com.cit.michael.sportshub.model.Event;
 
