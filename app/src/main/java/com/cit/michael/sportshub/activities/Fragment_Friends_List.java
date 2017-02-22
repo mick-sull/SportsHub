@@ -68,27 +68,12 @@ public class Fragment_Friends_List extends Fragment {
         Log.d("FRIENDS LIST", "newInstance");
         return fragment;
     }
-/*
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-*//*        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }*//*
-    }*/
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-/*        listview = (ExpandableHeightListView) findViewById(R.id.listview);
-        profileListView = new ProfileListView(Activity_Event_Details.this, listUserAttending) {
-        };
 
-        listview.setAdapter(profileListView);
-
-        return inflater.inflate(R.layout.fragment_fragement__friends__list, container, false);*/
         View rootView = inflater.inflate(R.layout.fragment_fragement__friends__list, container, false);
         listFriends = new ArrayList<User>();
         recyclerView = (RecyclerView) rootView.findViewById(R.id.friends_list_recycler_view);

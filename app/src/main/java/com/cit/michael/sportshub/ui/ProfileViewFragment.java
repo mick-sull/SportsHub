@@ -1,6 +1,7 @@
 package com.cit.michael.sportshub.ui;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -25,6 +26,9 @@ import com.cit.michael.sportshub.rest.model.RestRelationship;
 import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -34,25 +38,33 @@ import retrofit2.Response;
  */
 
 public class ProfileViewFragment extends DialogFragment {
-    private ImageView profileImage;
+    private ImageView profileImage,friendImage, chatImage;
     private ImageButton mMessage, mAdd, viewProfile;
     private String imageUrl, uID;
     private FirebaseAuth auth;
     NetworkService service;
     User user;
+    List <Friendship>listOfFriendships;
+    public int friendshipFoundIndex = -1;
+    public String TAG = "ProfileDialog";
+    Context ctx;
+    Boolean currentlyFriends = false;
+    final int APPROVED = 1;
+    final int PENDING_REQUEST = 0;
+    final int UNFRIEND = -1;
 
 
 
-/*    public ProfileViewFragment(String imageUrl, String uID ){
+    /*    public ProfileViewFragment(String imageUrl, String uID ){
         this.imageUrl = imageUrl;
         this.uID = uID;
     }*/
-    public ProfileViewFragment(User user ){
+    public ProfileViewFragment(User user, Context ctx ){
         //this.imageUrl = imageUrl;
         this.user = user;
         this.imageUrl = user.getUserProfileUrl();
         this.uID = user.getUserId();
-
+        this.ctx = ctx;
     }
 
 
@@ -70,7 +82,48 @@ public class ProfileViewFragment extends DialogFragment {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         profileImage = (ImageView)dialog.findViewById(R.id.imgDialogUserProfile);
+        friendImage = (ImageView)dialog.findViewById(R.id.imgBtnAddUser);
+        chatImage = (ImageView)dialog.findViewById(R.id.imgBtnMessage);
         Picasso.with(getContext()).load(imageUrl).placeholder(R.drawable.img_circle_placeholder).resize(300,300).transform(new CircleTransform()).into(profileImage);
+
+        listOfFriendships = new ArrayList<Friendship>();
+
+        if(auth.getCurrentUser().getUid().equals(user.getUserId())){
+            friendImage.setEnabled(false);
+            friendImage.setImageDrawable(null);
+            chatImage.setImageDrawable(null);
+            chatImage.setEnabled(false);
+        }
+
+        service.getFriendshipStatus(auth.getCurrentUser().getUid()).enqueue(new Callback<RestRelationship>() {
+            @Override
+            public void onResponse(Call<RestRelationship> call, Response<RestRelationship> response) {
+                listOfFriendships = response.body().getFriendship();
+                Log.d(TAG, "listOfFriendships size " + listOfFriendships.size());
+
+                if(!listOfFriendships.isEmpty()) {
+                    Log.d(TAG, "!listOfFriendships.isEmpty()");
+                    for (int i = 0; i < listOfFriendships.size(); i++) {
+                        Log.d(TAG, "FOR LOOP: 1: " + listOfFriendships.get(i).getUserId() + " - " + user.getUserId()  + " 2: " +  listOfFriendships.get(i).getUser_two_id() + " - " + user.getUserId());
+                        if (listOfFriendships.get(i).getUserId().equals(user.getUserId()) || listOfFriendships.get(i).getUser_two_id().equals(user.getUserId())) {
+                            friendshipFoundIndex = i;
+                            Log.d(TAG, "Friendship found at index " + i);
+                            if(listOfFriendships.get(i).getStatus() == APPROVED){
+                                friendImage.setImageResource(R.drawable.ic_remove_friend);
+                                currentlyFriends= true;
+
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<RestRelationship> call, Throwable t) {
+
+            }
+        });
 
 
         dialog.findViewById(R.id.imgBtnMessage).setOnClickListener(new OnClickListener() {
@@ -100,19 +153,8 @@ public class ProfileViewFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 dismiss();
-                Toast.makeText(getContext(), "Friend Request Sent...", Toast.LENGTH_SHORT).show();
-                Friendship friendship = new Friendship(auth.getCurrentUser().getUid(), uID, 0, auth.getCurrentUser().getUid());
-                service.sendFriendRequest(friendship).enqueue(new Callback<RestRelationship>() {
-                    @Override
-                    public void onResponse(Call<RestRelationship> call, Response<RestRelationship> response) {
-                       // Toast.makeText(getContext(), ""+ response.body().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onFailure(Call<RestRelationship> call, Throwable t) {
-
-                    }
-                });
+                //Toast.makeText(getContext(), "Friend Request Sent...", Toast.LENGTH_SHORT).show();
+                doFriendships();
 
             }
 
@@ -120,6 +162,63 @@ public class ProfileViewFragment extends DialogFragment {
         
         return dialog;
 
+    }
+
+    private void doFriendships() {
+        if (!currentlyFriends) {
+            Friendship friendship = new Friendship(auth.getCurrentUser().getUid(), uID, PENDING_REQUEST, auth.getCurrentUser().getUid());
+            Log.d(TAG, "User Selected:  " + user.getUserFullName() + " ID: " + user.getUserId());
+            if (friendshipFoundIndex < 0) {
+                service.sendFriendRequest(friendship).enqueue(new Callback<RestRelationship>() {
+                    @Override
+                    public void onResponse(Call<RestRelationship> call, Response<RestRelationship> response) {
+                        Toast.makeText(ctx, "Friend request sent...", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "Friendship created.friendshipFoundIndex: " + friendshipFoundIndex);
+                    }
+
+                    @Override
+                    public void onFailure(Call<RestRelationship> call, Throwable t) {
+
+                    }
+                });
+            } else {//There is a friendship found between these two users.
+                Log.d(TAG, "There is a friendship found between these two users");
+                if (auth.getCurrentUser().getUid().equals(listOfFriendships.get(friendshipFoundIndex).getAction_user_id())) {
+                    //Dont do anything as this user has already sent the request.
+                    Toast.makeText(ctx, "Friend request already sent...", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.d(TAG, "Updating Friendship");
+                    listOfFriendships.get(friendshipFoundIndex).setAction_user_id(auth.getCurrentUser().getUid());
+                    listOfFriendships.get(friendshipFoundIndex).setStatus(APPROVED);
+                    service.friendRequestResponse(listOfFriendships.get(friendshipFoundIndex)).enqueue(new Callback<RestRelationship>() {
+                        @Override
+                        public void onResponse(Call<RestRelationship> call, Response<RestRelationship> response) {
+                            Toast.makeText(ctx, "Now friends with " + user.getUserFullName(), Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onFailure(Call<RestRelationship> call, Throwable t) {
+
+                        }
+                    });
+                }
+            }
+        }
+        else{//Unfriend user
+            listOfFriendships.get(friendshipFoundIndex).setAction_user_id(auth.getCurrentUser().getUid());
+            listOfFriendships.get(friendshipFoundIndex).setStatus(UNFRIEND);
+            service.friendRequestResponse(listOfFriendships.get(friendshipFoundIndex)).enqueue(new Callback<RestRelationship>() {
+                @Override
+                public void onResponse(Call<RestRelationship> call, Response<RestRelationship> response) {
+                    Toast.makeText(ctx, "Unfriended " + user.getUserFullName(), Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFailure(Call<RestRelationship> call, Throwable t) {
+
+                }
+            });
+         }
     }
 
 }

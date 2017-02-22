@@ -56,6 +56,11 @@ public interface NetworkService {
     @POST("user/friends/request")
     Call<RestRelationship> sendFriendRequest (@Body Friendship friendship);
 
+    @GET("user/friends/friendshipStatus/{user_id}")
+    Call<RestRelationship> getFriendshipStatus(@Query("user_id") String userID);
+
+    @POST("user/friends/response")
+    Call<RestRelationship> friendRequestResponse (@Body Friendship friendship);
 
 
     //Location

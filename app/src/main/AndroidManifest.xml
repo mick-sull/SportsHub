@@ -95,13 +95,17 @@
             android:name=".activities.MapsActivity"
             android:label="@string/title_activity_maps" />
         <activity android:name=".activities.Activity_Profile" />
-        <activity android:name=".chat.ui.Activity_Chat"></activity>
-<!--        <service
-            android:name=".MyFirebaseMessagingService">
+        <activity android:name=".chat.ui.Activity_Chat" />
+
+        <service android:name=".FCM.MyFirebaseInstanceIDService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
-        </service>-->
+        </service>
+        <service
+            android:name=".FCM.MyFirebaseMessagingService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

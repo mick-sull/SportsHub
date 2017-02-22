@@ -221,7 +221,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:id="@+id/txtEventSearchFinish"
-                android:onClick="btnTime"
                 android:textSize="14sp"
                 android:layout_below="@+id/txtEventDate"
                 android:layout_alignStart="@+id/txtEventDate"

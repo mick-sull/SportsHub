@@ -1,6 +1,7 @@
 package com.cit.michael.sportshub.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,7 +31,7 @@ public class User_Friends_Adapter extends RecyclerView.Adapter<User_Friends_Adap
     public class UserViewHolder extends RecyclerView.ViewHolder {
         ImageView image;
         TextView title,totalAttedances, faileAttedances;
-        Button btnUnfriend;
+        public Button btnUnfriend;
 
 
         public UserViewHolder(View v) {
@@ -62,6 +63,10 @@ public class User_Friends_Adapter extends RecyclerView.Adapter<User_Friends_Adap
     public void onBindViewHolder(User_Friends_Adapter.UserViewHolder holder, int position) {
         holder.title.setText(users.get(position).getUserFullName());
         Picasso.with(context).load(users.get(position).getUserProfileUrl()).placeholder(R.drawable.img_circle_placeholder).resize(100,100).transform(new CircleTransform()).into(holder.image);
+        if(users.get(position).getStatus() == 0){
+            holder.btnUnfriend.setText("PENDING");
+            holder.btnUnfriend.setTextColor(Color.parseColor("#ff1a1a"));
+        }
 
     }
 
