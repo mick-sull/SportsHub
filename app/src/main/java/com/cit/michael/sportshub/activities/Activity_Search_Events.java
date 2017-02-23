@@ -120,7 +120,6 @@ public class Activity_Search_Events extends AppCompatActivity {
         service.searchEvent(nSearch).enqueue(new Callback<RestEvent>(){
             @Override
             public void onResponse(Call<RestEvent> call, Response<RestEvent> response) {
-                Toast.makeText(Activity_Search_Events.this, "" + response.body().getMessage() , Toast.LENGTH_SHORT).show();
                 List<Event> result = response.body().getEvent();
                 for(int i = 0; i < result.size(); i++){
                     Log.d("EVENT: ", "ID: " + result.get(i).getEventId());
@@ -148,44 +147,52 @@ public class Activity_Search_Events extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_item);
 //        Log.d("ERR", "List of location size: " + listOfLocations.size());
         if(listOfLocations.isEmpty()){
-            Toast.makeText(Activity_Search_Events.this, "Error: Couldnt not retrieve data...", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(Activity_Search_Events.this, "Error: Couldnt not retrieve data...", Toast.LENGTH_SHORT).show();
+            getLocationData();
         }
         else {
             for (int i = 0; i < listOfLocations.size(); i++) {
                 adapter.add(listOfLocations.get(i).getLocationName());
             }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder( new ContextThemeWrapper(this, android.R.style.Theme_Holo_Light));
+            builder.setTitle("Locations");
+            builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int item) {
+                    txtDisplayLocation.setText(listOfLocations.get(item).getLocationName());
+                    selectedLocationId = listOfLocations.get(item).getLocationId();
+                }
+            });
+            builder.show();
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder( new ContextThemeWrapper(this, android.R.style.Theme_Holo_Light));
-        builder.setTitle("Locations");
-        builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int item) {
-                txtDisplayLocation.setText(listOfLocations.get(item).getLocationName());
-                selectedLocationId = listOfLocations.get(item).getLocationId();
-            }
-        });
-        builder.show();
     }
     private void dialogChooseSport() {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_item);
-        for(int i = 0; i< listOfSports.size(); i++){
-            adapter.add(listOfSports.get(i).getSportName());
+        if(listOfSports.isEmpty()){
+            getSportData();
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder( new ContextThemeWrapper(this, android.R.style.Theme_Holo_Light));
-        builder.setTitle("Sports");
-        builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int item) {
-                txtSearchSport.setText(listOfSports.get(item).getSportName());
-                selectedSportId = listOfSports.get(item).getSportId();
+        else {
+            for (int i = 0; i < listOfSports.size(); i++) {
+                adapter.add(listOfSports.get(i).getSportName());
             }
-        });
-        builder.show();
+
+            AlertDialog.Builder builder = new AlertDialog.Builder( new ContextThemeWrapper(this, android.R.style.Theme_Holo_Light));
+            builder.setTitle("Sports");
+            builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int item) {
+                    txtSearchSport.setText(listOfSports.get(item).getSportName());
+                    selectedSportId = listOfSports.get(item).getSportId();
+                }
+            });
+            builder.show();
+        }
     }
     private void getLocationData() {
         service.getLocation().enqueue(new Callback<RestLocation>() {
             @Override
             public void onResponse(Call<RestLocation> call, Response<RestLocation> response) {
-                if(response.body().getError()){
-                    Toast.makeText(Activity_Search_Events.this, "Error: Couldnt not retrieve data...", Toast.LENGTH_SHORT).show();
+                if(response.body().getLocation().isEmpty()){
+                    Toast.makeText(Activity_Search_Events.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
                 }
                 else{
                     listOfLocations = response.body().getLocation();
@@ -194,7 +201,7 @@ public class Activity_Search_Events extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<RestLocation> call, Throwable t) {
-
+                Toast.makeText(Activity_Search_Events.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -204,7 +211,7 @@ public class Activity_Search_Events extends AppCompatActivity {
             @Override
             public void onResponse(Call<RestSport> call, Response<RestSport> response) {
                 if(response.body().getError()){
-                    Toast.makeText(Activity_Search_Events.this, "Error: Couldnt not retrieve data...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Activity_Search_Events.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
                 }
                 else{
                     listOfSports = response.body().getSport();
@@ -212,7 +219,7 @@ public class Activity_Search_Events extends AppCompatActivity {
             }
             @Override
             public void onFailure(Call<RestSport> call, Throwable t) {
-
+                Toast.makeText(Activity_Search_Events.this, "Error: Couldnt  retrieve data...", Toast.LENGTH_SHORT).show();
             }
         });
     }

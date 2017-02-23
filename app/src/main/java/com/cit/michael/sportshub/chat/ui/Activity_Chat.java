@@ -2,7 +2,6 @@ package com.cit.michael.sportshub.chat.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,7 +17,6 @@ import com.cit.michael.sportshub.chat.FcmNotificationBuilder;
 import com.cit.michael.sportshub.chat.adapter.ChatFirebaseAdapter;
 import com.cit.michael.sportshub.chat.adapter.ChatRecyclerAdapter;
 import com.cit.michael.sportshub.chat.model.Chat;
-import com.cit.michael.sportshub.chat.model.UserModel;
 import com.cit.michael.sportshub.chat.util.Util;
 import com.cit.michael.sportshub.model.User;
 import com.google.android.gms.common.ConnectionResult;
@@ -35,7 +33,6 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Calendar;
 
 import hani.momanii.supernova_emoji_library.Actions.EmojIconActions;
@@ -50,15 +47,11 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
     static final String TAG = Activity_Chat.class.getSimpleName();
     static final String CHAT_REFERENCE = "chatmodel";
 
-    //Firebase and GoogleApiClient
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
-    private GoogleApiClient mGoogleApiClient;
     private DatabaseReference mFirebaseDatabaseReference;
     FirebaseStorage storage = FirebaseStorage.getInstance();
 
-    //CLass Model
-    private UserModel userModel;
     public Chat chat;
     //Views UI
     private RecyclerView rvListMessage;
@@ -91,18 +84,13 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
         setContentView(R.layout.activity__chat);
         bindViews();
 
-        mId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseInstanceId = FirebaseInstanceId.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
-        userModel = new UserModel(mFirebaseUser.getDisplayName(), mFirebaseUser.getPhotoUrl().toString(), mFirebaseUser.getUid() );
-
 
         Intent intent = getIntent();
         receivingUser = intent.getParcelableExtra("receivingUser");
-        //getMessageFromFirebaseUser(mFirebaseAuth.getCurrentUser().getUid(),  receivingUser.getUserId());
-        //String userPhotoUrl = intent.getStringExtra("userPhotoUrl");
         getMessageFromFirebaseUser(mFirebaseAuth.getCurrentUser().getUid(),  receivingUser.getUserId());
 
 
@@ -115,7 +103,6 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
@@ -243,7 +230,7 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
                         @Override
                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                             Chat chat = dataSnapshot.getValue(Chat.class);
-                            //onGetMessagesSuccess(chat);
+                            onGetMessagesSuccess(chat);
                             getMessagensFirebase(room_type_2);
                         }
 
@@ -284,13 +271,18 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
 
 
 
-
+/*
     public void onGetMessagesSuccess(Chat chat) {
         if (mChatRecyclerAdapter == null) {
             mChatRecyclerAdapter = new ChatRecyclerAdapter(new ArrayList<Chat>());
             mRecyclerViewChat.setAdapter(mChatRecyclerAdapter);
         }
         mChatRecyclerAdapter.add(chat);
+        mRecyclerViewChat.smoothScrollToPosition(mChatRecyclerAdapter.getItemCount() - 1);
+    }*/
+
+    public void onGetMessagesSuccess(Chat chat) {
+        rvListMessage.add(chat);
         mRecyclerViewChat.smoothScrollToPosition(mChatRecyclerAdapter.getItemCount() - 1);
     }
 

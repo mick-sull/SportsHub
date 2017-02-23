@@ -24,7 +24,7 @@ public class NetworkConnectionUtil {
      * @param context Current context of the application
      * @return <b>true</b> if device is connected to internet, otherwise <b>false</b>
      */
-    public static boolean isConnectedToInternet(Context context) {
+    public boolean isConnectedToInternet(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnectedOrConnecting();
@@ -36,7 +36,7 @@ public class NetworkConnectionUtil {
      * @param context Current context of the application
      * @return <b>true</b> if device is connected to internet via <i>wifi</i>, otherwise <b>false</b>
      */
-    public static boolean isConnectedToWifi(Context context) {
+    public  boolean isConnectedToWifi(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null &&
@@ -50,7 +50,7 @@ public class NetworkConnectionUtil {
      * @param context Current context of the application
      * @return <b>true</b> if device is connected to internet via <i>mobile network</i>, otherwise <b>false</b>
      */
-    public static boolean isConnectedToMobileNetwork(Context context) {
+    public boolean isConnectedToMobileNetwork(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null &&
@@ -63,7 +63,7 @@ public class NetworkConnectionUtil {
      *
      * @param context Current context of the application
      */
-    public static void showNoInternetAvailableErrorDialog(final Context context) {
+    public void showNoInternetAvailableErrorDialog(final Context context) {
         new AlertDialog.Builder(context)
                 .setTitle(ERR_DIALOG_TITLE)
                 .setMessage(ERR_DIALOG_MSG)

@@ -40,10 +40,10 @@ public class ChatFirebaseAdapter extends FirebaseRecyclerAdapter<Chat,ChatFireba
     private String nameUser;
 
 
-/*    public void add(Chat chat) {
+    public void add(Chat chat) {
         mChats.add(chat);
         notifyItemInserted(mChats.size() - 1);
-    }*/
+    }
 
     public ChatFirebaseAdapter(DatabaseReference ref, String nameUser, Activity_Chat mClickListenerChatFirebase) {
         super(Chat.class, R.layout.chat_item_left, ChatFirebaseAdapter.MyChatViewHolder.class, ref);
@@ -142,8 +142,8 @@ public class ChatFirebaseAdapter extends FirebaseRecyclerAdapter<Chat,ChatFireba
 
     }
 
-    private CharSequence converteTimestamp(String mileSegundos){
-        return DateUtils.getRelativeTimeSpanString(Long.parseLong(mileSegundos),System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
+    private CharSequence converteTimestamp(String milliseconds){
+        return DateUtils.getRelativeTimeSpanString(Long.parseLong(milliseconds),System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
     }
 
 }

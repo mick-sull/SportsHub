@@ -27,6 +27,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.cit.michael.sportshub.NetworkConnectionUtil;
 import com.cit.michael.sportshub.R;
 import com.cit.michael.sportshub.model.Event;
 import com.cit.michael.sportshub.model.Location;
@@ -39,11 +40,13 @@ import com.cit.michael.sportshub.rest.model.RestSport;
 import com.google.firebase.auth.FirebaseAuth;
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
+import com.mobsandgeeks.saripaar.annotation.Max;
 import com.mobsandgeeks.saripaar.annotation.NotEmpty;
 
 import java.sql.Time;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -63,17 +66,22 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     @NotEmpty
     @BindView(R.id.txtSelectSport) TextView selectSport ;
     @BindView(R.id.btnAddSport) ImageView addNewSport;
+    @NotEmpty
     @BindView(R.id.txtDisplayLocation) TextView txtDisplayLocation;
     @BindView(R.id.txtSearchLocation) ImageView selectLocation;
     @NotEmpty
     @BindView(R.id.txtEventName) TextView txtEventName;
 
     @NotEmpty
+    @Max(1000)
     @BindView(R.id.txtEventDuration) TextView txtEventDuration;
     @NotEmpty
+    @Max(1000)
     @BindView(R.id.txtNumSpaces) TextView txtNumSpaces;
     @NotEmpty
     @BindView(R.id.btnCreate) TextView btnCreate;
+    @NotEmpty
+    @Max(1000)
     @BindView(R.id.txtEventCost) TextView txtEventCost;
     @BindView(R.id.rgEventGender) RadioGroup rgEventGender;
     @BindView(R.id.cbPublicGame) CheckBox cbPublicGame;
@@ -89,6 +97,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     public Validator validator;
     public int selectedLocationId = 0;
     public int selectedSportId = 0;
+    NetworkConnectionUtil networkConnectionUtil;
 
 /*    @BindView(R.id.txtEventDate) TextView set_date;
     @BindView(R.id.txtEventTime) TextView set_time;*/
@@ -98,11 +107,14 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
         super.onCreate(savedInstanceState);
         auth = FirebaseAuth.getInstance();
         service = RestClient.getSportsHubApiClient();
+        listOfLocations = new ArrayList<Location>();
+        listOfSports = new ArrayList<Sport>();
         setContentView(R.layout.activity_organize_event);
         set_date = (TextView) findViewById(R.id.txtEventDate);
         set_time = (TextView) findViewById(R.id.txtEventTime);
         validator = new Validator(this);
         validator.setValidationListener(this);
+        networkConnectionUtil = new NetworkConnectionUtil();
         ButterKnife.bind(this);
         getSportData();
         getLocationData();
@@ -138,22 +150,24 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_item);
 //        Log.d("ERR", "List of location size: " + listOfLocations.size());
         if(listOfLocations.isEmpty()){
-            Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt not retrieve data...", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt not retrieve data...", Toast.LENGTH_SHORT).show();
+            getLocationData();
         }
         else {
             for (int i = 0; i < listOfLocations.size(); i++) {
                 adapter.add(listOfLocations.get(i).getLocationName());
             }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder( new ContextThemeWrapper(this, android.R.style.Theme_Holo_Light));
+            builder.setTitle("Locations");
+            builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int item) {
+                    txtDisplayLocation.setText(listOfLocations.get(item).getLocationName());
+                    selectedLocationId = listOfLocations.get(item).getLocationId();
+                }
+            });
+            builder.show();
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder( new ContextThemeWrapper(this, android.R.style.Theme_Holo_Light));
-        builder.setTitle("Locations");
-        builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int item) {
-                txtDisplayLocation.setText(listOfLocations.get(item).getLocationName());
-                selectedLocationId = listOfLocations.get(item).getLocationId();
-            }
-        });
-        builder.show();
     }
 
 
@@ -215,7 +229,8 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_item);
         if(listOfSports.isEmpty()){
-            Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt not retrieve data...", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt not retrieve data...", Toast.LENGTH_SHORT).show();
+            getSportData();
         }
         else{
             for(int i = 0; i< listOfSports.size(); i++){
@@ -278,8 +293,8 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
         service.getLocation().enqueue(new Callback<RestLocation>() {
             @Override
             public void onResponse(Call<RestLocation> call, Response<RestLocation> response) {
-                if(response.body().getError()){
-                    Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt not retrieve data...", Toast.LENGTH_SHORT).show();
+                if(response.body().getLocation().isEmpty()){
+                    Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
                 }
                 else{
                     listOfLocations = response.body().getLocation();
@@ -288,6 +303,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
 
             @Override
             public void onFailure(Call<RestLocation> call, Throwable t) {
+                Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
 
             }
         });
@@ -298,7 +314,8 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
                 @Override
                 public void onResponse(Call<RestSport> call, Response<RestSport> response) {
                     if(response.body().getError()){
-                        Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt not retrieve data...", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
+
                     }
                     else{
                         listOfSports = response.body().getSport();
@@ -306,6 +323,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
                 }
                 @Override
                 public void onFailure(Call<RestSport> call, Throwable t) {
+                    Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
 
                 }
             });
