@@ -10,7 +10,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -72,8 +71,8 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         auth = FirebaseAuth.getInstance();
         service = RestClient.getSportsHubApiClient();
         FacebookSdk.sdkInitialize(getApplicationContext());
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+/*        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);*/
         mFirebaseInstanceId = FirebaseInstanceId.getInstance();
 
         String newUser = getIntent().getStringExtra("user");

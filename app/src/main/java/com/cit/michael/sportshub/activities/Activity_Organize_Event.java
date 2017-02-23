@@ -339,6 +339,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
             @Override
             public void onResponse(Call<RestEvent> call, Response<RestEvent> response) {
                 Toast.makeText(Activity_Organize_Event.this, "" + response.body().getMessage() , Toast.LENGTH_SHORT).show();
+                finish();
             }
 
             @Override

@@ -10,10 +10,12 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.cit.michael.sportshub.R;
-import com.cit.michael.sportshub.chat.model.ChatModel;
+import com.cit.michael.sportshub.chat.model.Chat;
 import com.cit.michael.sportshub.chat.ui.Activity_Chat;
 import com.cit.michael.sportshub.ui.CircleTransform;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.squareup.picasso.Picasso;
 
@@ -23,12 +25,15 @@ import hani.momanii.supernova_emoji_library.Helper.EmojiconTextView;
  * Created by micha on 16/02/2017.
  */
 
-public class ChatFirebaseAdapter extends FirebaseRecyclerAdapter<ChatModel,ChatFirebaseAdapter.MyChatViewHolder> {
+public class ChatFirebaseAdapter extends FirebaseRecyclerAdapter<Chat,ChatFirebaseAdapter.MyChatViewHolder> {
 
     private static final int RIGHT_MSG = 0;
     private static final int LEFT_MSG = 1;
     private static final int RIGHT_MSG_IMG = 2;
     private static final int LEFT_MSG_IMG = 3;
+    private FirebaseUser mFirebaseUser;
+    private FirebaseAuth mFirebaseAuth;
+
 
     private ClickListenerChatFirebase mClickListenerChatFirebase;
 
@@ -37,8 +42,10 @@ public class ChatFirebaseAdapter extends FirebaseRecyclerAdapter<ChatModel,ChatF
 
 
     public ChatFirebaseAdapter(DatabaseReference ref, String nameUser, Activity_Chat mClickListenerChatFirebase) {
-        super(ChatModel.class, R.layout.chat_item_left, ChatFirebaseAdapter.MyChatViewHolder.class, ref);
+        super(Chat.class, R.layout.chat_item_left, ChatFirebaseAdapter.MyChatViewHolder.class, ref);
         this.nameUser = nameUser;
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseUser = mFirebaseAuth.getCurrentUser();
         //this.mClickListenerChatFirebase = mClickListenerChatFirebase;
     }
 
@@ -56,20 +63,8 @@ public class ChatFirebaseAdapter extends FirebaseRecyclerAdapter<ChatModel,ChatF
 
     @Override
     public int getItemViewType(int position) {
-        ChatModel model = getItem(position);
-        if (model.getMapModel() != null){
-            if (model.getUserModel().getName().equals(nameUser)){
-                return RIGHT_MSG_IMG;
-            }else{
-                return LEFT_MSG_IMG;
-            }
-        }else if (model.getFile() != null){
-            if (model.getFile().getType().equals("img") && model.getUserModel().getName().equals(nameUser)){
-                return RIGHT_MSG_IMG;
-            }else{
-                return LEFT_MSG_IMG;
-            }
-        }else if (model.getUserModel().getName().equals(nameUser)){
+        Chat model = getItem(position);
+        if (model.senderUid.equals(mFirebaseUser.getUid())){
             return RIGHT_MSG;
         }else{
             return LEFT_MSG;
@@ -77,18 +72,11 @@ public class ChatFirebaseAdapter extends FirebaseRecyclerAdapter<ChatModel,ChatF
     }
 
     @Override
-    protected void populateViewHolder(MyChatViewHolder viewHolder, ChatModel model, int position) {
-        viewHolder.setIvUser(model.getUserModel().getPhoto_profile());
+    protected void populateViewHolder(MyChatViewHolder viewHolder, Chat model, int position) {
+        viewHolder.setIvUser(model.getProfilePictureUrl());
         viewHolder.setTxtMessage(model.getMessage());
-        viewHolder.setTvTimestamp(model.getTimeStamp());
+        viewHolder.setTvTimestamp(model.getTimestamp());
         viewHolder.tvIsLocation(View.GONE);
-        if (model.getFile() != null){
-            viewHolder.tvIsLocation(View.GONE);
-            viewHolder.setIvChatPhoto(model.getFile().getUrl_file());
-        }else if(model.getMapModel() != null){
-            //viewHolder.setIvChatPhoto(alessandro.firebaseandroid.util.Util.local(model.getMapModel().getLatitude(),model.getMapModel().getLongitude()));
-            viewHolder.tvIsLocation(View.VISIBLE);
-        }
     }
 
     public class MyChatViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -109,12 +97,12 @@ public class ChatFirebaseAdapter extends FirebaseRecyclerAdapter<ChatModel,ChatF
         @Override
         public void onClick(View view) {
             int position = getAdapterPosition();
-            ChatModel model = getItem(position);
-            if (model.getMapModel() != null){
+            Chat model = getItem(position);
+/*            if (model.getMapModel() != null){
                 mClickListenerChatFirebase.clickImageMapChat(view,position,model.getMapModel().getLatitude(),model.getMapModel().getLongitude());
             }else{
                 mClickListenerChatFirebase.clickImageChat(view,position,model.getUserModel().getName(),model.getUserModel().getPhoto_profile(),model.getFile().getUrl_file());
-            }
+            }*/
         }
 
         public void setTxtMessage(String message){

@@ -138,7 +138,7 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
         //mFirebaseDatabaseReference.child(CHAT_REFERENCE).push().setValue(model);
         //mFirebaseDatabaseReference.child(mId).push().setValue(model);
         //edMessage.setText(null);
-        chat = new Chat(mFirebaseUser.getDisplayName(),receivingUser.getUserFullName(),mFirebaseUser.getUid(), receivingUser.getUserId(),edMessage.getText().toString(), Calendar.getInstance().getTime().getTime()+"" );
+        chat = new Chat(mFirebaseUser.getDisplayName(),receivingUser.getUserFullName(),mFirebaseUser.getUid(), receivingUser.getUserId(),edMessage.getText().toString(), Calendar.getInstance().getTime().getTime()+"", mFirebaseUser.getPhotoUrl().toString());
         final String room_type_1 = mFirebaseAuth.getCurrentUser().getUid() + "_" + receivingUser.getUserId();
         final String room_type_2 = receivingUser.getUserId() + "_" + mFirebaseAuth.getCurrentUser().getUid();
         //mFirebaseDatabaseReference.child(CHAT_REFERENCE).push().setValue(model);
@@ -308,7 +308,7 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
      */
     private void getMessagensFirebase(String childID){
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
-        final ChatFirebaseAdapter firebaseAdapter = new ChatFirebaseAdapter(mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(childID),userModel.getName(), this);
+        final ChatFirebaseAdapter firebaseAdapter = new ChatFirebaseAdapter(mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(childID),mFirebaseUser.getDisplayName(), this);
         //final ChatFirebaseAdapter firebaseAdapter = new ChatFirebaseAdapter(mFirebaseDatabaseReference.child(CHAT_REFERENCE),userModel.getName(), this);
         firebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
