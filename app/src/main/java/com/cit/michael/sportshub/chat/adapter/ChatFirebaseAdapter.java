@@ -40,6 +40,10 @@ public class ChatFirebaseAdapter extends FirebaseRecyclerAdapter<Chat,ChatFireba
     private String nameUser;
 
 
+/*    public void add(Chat chat) {
+        mChats.add(chat);
+        notifyItemInserted(mChats.size() - 1);
+    }*/
 
     public ChatFirebaseAdapter(DatabaseReference ref, String nameUser, Activity_Chat mClickListenerChatFirebase) {
         super(Chat.class, R.layout.chat_item_left, ChatFirebaseAdapter.MyChatViewHolder.class, ref);

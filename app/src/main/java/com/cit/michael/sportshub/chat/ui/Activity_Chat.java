@@ -101,8 +101,9 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
 
         Intent intent = getIntent();
         receivingUser = intent.getParcelableExtra("receivingUser");
-        getMessageFromFirebaseUser(mFirebaseAuth.getCurrentUser().getUid(),  receivingUser.getUserId());
+        //getMessageFromFirebaseUser(mFirebaseAuth.getCurrentUser().getUid(),  receivingUser.getUserId());
         //String userPhotoUrl = intent.getStringExtra("userPhotoUrl");
+        getMessageFromFirebaseUser(mFirebaseAuth.getCurrentUser().getUid(),  receivingUser.getUserId());
 
 
         }
@@ -325,6 +326,7 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
         });
         rvListMessage.setLayoutManager(mLinearLayoutManager);
         rvListMessage.setAdapter(firebaseAdapter);
+
     }
 
 
