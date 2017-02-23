@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.cit.michael.sportshub.R;
 import com.cit.michael.sportshub.activities.Activity_Profile;
+import com.cit.michael.sportshub.chat.ui.Activity_Chat;
 import com.cit.michael.sportshub.model.Friendship;
 import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.NetworkService;
@@ -130,7 +131,11 @@ public class ProfileViewFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 dismiss();
-                Toast.makeText(getContext(), "Send Message to", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getContext(), "Send Message to", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getContext(),Activity_Chat.class);
+                //intent.putParcelableArrayListExtra("searchResults", (ArrayList<? extends Parcelable>) user);
+                intent.putExtra("receivingUser",  user);
+                startActivity(intent);
             }
 
         });

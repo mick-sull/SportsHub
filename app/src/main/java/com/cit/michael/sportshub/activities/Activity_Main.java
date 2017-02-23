@@ -63,7 +63,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
     private FirebaseAuth auth;
     String newUser;
     NetworkService service;
-    FirebaseInstanceId firebaseInstanceId;
+    FirebaseInstanceId mFirebaseInstanceId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +74,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         FacebookSdk.sdkInitialize(getApplicationContext());
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        firebaseInstanceId = FirebaseInstanceId.getInstance();
+        mFirebaseInstanceId = FirebaseInstanceId.getInstance();
 
         String newUser = getIntent().getStringExtra("user");
 
@@ -99,13 +99,13 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         Log.d("Name ", "" + auth.getCurrentUser().getDisplayName());
         Log.d("Name PHOTO ", "" + auth.getCurrentUser().getPhotoUrl());
         Log.d("Name getEmail", "" + auth.getCurrentUser().getEmail());
-        Log.d("User token: ", "" +   firebaseInstanceId.getToken().toString() );
+        Log.d("User token: ", "" +   mFirebaseInstanceId.getToken().toString() );
         Log.d("User token: ", "" +   auth.getCurrentUser().getUid() );
 
     }
 
     private void addUserToDatabase() {
-        User newUser = new User(auth.getCurrentUser().getUid(),auth.getCurrentUser().getDisplayName(), auth.getCurrentUser().getPhotoUrl().toString(), null, null, firebaseInstanceId.getToken().toString());
+        User newUser = new User(auth.getCurrentUser().getUid(),auth.getCurrentUser().getDisplayName(), auth.getCurrentUser().getPhotoUrl().toString(), null, null, mFirebaseInstanceId.getToken().toString());
 
         service.addUser(newUser).enqueue(new Callback<RestUsers>() {
             @Override
