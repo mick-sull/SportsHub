@@ -1,5 +1,6 @@
 package com.cit.michael.sportshub.chat.ui;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -33,6 +34,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import hani.momanii.supernova_emoji_library.Actions.EmojIconActions;
@@ -72,6 +74,9 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
     public static final String ARG_UID = "uid";
     private ChatRecyclerAdapter mChatRecyclerAdapter;
     private RecyclerView mRecyclerViewChat;
+    public ChatFirebaseAdapter firebaseAdapter;
+    ProgressDialog dialog;
+
 
 
 
@@ -91,8 +96,13 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
 
         Intent intent = getIntent();
         receivingUser = intent.getParcelableExtra("receivingUser");
-        getMessageFromFirebaseUser(mFirebaseAuth.getCurrentUser().getUid(),  receivingUser.getUserId());
+/*        if (firebaseAdapter == null) {
+            firebaseAdapter = new ChatFirebaseAdapter((ArrayList<Chat>) chatList);
+            rvListMessage.setLayoutManager(mLinearLayoutManager);
+            rvListMessage.setAdapter(firebaseAdapter);
+        }*/
 
+        getMessageFromFirebaseUser(mFirebaseAuth.getCurrentUser().getUid(),  receivingUser.getUserId());
 
         }
 
@@ -113,11 +123,7 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
-            case R.id.buttonMessage:
-                sendMessageFirebase();
-                break;
-        }
+        sendMessageFirebase();
     }
 
 
@@ -135,22 +141,30 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.hasChild(room_type_1)) {
-                    Log.e(TAG, "sendMessageToFirebaseUser: " + room_type_1 + " exists");
+                    Log.d("ActChat", "sendMessageToFirebaseUser: " + room_type_1 + " exists");
                     mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(room_type_1).child(String.valueOf(chat.timestamp)).setValue(chat);
+                    //onGetMessagesSuccess(room_type_1);
+                    //onGetMessagesSuccess(chat);
                 } else if (dataSnapshot.hasChild(room_type_2)) {
-                    Log.e(TAG, "sendMessageToFirebaseUser: " + room_type_2 + " exists");
+                    Log.d("ActChat",  "sendMessageToFirebaseUser: " + room_type_2 + " exists");
                     mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(room_type_2).child(String.valueOf(chat.timestamp)).setValue(chat);
+                    //onGetMessagesSuccess(room_type_2);
+                    //onGetMessagesSuccess(chat);
                 } else {
-                    Log.e(TAG, "sendMessageToFirebaseUser: success");
+                    Log.d("ActChat",  "sendMessageToFirebaseUser else: success");
                     mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(room_type_1).child(String.valueOf(chat.timestamp)).setValue(chat);
+                    //onGetMessagesSuccess(room_type_1);
+                    //onGetMessagesSuccess(chat);
                 }
-                getMessageFromFirebaseUser(mFirebaseAuth.getCurrentUser().getUid(),  receivingUser.getUserId());
+                //getMessageFromFirebaseUser(mFirebaseAuth.getCurrentUser().getUid(),  receivingUser.getUserId());
+
+
                 edMessage.setText(null);
                 // send push notification to the receiver
                 sendPushNotificationToReceiver(mFirebaseUser.getDisplayName(),
                         edMessage.getText().toString(),
                         mFirebaseUser.getUid(),
-                        mFirebaseInstanceId.getToken().toString(),
+                        mFirebaseInstanceId.getToken(),
                         receivingUser.getUserToken());
             }
 
@@ -179,26 +193,40 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
     }
 
 
+
+
     public void getMessageFromFirebaseUser(String senderUid, String receiverUid) {
         final String room_type_1 = senderUid + "_" + receiverUid;
         final String room_type_2 = receiverUid + "_" + senderUid;
 
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
 
+        dialog = new ProgressDialog(this);
+        dialog.setMessage("Loading....");
+        dialog.show();
+
         databaseReference.child(ARG_CHAT_ROOMS).getRef().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.hasChild(room_type_1)) {
                     Log.e(TAG, "getMessageFromFirebaseUser: " + room_type_1 + " exists");
+                    //getAllMesages(room_type_1);
                     FirebaseDatabase.getInstance()
                             .getReference()
                             .child(ARG_CHAT_ROOMS)
                             .child(room_type_1).addChildEventListener(new ChildEventListener() {
                         @Override
                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                            Chat chat = dataSnapshot.getValue(Chat.class);
-                            //onGetMessagesSuccess(chat);
-                            getMessagensFirebase(room_type_1);
+                            if (dataSnapshot != null && dataSnapshot.getValue() != null) {
+                                try {
+
+                                    Chat model = dataSnapshot.getValue(Chat.class);
+                                    Log.d("ActChat room_type_2: ", "onChildAdded ChatList message: " + model.getMessage());
+                                    onGetMessagesSuccess(model);
+                                } catch (Exception ex) {
+                                    Log.e(TAG, ex.getMessage());
+                                }
+                            }
                         }
 
                         @Override
@@ -221,8 +249,10 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
                             onGetMessagesFailure("Unable to get message: " + databaseError.getMessage());
                         }
                     });
+                    dialog.hide();
                 } else if (dataSnapshot.hasChild(room_type_2)) {
                     Log.e(TAG, "getMessageFromFirebaseUser: " + room_type_2 + " exists");
+                    //getAllMesages(room_type_2);
                     FirebaseDatabase.getInstance()
                             .getReference()
                             .child(ARG_CHAT_ROOMS)
@@ -230,8 +260,20 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
                         @Override
                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                             Chat chat = dataSnapshot.getValue(Chat.class);
-                            onGetMessagesSuccess(chat);
-                            getMessagensFirebase(room_type_2);
+                            //onGetMessagesSuccess(chat);
+                            if (dataSnapshot != null && dataSnapshot.getValue() != null) {
+                                try {
+                                    Chat model = dataSnapshot.getValue(Chat.class);
+                                    Log.d("ActChat room_type_2: ", "onChildAdded ChatList message: " + model.getMessage());
+                                    //firebaseAdapter.add(model);
+                                    onGetMessagesSuccess(model);
+                                    //rvListMessage.scrollToPosition(chatList.size() - 1);
+                                    //firebaseAdapter.notifyItemInserted(chatList.size() - 1);
+                                } catch (Exception ex) {
+                                    Log.e(TAG, ex.getMessage());
+                                }
+                            }
+                            //getMessagensFirebase(room_type_2);
                         }
 
                         @Override
@@ -254,6 +296,7 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
                             onGetMessagesFailure("Unable to get message: " + databaseError.getMessage());
                         }
                     });
+                    dialog.hide();
                 } else {
                     Log.e(TAG, "getMessageFromFirebaseUser: no such room available");
                 }
@@ -267,23 +310,20 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
     }
 
 
+    public void getAllMesages(final String childID) {
+        Log.d("ActChat", "ChatList childID: " + childID);
+    }
 
 
-
-
-/*
     public void onGetMessagesSuccess(Chat chat) {
-        if (mChatRecyclerAdapter == null) {
-            mChatRecyclerAdapter = new ChatRecyclerAdapter(new ArrayList<Chat>());
-            mRecyclerViewChat.setAdapter(mChatRecyclerAdapter);
+        Log.d("ActChat",  "onGetMessagesSuccess " + chat.message + " added");
+        if (firebaseAdapter == null) {
+            firebaseAdapter = new ChatFirebaseAdapter(new ArrayList<Chat>());
+            rvListMessage.setLayoutManager(mLinearLayoutManager);
+            rvListMessage.setAdapter(firebaseAdapter);
         }
-        mChatRecyclerAdapter.add(chat);
-        mRecyclerViewChat.smoothScrollToPosition(mChatRecyclerAdapter.getItemCount() - 1);
-    }*/
-
-    public void onGetMessagesSuccess(Chat chat) {
-        rvListMessage.add(chat);
-        mRecyclerViewChat.smoothScrollToPosition(mChatRecyclerAdapter.getItemCount() - 1);
+        firebaseAdapter.add(chat);
+        rvListMessage.smoothScrollToPosition(firebaseAdapter.getItemCount() - 1);
     }
 
 
@@ -296,35 +336,6 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
 
 
 
-    /**
-     * Ler collections chatmodel Firebase
-     */
-    private void getMessagensFirebase(String childID){
-        mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
-        final ChatFirebaseAdapter firebaseAdapter = new ChatFirebaseAdapter(mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(childID),mFirebaseUser.getDisplayName(), this);
-        //final ChatFirebaseAdapter firebaseAdapter = new ChatFirebaseAdapter(mFirebaseDatabaseReference.child(CHAT_REFERENCE),userModel.getName(), this);
-        firebaseAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-                super.onItemRangeInserted(positionStart, itemCount);
-                int friendlyMessageCount = firebaseAdapter.getItemCount();
-                int lastVisiblePosition = mLinearLayoutManager.findLastCompletelyVisibleItemPosition();
-                if (lastVisiblePosition == -1 ||
-                        (positionStart >= (friendlyMessageCount - 1) &&
-                                lastVisiblePosition == (positionStart - 1))) {
-                    rvListMessage.scrollToPosition(positionStart);
-                }
-            }
-        });
-        rvListMessage.setLayoutManager(mLinearLayoutManager);
-        rvListMessage.setAdapter(firebaseAdapter);
-
-    }
-
-
-    /**
-     * Vincular views com Java API
-     */
     private void bindViews(){
         contentRoot = findViewById(R.id.contentRoot);
         edMessage = (EmojiconEditText)findViewById(R.id.editTextMessage);
@@ -336,17 +347,6 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
         rvListMessage = (RecyclerView)findViewById(R.id.messageRecyclerView);
         mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setStackFromEnd(true);
-        //mRecyclerViewChat = (RecyclerView) findViewById(R.id.messageRecyclerView);
     }
-
-/*    *//**
-     * Sign Out no login
-     *//*
-    private void signOut(){
-        mFirebaseAuth.signOut();
-        Auth.GoogleSignInApi.signOut(mGoogleApiClient);
-        startActivity(new Intent(this, LoginActivity.class));
-        finish();
-    }*/
 
 }

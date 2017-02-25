@@ -10,8 +10,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import rx.schedulers.Schedulers;
 
 public class RestClient {
-    //public static final String BASE_URL = "http://192.168.1.5:3000/api/";
-    public static final String BASE_URL = "http://192.168.43.189:3000/api/"; //phone hotspot
+    public static final String BASE_URL = "http://192.168.1.8:3000/api/";
+    //public static final String BASE_URL = "http://192.168.43.189:3000/api/"; //phone hotspot
 
     private static NetworkService sNetworkService;
 
@@ -30,4 +30,6 @@ public class RestClient {
             return sNetworkService;
         }
     }
+
+    //Log.w(TAG, "JSON: " + new Gson().toJson(response));
 }

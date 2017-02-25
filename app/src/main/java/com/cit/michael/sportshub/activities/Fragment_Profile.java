@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cit.michael.sportshub.R;
 import com.cit.michael.sportshub.adapter.RecyclerItemClickListener;
@@ -62,7 +63,7 @@ public class Fragment_Profile extends Fragment {
 
     //Context ctx;
     NetworkService service;
-    List<Event> listEvents;
+    private List<Event> listEvents;
     List<Location> listLocaton;
     List<User>  user;
     private FirebaseAuth auth;
@@ -102,12 +103,14 @@ public class Fragment_Profile extends Fragment {
             userID = getArguments().getString(USER_ID);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        listEvents = new ArrayList<Event>();
+
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         auth = FirebaseAuth.getInstance();
-        listEvents = new ArrayList<Event>();
+
         listLocaton = new ArrayList<Location>();
         user = new ArrayList<User>();
         recyclerView = (RecyclerView) view.findViewById(R.id.profile_recycler_view);
@@ -118,22 +121,25 @@ public class Fragment_Profile extends Fragment {
         service.getUser(auth.getCurrentUser().getUid()).enqueue(new Callback<RestProfile>() {
             @Override
             public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
-                Log.w("TEST123", "JSON: " + new Gson().toJson(response));
-
-                listEvents = response.body().getEvent();
-                listLocaton = response.body().getLocation();
-                user = response.body().getUser();
-                if(listEvents.isEmpty()){
-                    //Toast.makeText(getContext(), "No Previous Events...", Toast.LENGTH_SHORT).show();
-                    lblPerviousEvents.setText("NO PREVIOUS EVENTS");
-
+                Log.d("TEST123", "JSON: " + new Gson().toJson(response));
+                if (!response.body().getError()) {
+                    listEvents = response.body().getEvent();
+                    listLocaton = response.body().getLocation();
+                    user = response.body().getUser();
+                    if (listEvents.isEmpty()) {
+                        //Toast.makeText(getContext(), "No Previous Events...", Toast.LENGTH_SHORT).show();
+                        lblPerviousEvents.setText("NO PREVIOUS EVENTS");
+                    } else {
+                        displayEvents();
+                    }
+                    displayUserInfo();
                 }
                 else{
-                    displayEvents();
+                    Toast.makeText(getContext(), response.message(), Toast.LENGTH_SHORT).show();
                 }
-                displayUserInfo();
 
             }
+
 
             @Override
             public void onFailure(Call<RestProfile> call, Throwable t) {

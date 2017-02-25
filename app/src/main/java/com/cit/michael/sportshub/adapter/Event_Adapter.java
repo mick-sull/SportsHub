@@ -55,16 +55,7 @@ public class Event_Adapter extends RecyclerView.Adapter<Event_Adapter.EventViewH
         holder.eventTime.setText(eventsList.get(position).getEventTime());
         holder.eventSpaces.setText("Space remaining: " + eventsList.get(position).getSpaceLeft());
         holder.eventCost.setText(eventsList.get(position).getFormattedCost());
-/*      //  holder.eventLocation.setText(eventsList.get(position).getLocationId());
-        holder.eventSpaces.setText("Space remaining: " + eventsList.get(position).getSpaceLeft());
-        holder.eventTime.setText(eventsList.get(position).getEventTime());*/
-/*        Event event = eventsList.get(position);
 
-
-        holder.eventName.setText(event.getEventName());
-        holder.eventLocation.setText(event.getLocationId());
-        holder.eventSpaces.setText("Space remaining: " + event.getSpaceLeft());
-        holder.eventTime.setText(event.getEventTime());*/
     }
 
 

@@ -141,7 +141,7 @@ public class Activity_Event_Details extends AppCompatActivity  {
         //service.getEventDetails().enqueue(new Callback<RestEventDetails>() {
             @Override
             public void onResponse(Call<RestEventDetails> call, Response<RestEventDetails> response) {
-                Log.w(TAG, "JSON: " + new Gson().toJson(response));
+
              //   if (response.isSuccessful()) {
 
                     if(response.body().getUser().isEmpty()){

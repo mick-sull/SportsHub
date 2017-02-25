@@ -202,6 +202,7 @@ public class Activity_Search_Events extends AppCompatActivity {
             @Override
             public void onFailure(Call<RestLocation> call, Throwable t) {
                 Toast.makeText(Activity_Search_Events.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
+                Log.d("ThrowableT", "" + t.toString());
             }
         });
     }
@@ -220,6 +221,7 @@ public class Activity_Search_Events extends AppCompatActivity {
             @Override
             public void onFailure(Call<RestSport> call, Throwable t) {
                 Toast.makeText(Activity_Search_Events.this, "Error: Couldnt  retrieve data...", Toast.LENGTH_SHORT).show();
+                Log.d("ThrowableT ", "" + t.toString());
             }
         });
     }
