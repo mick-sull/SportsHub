@@ -23,7 +23,6 @@ import com.cit.michael.sportshub.rest.model.RestAttendee;
 import com.cit.michael.sportshub.rest.model.RestEventDetails;
 import com.cit.michael.sportshub.ui.ProfileViewFragment;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.gson.Gson;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -49,6 +48,7 @@ public class Activity_Event_Details extends AppCompatActivity  {
     private ProfileListView profileListView;
     private Boolean userAttending;
     ProgressDialog loading = null;
+
 
 
 

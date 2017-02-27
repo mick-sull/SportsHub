@@ -89,12 +89,7 @@ public class ProfileViewFragment extends DialogFragment {
 
         listOfFriendships = new ArrayList<Friendship>();
 
-        if(auth.getCurrentUser().getUid().equals(user.getUserId())){
-            friendImage.setEnabled(false);
-            friendImage.setImageDrawable(null);
-            chatImage.setImageDrawable(null);
-            chatImage.setEnabled(false);
-        }
+
 
         service.getFriendshipStatus(auth.getCurrentUser().getUid()).enqueue(new Callback<RestRelationship>() {
             @Override
@@ -112,6 +107,7 @@ public class ProfileViewFragment extends DialogFragment {
                             if(listOfFriendships.get(i).getStatus() == APPROVED){
                                 friendImage.setImageResource(R.drawable.ic_remove_friend);
                                 currentlyFriends= true;
+                                hideIconsIfCurrentUserProfile();
 
                             }
                         }
@@ -167,6 +163,15 @@ public class ProfileViewFragment extends DialogFragment {
         
         return dialog;
 
+    }
+
+    private void hideIconsIfCurrentUserProfile() {
+        if(auth.getCurrentUser().getUid().equals(user.getUserId())){
+            friendImage.setEnabled(false);
+            friendImage.setImageDrawable(null);
+            chatImage.setImageDrawable(null);
+            chatImage.setEnabled(false);
+        }
     }
 
     private void doFriendships() {

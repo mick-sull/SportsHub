@@ -65,7 +65,7 @@ public class Fragment_Friends_List extends Fragment {
 /*        args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);*/
         //fragment.setArguments(args);
-        Log.d("FRIENDS LIST", "newInstance");
+        //Log.d("FRIENDS LIST", "newInstance");
         return fragment;
     }
 

@@ -16,7 +16,6 @@ import android.widget.Toast;
 import com.cit.michael.sportshub.R;
 import com.cit.michael.sportshub.chat.FcmNotificationBuilder;
 import com.cit.michael.sportshub.chat.adapter.ChatFirebaseAdapter;
-import com.cit.michael.sportshub.chat.adapter.ChatRecyclerAdapter;
 import com.cit.michael.sportshub.chat.model.Chat;
 import com.cit.michael.sportshub.chat.util.Util;
 import com.cit.michael.sportshub.model.User;
@@ -31,7 +30,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -52,7 +50,7 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     private DatabaseReference mFirebaseDatabaseReference;
-    FirebaseStorage storage = FirebaseStorage.getInstance();
+
 
     public Chat chat;
     //Views UI
@@ -72,7 +70,6 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
     public static final String ARG_FIREBASE_TOKEN = "firebaseToken";
     public static final String ARG_FRIENDS = "friends";
     public static final String ARG_UID = "uid";
-    private ChatRecyclerAdapter mChatRecyclerAdapter;
     private RecyclerView mRecyclerViewChat;
     public ChatFirebaseAdapter firebaseAdapter;
     ProgressDialog dialog;
@@ -259,7 +256,7 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
                             .child(room_type_2).addChildEventListener(new ChildEventListener() {
                         @Override
                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                            Chat chat = dataSnapshot.getValue(Chat.class);
+                            //Chat chat = dataSnapshot.getValue(Chat.class);
                             //onGetMessagesSuccess(chat);
                             if (dataSnapshot != null && dataSnapshot.getValue() != null) {
                                 try {

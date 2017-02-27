@@ -8,6 +8,7 @@ import com.cit.michael.sportshub.model.Search;
 import com.cit.michael.sportshub.model.Sport;
 import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.model.RestAttendee;
+import com.cit.michael.sportshub.rest.model.RestConversations;
 import com.cit.michael.sportshub.rest.model.RestEvent;
 import com.cit.michael.sportshub.rest.model.RestEventDetails;
 import com.cit.michael.sportshub.rest.model.RestRelationship;
@@ -61,6 +62,9 @@ public interface NetworkService {
 
     @POST("user/friends/response")
     Call<RestRelationship> friendRequestResponse (@Body Friendship friendship);
+
+    @GET("user/chat/{user_id}")
+    Call<RestConversations> getListOfConversations(@Query("user_id") String userID);
 
 
     //Location

@@ -38,7 +38,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Activity_Main extends AppCompatActivity implements Fragment_Profile.OnFragmentInteractionListener, Frag_Group.OnFragmentInteractionListener, Fragment_Friends_List.OnFragmentInteractionListener {
+public class Activity_Main extends AppCompatActivity implements Fragment_Profile.OnFragmentInteractionListener, Frag_Group.OnFragmentInteractionListener, Fragment_Friends_List.OnFragmentInteractionListener,
+        Fragment_Chat_List.OnFragmentInteractionListener{
 
     @BindView(com.cit.michael.sportshub.R.id.btnOrganizeEvent) Button btnOrganizeEvent;
     @BindView(R.id.btnNearby) Button btnNearby;
@@ -249,17 +250,17 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
                 //return Frag_Profile.newInstance(null,null);
                 return Fragment_Friends_List.newInstance();
             }
-   /*         if(position == 3){
+            if(position == 4){
                 //return Frag_Profile.newInstance(null,null);
-                return Frag_Friends_List.newInstance(4);
-            }*/
+                return Fragment_Chat_List.newInstance(null,null);
+            }
             return PlaceholderFragment.newInstance(position + 1);
         }
 
         @Override
         public int getCount() {
             // Show 3 total pages.
-            return 4;
+            return 5;
         }
 
         @Override
@@ -273,6 +274,8 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
                     return "Profile";
                 case 3:
                     return "Friends";
+                case 4:
+                    return "Chat";
             }
             return null;
         }
