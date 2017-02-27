@@ -5,13 +5,15 @@ package com.cit.michael.sportshub.chat.model;
  */
 
 public class Chat {
-    public String sender;
-    public String receiver;
-    public String senderUid;
-    public String receiverUid;
-    public String message;
-    public String timestamp;
-    public String profilePictureUrl;
+    private String sender;
+    private String receiver;
+    private String senderUid;
+    private String receiverUid;
+    private String message;
+    private String timestamp;
+    private String profilePictureUrl;
+
+
 
     public Chat() {}
 

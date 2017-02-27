@@ -79,7 +79,7 @@ public class Activity_Profile extends AppCompatActivity {
 
 
 
-        service.getUser(user_id).enqueue(new Callback<RestProfile>() {
+        service.getUserDetails(user_id).enqueue(new Callback<RestProfile>() {
             @Override
             public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
                 Log.w("TEST123", "JSON: " + new Gson().toJson(response));

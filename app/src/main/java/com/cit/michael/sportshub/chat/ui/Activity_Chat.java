@@ -139,17 +139,17 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.hasChild(room_type_1)) {
                     Log.d("ActChat", "sendMessageToFirebaseUser: " + room_type_1 + " exists");
-                    mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(room_type_1).child(String.valueOf(chat.timestamp)).setValue(chat);
+                    mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(room_type_1).child(String.valueOf(chat.getTimestamp())).setValue(chat);
                     //onGetMessagesSuccess(room_type_1);
                     //onGetMessagesSuccess(chat);
                 } else if (dataSnapshot.hasChild(room_type_2)) {
                     Log.d("ActChat",  "sendMessageToFirebaseUser: " + room_type_2 + " exists");
-                    mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(room_type_2).child(String.valueOf(chat.timestamp)).setValue(chat);
+                    mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(room_type_2).child(String.valueOf(chat.getTimestamp())).setValue(chat);
                     //onGetMessagesSuccess(room_type_2);
                     //onGetMessagesSuccess(chat);
                 } else {
                     Log.d("ActChat",  "sendMessageToFirebaseUser else: success");
-                    mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(room_type_1).child(String.valueOf(chat.timestamp)).setValue(chat);
+                    mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(room_type_1).child(String.valueOf(chat.getTimestamp())).setValue(chat);
                     //onGetMessagesSuccess(room_type_1);
                     //onGetMessagesSuccess(chat);
                 }
@@ -313,7 +313,7 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
 
 
     public void onGetMessagesSuccess(Chat chat) {
-        Log.d("ActChat",  "onGetMessagesSuccess " + chat.message + " added");
+        Log.d("ActChat",  "onGetMessagesSuccess " + chat.getMessage() + " added");
         if (firebaseAdapter == null) {
             firebaseAdapter = new ChatFirebaseAdapter(new ArrayList<Chat>());
             rvListMessage.setLayoutManager(mLinearLayoutManager);

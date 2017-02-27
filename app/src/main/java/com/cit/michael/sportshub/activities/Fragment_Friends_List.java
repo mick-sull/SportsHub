@@ -85,7 +85,7 @@ public class Fragment_Friends_List extends Fragment {
             @Override
             public void onResponse(Call<RestUsers> call, Response<RestUsers> response) {
                 Log.d("FRIENDS LIST", "Result: " + response.message().toString());
-                //if(!response.body().getUser().isEmpty()){
+                //if(!response.body().getUserDetails().isEmpty()){
                     listFriends = response.body().getUser();
                     displayFriends();
              //   }

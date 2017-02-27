@@ -1,6 +1,7 @@
 package com.cit.michael.sportshub.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,11 +15,14 @@ import android.view.ViewGroup;
 
 import com.cit.michael.sportshub.R;
 import com.cit.michael.sportshub.adapter.Chat_Adapter;
+import com.cit.michael.sportshub.adapter.RecyclerItemClickListener;
 import com.cit.michael.sportshub.chat.model.Chat;
+import com.cit.michael.sportshub.chat.ui.Activity_Chat;
 import com.cit.michael.sportshub.model.Conversation;
 import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
 import com.cit.michael.sportshub.rest.model.RestConversations;
+import com.cit.michael.sportshub.rest.model.RestProfile;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -62,10 +66,8 @@ public class Fragment_Chat_List extends Fragment {
     private FirebaseAuth auth;
     private Chat_Adapter chatListAdapter;
     private RecyclerView recyclerView;
-    //private LinearLayoutManager mLinearLayoutManager;
     private List<Chat> listOfChats;
     private List<Conversation> listOfConversationIDs;
-    private DatabaseReference mFirebaseDatabaseReference;
     LinearLayoutManager layoutManager;
 
     private OnFragmentInteractionListener mListener;
@@ -104,11 +106,6 @@ public class Fragment_Chat_List extends Fragment {
 
         listOfChats = new ArrayList<Chat>();
         listOfConversationIDs = new ArrayList<Conversation>();
-
-/*        layoutManager = new LinearLayoutManager(getActivity());
-        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);*/
-        //layoutManager = new LinearLayoutManager(getActivity());
-
         recyclerView = (RecyclerView) rootView.findViewById(R.id.chats_list_recycler_view);
 
 
@@ -118,22 +115,42 @@ public class Fragment_Chat_List extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(chatListAdapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-/*
-        recyclerView.addOnItemTouchListener( new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
+
+        recyclerView.addOnItemTouchListener( new RecyclerItemClickListener(getContext(), new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
                         // TODO Handle item click
                         // changeActivity(position);
-                        //Intent intent = new Intent(this, Activity_Chat.class);
-                        //if(auth.getCurrentUser().getUid().equals(listOfChats.get(position).getSenderUid())){
-                           // intent.putExtra("receivingUser",  "test");
-                      //  }
-                        //intent.putExtra("receivingUser",  user);
-                        //startActivity(intent);
+                        Log.d("FRAGCHAT ", "addOnItemTouchListener: position: " + position);
+                        List<Chat> sortedChatList = new  ArrayList<Chat>();
+                        String receivingUser;
+                        sortedChatList = chatListAdapter.getSortedArrayList();
+
+                        if(auth.getCurrentUser().getUid().equals(sortedChatList.get(position).getSenderUid())){
+                            receivingUser = sortedChatList.get(position).getReceiverUid();
+                        }
+                        else{
+                            receivingUser = sortedChatList.get(position).getSenderUid();
+                        }
+                        service.getUser(receivingUser).enqueue(new Callback<RestProfile>() {
+                            @Override
+                            public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
+                                if(!response.body().getError()){
+                                    Intent intent = new Intent(getContext(), Activity_Chat.class);
+                                    intent.putExtra("receivingUser",  response.body().getUser().get(0));
+                                    startActivity(intent);
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<RestProfile> call, Throwable t) {
+
+                            }
+                        });
                     }
 
 
                 })
-        );*/
+        );
 
 
 
@@ -178,6 +195,7 @@ public class Fragment_Chat_List extends Fragment {
                                             Chat model = dataSnapshot.getValue(Chat.class);
 
                                             Log.d("FRAGCHAT ", "addChildEventListener ID:" + cID.getChatId() + "  message: " + model.getMessage());
+                                            Log.d("FRAGCHAT ", "addChildEventListener sender name: " + model.getSender() + "  recevier name: " + model.getReceiver());
                                             onGetMessagesSuccess(model);
                                             listOfChats.add(model);
                                         } catch (Exception ex) {
@@ -234,7 +252,7 @@ public class Fragment_Chat_List extends Fragment {
     }
 
     public void onGetMessagesSuccess(Chat chat) {
-        Log.d("FRAGCHAT",  "onGetMessagesSuccess " + chat.message + " added");
+        Log.d("FRAGCHAT",  "onGetMessagesSuccess " + chat.getMessage() + " added");
 /*        if (chatListAdapter == null) {
             Log.d("FRAGCHAT",  "onGetMessagesSuccess chatListAdapter == null" );
             chatListAdapter = new Chat_Adapter(getContext(),new ArrayList<Chat>());

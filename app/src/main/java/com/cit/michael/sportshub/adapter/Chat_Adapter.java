@@ -43,7 +43,7 @@ public class Chat_Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         mChats.add(chat);
         Collections.sort(mChats, new CustomComparator());
         notifyItemInserted(mChats.size() - 1);
-        Log.d("FRAGCHAT", "Chat_Adapter add " + chat.message + " added");
+        Log.d("FRAGCHAT", "Chat_Adapter add " + chat.getMessage() + " added");
     }
 
     @Override
@@ -73,7 +73,7 @@ public class Chat_Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if (TextUtils.equals(mChats.get(position).senderUid,
+        if (TextUtils.equals(mChats.get(position).getSenderUid(),
                 FirebaseAuth.getInstance().getCurrentUser().getUid())) {
             configureMyChatViewHolder((Chat_Adapter.MyChatViewHolder) holder, position);
         } else {
@@ -86,7 +86,7 @@ public class Chat_Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         Picasso.with(myChatViewHolder.profilePic.getContext()).load(chat.getProfilePictureUrl()).placeholder(R.drawable.img_circle_placeholder).resize(100, 100).transform(new CircleTransform()).into(myChatViewHolder.profilePic);
 
         //Last person to send a message
-        myChatViewHolder.username.setText(chat.receiver);
+        myChatViewHolder.username.setText(chat.getReceiver());
         myChatViewHolder.message.setText("You: " + chat.getMessage());
         myChatViewHolder.timestamp.setText(converteTimestamp(chat.getTimestamp()));
     }
@@ -97,7 +97,7 @@ public class Chat_Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         Picasso.with(otherChatViewHolder.profilePic.getContext()).load(chat.getProfilePictureUrl()).placeholder(R.drawable.img_circle_placeholder).resize(100, 100).transform(new CircleTransform()).into(otherChatViewHolder.profilePic);
 
-        otherChatViewHolder.username.setText(chat.sender);
+        otherChatViewHolder.username.setText(chat.getSender());
         otherChatViewHolder.message.setText(chat.getMessage());
         otherChatViewHolder.timestamp.setText(converteTimestamp(chat.getTimestamp()));
 
@@ -115,7 +115,7 @@ public class Chat_Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public int getItemViewType(int position) {
-        if (TextUtils.equals(mChats.get(position).senderUid,
+        if (TextUtils.equals(mChats.get(position).getSenderUid(),
                 FirebaseAuth.getInstance().getCurrentUser().getUid())) {
             return VIEW_TYPE_ME;
         } else {
@@ -164,6 +164,10 @@ public class Chat_Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             Log.d("FRAGCHAT", "CustomComparator" + o2.getTimestamp() + " to " + o1.getTimestamp());
             return o2.getTimestamp().compareTo(o1.getTimestamp());
         }
+    }
+
+    public List<Chat> getSortedArrayList(){
+        return mChats;
     }
 }
 

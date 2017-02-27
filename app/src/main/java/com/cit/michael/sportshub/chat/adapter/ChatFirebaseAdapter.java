@@ -62,7 +62,7 @@ public class ChatFirebaseAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if (TextUtils.equals(mChats.get(position).senderUid,
+        if (TextUtils.equals(mChats.get(position).getSenderUid(),
                 FirebaseAuth.getInstance().getCurrentUser().getUid())) {
             configureMyChatViewHolder((ChatFirebaseAdapter.MyChatViewHolder) holder, position);
         } else {
@@ -72,7 +72,7 @@ public class ChatFirebaseAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private void configureMyChatViewHolder(ChatFirebaseAdapter.MyChatViewHolder myChatViewHolder, int position) {
         Chat chat = mChats.get(position);
 
-        myChatViewHolder.txtChatMessage.setText(chat.message);
+        myChatViewHolder.txtChatMessage.setText(chat.getMessage());
         myChatViewHolder.tvTimestamp.setText(converteTimestamp(chat.getTimestamp()));
         Picasso.with(myChatViewHolder.ivChatPhoto.getContext()).load(chat.getProfilePictureUrl()).placeholder(R.drawable.img_circle_placeholder).resize(40,40).transform(new CircleTransform()).into(myChatViewHolder.ivChatPhoto);
         //myChatViewHolder.txtUserAlphabet.setText(alphabet);
@@ -81,7 +81,7 @@ public class ChatFirebaseAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private void configureOtherChatViewHolder(ChatFirebaseAdapter.OtherChatViewHolder otherChatViewHolder, int position) {
         Chat chat = mChats.get(position);
 
-        otherChatViewHolder.txtChatMessage.setText(chat.message);
+        otherChatViewHolder.txtChatMessage.setText(chat.getMessage());
         otherChatViewHolder.tvTimestamp.setText(converteTimestamp(chat.getTimestamp()));
         Picasso.with(otherChatViewHolder.ivChatPhoto.getContext()).load(chat.getProfilePictureUrl()).placeholder(R.drawable.img_circle_placeholder).resize(40,40).transform(new CircleTransform()).into(otherChatViewHolder.ivChatPhoto);
 
@@ -99,7 +99,7 @@ public class ChatFirebaseAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public int getItemViewType(int position) {
-        if (TextUtils.equals(mChats.get(position).senderUid,
+        if (TextUtils.equals(mChats.get(position).getSenderUid(),
                 FirebaseAuth.getInstance().getCurrentUser().getUid())) {
             return VIEW_TYPE_ME;
         } else {

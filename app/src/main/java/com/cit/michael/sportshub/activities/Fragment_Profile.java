@@ -118,7 +118,7 @@ public class Fragment_Profile extends Fragment {
 
 
         service = RestClient.getSportsHubApiClient();
-        service.getUser(auth.getCurrentUser().getUid()).enqueue(new Callback<RestProfile>() {
+        service.getUserDetails(auth.getCurrentUser().getUid()).enqueue(new Callback<RestProfile>() {
             @Override
             public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
                 Log.d("TEST123", "JSON: " + new Gson().toJson(response));

@@ -41,6 +41,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.annotation.Max;
+import com.mobsandgeeks.saripaar.annotation.Min;
 import com.mobsandgeeks.saripaar.annotation.NotEmpty;
 
 import java.sql.Time;
@@ -74,14 +75,17 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
 
     @NotEmpty
     @Max(1000)
+    @Min(1)
     @BindView(R.id.txtEventDuration) TextView txtEventDuration;
     @NotEmpty
     @Max(1000)
+    @Min(1)
     @BindView(R.id.txtNumSpaces) TextView txtNumSpaces;
     @NotEmpty
     @BindView(R.id.btnCreate) TextView btnCreate;
     @NotEmpty
     @Max(1000)
+    @Min(0)
     @BindView(R.id.txtEventCost) TextView txtEventCost;
     @BindView(R.id.rgEventGender) RadioGroup rgEventGender;
     @BindView(R.id.cbPublicGame) CheckBox cbPublicGame;
