@@ -34,6 +34,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.cit.michael.sportshub.Constants.ACCEPTED;
+import static com.cit.michael.sportshub.Constants.PENDING_REQUEST;
+import static com.cit.michael.sportshub.Constants.UNFRIEND;
+
 /**
  * Created by micha on 14/02/2017.
  */
@@ -50,9 +54,9 @@ public class ProfileViewFragment extends DialogFragment {
     public String TAG = "ProfileDialog";
     Context ctx;
     Boolean currentlyFriends = false;
-    final int APPROVED = 1;
+/*    final int APPROVED = 1;
     final int PENDING_REQUEST = 0;
-    final int UNFRIEND = -1;
+    final int UNFRIEND = -1;*/
 
 
 
@@ -105,7 +109,7 @@ public class ProfileViewFragment extends DialogFragment {
                         if (listOfFriendships.get(i).getUserId().equals(user.getUserId()) || listOfFriendships.get(i).getUser_two_id().equals(user.getUserId())) {
                             friendshipFoundIndex = i;
                             Log.d(TAG, "Friendship found at index " + i);
-                            if(listOfFriendships.get(i).getStatus() == APPROVED){
+                            if(listOfFriendships.get(i).getStatus() == ACCEPTED || listOfFriendships.get(i).getStatus()== PENDING_REQUEST){
                                 friendImage.setImageResource(R.drawable.ic_remove_friend);
                                 currentlyFriends= true;
                                 hideIconsIfCurrentUserProfile();
@@ -200,7 +204,7 @@ public class ProfileViewFragment extends DialogFragment {
                 } else {
                     Log.d(TAG, "Updating Friendship");
                     listOfFriendships.get(friendshipFoundIndex).setAction_user_id(auth.getCurrentUser().getUid());
-                    listOfFriendships.get(friendshipFoundIndex).setStatus(APPROVED);
+                    listOfFriendships.get(friendshipFoundIndex).setStatus(ACCEPTED);
                     service.friendRequestResponse(listOfFriendships.get(friendshipFoundIndex)).enqueue(new Callback<RestRelationship>() {
                         @Override
                         public void onResponse(Call<RestRelationship> call, Response<RestRelationship> response) {

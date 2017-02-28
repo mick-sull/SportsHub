@@ -33,6 +33,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.cit.michael.sportshub.Constants.ACCEPTED;
+import static com.cit.michael.sportshub.Constants.PENDING_REQUEST;
+
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
@@ -119,6 +122,13 @@ public class Fragment_Friends_List extends Fragment {
     }
 
     private void displayFriends() {
+        //for(User user : listFriends){
+        for(int i = 0; i < listFriends.size(); i++){
+            if(listFriends.get(i).getStatus() != ACCEPTED && listFriends.get(i).getStatus() != PENDING_REQUEST){
+                Log.d("REMOVED", listFriends.get(i).getUserFullName() + "STATUS: " + listFriends.get(i).getStatus());
+                listFriends.remove(listFriends.get(i));
+            }
+        }
 
         mAdapter = new User_Friends_Adapter(listFriends, getContext());
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
