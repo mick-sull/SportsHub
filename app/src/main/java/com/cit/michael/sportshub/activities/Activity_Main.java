@@ -64,6 +64,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
     String newUser;
     NetworkService service;
     FirebaseInstanceId mFirebaseInstanceId;
+    User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

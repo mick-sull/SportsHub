@@ -11,9 +11,9 @@ import com.cit.michael.sportshub.rest.model.RestAttendee;
 import com.cit.michael.sportshub.rest.model.RestConversations;
 import com.cit.michael.sportshub.rest.model.RestEvent;
 import com.cit.michael.sportshub.rest.model.RestEventDetails;
-import com.cit.michael.sportshub.rest.model.RestRelationship;
 import com.cit.michael.sportshub.rest.model.RestLocation;
 import com.cit.michael.sportshub.rest.model.RestProfile;
+import com.cit.michael.sportshub.rest.model.RestRelationship;
 import com.cit.michael.sportshub.rest.model.RestSport;
 import com.cit.michael.sportshub.rest.model.RestUsers;
 
@@ -68,6 +68,9 @@ public interface NetworkService {
 
     @GET("user/chat/{user_id}")
     Call<RestConversations> getListOfConversations(@Query("user_id") String userID);
+
+    @POST("user/updateToken")
+    Call<RestUsers> updateUserToken(@Body User user);
 
 
     //Location

@@ -69,6 +69,10 @@ public class User implements Parcelable {
         this.userToken = userToken;
     }
 
+    public User(){
+
+    }
+
     public String getUserId() {
         return userId;
     }
