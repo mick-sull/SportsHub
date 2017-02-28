@@ -56,6 +56,7 @@ public class ProfileViewFragment extends DialogFragment {
 
 
 
+
     /*    public ProfileViewFragment(String imageUrl, String uID ){
         this.imageUrl = imageUrl;
         this.uID = uID;

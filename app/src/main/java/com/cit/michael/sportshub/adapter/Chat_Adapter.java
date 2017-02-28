@@ -83,7 +83,7 @@ public class Chat_Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     private void configureMyChatViewHolder(Chat_Adapter.MyChatViewHolder myChatViewHolder, int position) {
         Chat chat = mChats.get(position);
-        Picasso.with(myChatViewHolder.profilePic.getContext()).load(chat.getProfilePictureUrl()).placeholder(R.drawable.img_circle_placeholder).resize(100, 100).transform(new CircleTransform()).into(myChatViewHolder.profilePic);
+        Picasso.with(myChatViewHolder.profilePic.getContext()).load(chat.getProfilePictureUrl()).placeholder(R.drawable.img_circle_placeholder).resize(200, 200).transform(new CircleTransform()).into(myChatViewHolder.profilePic);
 
         //Last person to send a message
         myChatViewHolder.username.setText(chat.getReceiver());
@@ -95,7 +95,7 @@ public class Chat_Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         Chat chat = mChats.get(position);
 
 
-        Picasso.with(otherChatViewHolder.profilePic.getContext()).load(chat.getProfilePictureUrl()).placeholder(R.drawable.img_circle_placeholder).resize(100, 100).transform(new CircleTransform()).into(otherChatViewHolder.profilePic);
+        Picasso.with(otherChatViewHolder.profilePic.getContext()).load(chat.getProfilePictureUrl()).placeholder(R.drawable.img_circle_placeholder).resize(200, 200).transform(new CircleTransform()).into(otherChatViewHolder.profilePic);
 
         otherChatViewHolder.username.setText(chat.getSender());
         otherChatViewHolder.message.setText(chat.getMessage());

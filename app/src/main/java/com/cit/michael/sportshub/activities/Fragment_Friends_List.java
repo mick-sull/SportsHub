@@ -4,6 +4,8 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,11 +16,13 @@ import android.view.ViewGroup;
 
 import com.cit.michael.sportshub.R;
 import com.cit.michael.sportshub.adapter.ExpandableHeightListView;
+import com.cit.michael.sportshub.adapter.RecyclerItemClickListener;
 import com.cit.michael.sportshub.adapter.User_Friends_Adapter;
 import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
 import com.cit.michael.sportshub.rest.model.RestUsers;
+import com.cit.michael.sportshub.ui.ProfileViewFragment;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
@@ -97,12 +101,24 @@ public class Fragment_Friends_List extends Fragment {
             }
         });
 
+
+        recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getContext(), new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+
+                        //FragmentManager fm = getSupportFragmentManager();
+                        FragmentTransaction fm = ((FragmentActivity)getActivity()).getSupportFragmentManager().beginTransaction();
+                        //ProfileViewFragment editNameDialogFragment = new ProfileViewFragment(listUserAttending.get(position).getUserProfileUrl(), listUserAttending.get(position).getUserId());
+                        User user = listFriends.get(position);
+                        ProfileViewFragment editNameDialogFragment = new ProfileViewFragment(user, getContext());
+                        editNameDialogFragment.show(fm, "test");
+                    }
+                })
+        );
         return rootView;
     }
 
     private void displayFriends() {
-
-
 
         mAdapter = new User_Friends_Adapter(listFriends, getContext());
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());

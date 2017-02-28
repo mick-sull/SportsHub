@@ -13,8 +13,8 @@
 
         <ImageView
             android:id="@+id/user_profile_pic"
-            android:layout_width="120px"
-            android:layout_height="120px"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:src="@mipmap/ic_launcher"
             android:gravity="center"
             />
@@ -58,22 +58,16 @@
                 android:textColor="@color/colorSub"
                 />
 
+        </LinearLayout>
+    </LinearLayout>
             <View
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="4dp"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/colordevider"
-                android:padding="16dp"
+                android:padding="4dp"
                 />
 
 
 
-        </LinearLayout>
-
-
-
-
-
-
-    </LinearLayout>
 </LinearLayout>
