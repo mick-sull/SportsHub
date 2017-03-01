@@ -18,8 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cit.michael.sportshub.R;
-import com.cit.michael.sportshub.adapter.RecyclerItemClickListener;
 import com.cit.michael.sportshub.adapter.Profile_Events_Attended_Adapter;
+import com.cit.michael.sportshub.adapter.RecyclerItemClickListener;
 import com.cit.michael.sportshub.model.Event;
 import com.cit.michael.sportshub.model.Location;
 import com.cit.michael.sportshub.model.User;
@@ -28,7 +28,7 @@ import com.cit.michael.sportshub.rest.RestClient;
 import com.cit.michael.sportshub.rest.model.RestProfile;
 import com.cit.michael.sportshub.ui.CircleTransform;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.gson.Gson;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -60,12 +60,14 @@ public class Activity_Profile extends AppCompatActivity {
     ActionBar actionBar;
     private FirebaseAuth auth;
     private Menu menu;
+    FirebaseInstanceId mFirebaseInstanceId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity__profile);
         service = RestClient.getSportsHubApiClient();
+        mFirebaseInstanceId = FirebaseInstanceId.getInstance();
         auth = FirebaseAuth.getInstance();
         Intent intent = getIntent();
         String user_id = intent.getStringExtra("user_id");
@@ -82,17 +84,20 @@ public class Activity_Profile extends AppCompatActivity {
         service.getUserDetails(user_id).enqueue(new Callback<RestProfile>() {
             @Override
             public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
-                Log.w("TEST123", "JSON: " + new Gson().toJson(response));
+                //Log.w("TEST123", "JSON: " + new Gson().toJson(response));
                 
                 listEvents = response.body().getEvent();
                 listLocaton = response.body().getLocation();
                 user = response.body().getUser();
+                Toast.makeText(ctx, "Activity Profile...", Toast.LENGTH_SHORT).show();
                 if(listEvents.isEmpty()){
                     //Toast.makeText(ctx, "No Previous Events...", Toast.LENGTH_SHORT).show();
                     lblPerviousEvents.setText("NO PREVIOUS EVENTS");
                 }
                 else{
                     displayEvents();
+
+
                 }
                 displayUserInfo();
 
@@ -102,7 +107,9 @@ public class Activity_Profile extends AppCompatActivity {
             public void onFailure(Call<RestProfile> call, Throwable t) {
 
             }
+
         });
+
 
         recyclerView.addOnItemTouchListener( new RecyclerItemClickListener(ctx, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {

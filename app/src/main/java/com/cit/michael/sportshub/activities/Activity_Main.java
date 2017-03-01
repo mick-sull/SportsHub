@@ -101,7 +101,8 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         Log.d("Name PHOTO ", "" + auth.getCurrentUser().getPhotoUrl());
         Log.d("Name getEmail", "" + auth.getCurrentUser().getEmail());
         Log.d("User token: ", "" +   mFirebaseInstanceId.getToken().toString() );
-        Log.d("User token: ", "" +   auth.getCurrentUser().getUid() );
+        Log.d("User token: ", "" +   auth.getCurrentUser().getUid());
+
 
     }
 
@@ -281,4 +282,5 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
             return null;
         }
     }
+
 }

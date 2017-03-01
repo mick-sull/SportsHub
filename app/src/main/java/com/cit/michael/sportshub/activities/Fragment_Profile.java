@@ -15,17 +15,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cit.michael.sportshub.R;
-import com.cit.michael.sportshub.adapter.RecyclerItemClickListener;
 import com.cit.michael.sportshub.adapter.Profile_Events_Attended_Adapter;
+import com.cit.michael.sportshub.adapter.RecyclerItemClickListener;
 import com.cit.michael.sportshub.model.Event;
 import com.cit.michael.sportshub.model.Location;
 import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
 import com.cit.michael.sportshub.rest.model.RestProfile;
+import com.cit.michael.sportshub.rest.model.RestUsers;
 import com.cit.michael.sportshub.ui.CircleTransform;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.gson.Gson;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -67,6 +68,7 @@ public class Fragment_Profile extends Fragment {
     List<Location> listLocaton;
     List<User>  user;
     private FirebaseAuth auth;
+    FirebaseInstanceId mFirebaseInstanceId;
 
     // TODO: Rename and change types of parameters
     private String userID;
@@ -110,6 +112,7 @@ public class Fragment_Profile extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         auth = FirebaseAuth.getInstance();
+        mFirebaseInstanceId = FirebaseInstanceId.getInstance();
 
         listLocaton = new ArrayList<Location>();
         user = new ArrayList<User>();
@@ -121,7 +124,7 @@ public class Fragment_Profile extends Fragment {
         service.getUserDetails(auth.getCurrentUser().getUid()).enqueue(new Callback<RestProfile>() {
             @Override
             public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
-                Log.d("TEST123", "JSON: " + new Gson().toJson(response));
+                //Log.d("TEST123", "JSON: " + new Gson().toJson(response));
                 if (!response.body().getError()) {
                     listEvents = response.body().getEvent();
                     listLocaton = response.body().getLocation();
@@ -132,6 +135,7 @@ public class Fragment_Profile extends Fragment {
                     } else {
                         displayEvents();
                     }
+                    checkToken();
                     displayUserInfo();
                 }
                 else{
@@ -188,9 +192,33 @@ public class Fragment_Profile extends Fragment {
 
         double reliability = (double)100-(((double)user.get(0).getFailedAttendances()/((double)user.get(0).getFailedAttendances()+(double)user.get(0).getAttendances())*100));
 
-
-
         txtReliability.setText(Integer.toString((int) reliability) + "%");
+    }
+
+    public void checkToken() {
+        //Toast.makeText(getContext(), "Checking Token...", Toast.LENGTH_SHORT).show();
+        //Log.d("ACTPROF: user DB:", user.get(0).getUserToken().toString() + " - mFirebaseInstanceId" + mFirebaseInstanceId.getToken().toString() );
+        if(!user.get(0).getUserToken().toString().equals( mFirebaseInstanceId.getToken().toString())){
+            User user = new User();
+            user.setUserId(auth.getCurrentUser().getUid());
+            user.setUserToken(mFirebaseInstanceId.getToken().toString());
+            service.updateUserToken(user).enqueue(new Callback<RestUsers>() {
+                @Override
+                public void onResponse(Call<RestUsers> call, Response<RestUsers> response) {
+                    Log.d("Token Update:",  "Token updated" );
+
+                }
+
+                @Override
+                public void onFailure(Call<RestUsers> call, Throwable t) {
+                    Log.d("Token Update Fail: ", t.toString());
+
+                }
+            });
+        }
+        else{
+            Log.d("ACTPROF: user DB:", user.get(0).getUserToken().toString() + " - mFirebaseInstanceId" + mFirebaseInstanceId.getToken().toString() );
+        }
     }
 
     private void displayEvents() {
