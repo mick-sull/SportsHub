@@ -18,7 +18,11 @@ import com.cit.michael.sportshub.chat.FcmNotificationBuilder;
 import com.cit.michael.sportshub.chat.adapter.ChatFirebaseAdapter;
 import com.cit.michael.sportshub.chat.model.Chat;
 import com.cit.michael.sportshub.chat.util.Util;
+import com.cit.michael.sportshub.model.ChatNotification;
 import com.cit.michael.sportshub.model.User;
+import com.cit.michael.sportshub.rest.NetworkService;
+import com.cit.michael.sportshub.rest.RestClient;
+import com.cit.michael.sportshub.rest.model.RestBase;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
@@ -37,6 +41,9 @@ import java.util.Calendar;
 
 import hani.momanii.supernova_emoji_library.Actions.EmojIconActions;
 import hani.momanii.supernova_emoji_library.Helper.EmojiconEditText;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
 
@@ -73,6 +80,7 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
     private RecyclerView mRecyclerViewChat;
     public ChatFirebaseAdapter firebaseAdapter;
     ProgressDialog dialog;
+    NetworkService service;
 
 
 
@@ -90,6 +98,7 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
         mFirebaseInstanceId = FirebaseInstanceId.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+        service = service = RestClient.getSportsHubApiClient();
 
         Intent intent = getIntent();
         receivingUser = intent.getParcelableExtra("receivingUser");
@@ -154,7 +163,7 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
                     //onGetMessagesSuccess(chat);
                 }
                 //getMessageFromFirebaseUser(mFirebaseAuth.getCurrentUser().getUid(),  receivingUser.getUserId());
-
+                sendNotification();
 
                 edMessage.setText(null);
                 // send push notification to the receiver
@@ -296,6 +305,7 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
                     dialog.hide();
                 } else {
                     Log.e(TAG, "getMessageFromFirebaseUser: no such room available");
+                    dialog.hide();
                 }
             }
 
@@ -344,6 +354,23 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
         rvListMessage = (RecyclerView)findViewById(R.id.messageRecyclerView);
         mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setStackFromEnd(true);
+    }
+
+    public void sendNotification(){
+        ChatNotification cn = new ChatNotification(mFirebaseUser.getDisplayName(),mFirebaseUser.getPhotoUrl().toString(),receivingUser.getUserToken(),mFirebaseUser.getUid(),edMessage.getText().toString());
+
+        service.sendChatNotification(cn).enqueue(new Callback<RestBase>() {
+            @Override
+            public void onResponse(Call<RestBase> call, Response<RestBase> response) {
+                Log.d(TAG, response.body().getMessage());
+            }
+
+            @Override
+            public void onFailure(Call<RestBase> call, Throwable t) {
+
+            }
+        });
+
     }
 
 }

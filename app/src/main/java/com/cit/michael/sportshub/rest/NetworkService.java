@@ -1,6 +1,7 @@
 package com.cit.michael.sportshub.rest;
 
 import com.cit.michael.sportshub.model.Attendee;
+import com.cit.michael.sportshub.model.ChatNotification;
 import com.cit.michael.sportshub.model.Event;
 import com.cit.michael.sportshub.model.Friendship;
 import com.cit.michael.sportshub.model.Location;
@@ -8,6 +9,7 @@ import com.cit.michael.sportshub.model.Search;
 import com.cit.michael.sportshub.model.Sport;
 import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.model.RestAttendee;
+import com.cit.michael.sportshub.rest.model.RestBase;
 import com.cit.michael.sportshub.rest.model.RestConversations;
 import com.cit.michael.sportshub.rest.model.RestEvent;
 import com.cit.michael.sportshub.rest.model.RestEventDetails;
@@ -98,6 +100,11 @@ public interface NetworkService {
 
     @POST("event/addAttendee")
     Call<RestAttendee> addAttendee(@Body Attendee attendee);
+
+
+    //Notifications
+    @POST("notification/chat_notification")
+    Call<RestBase> sendChatNotification(@Body ChatNotification chatNotification);
 
 
     //Call<RestEventDetails> getEventDetails();
