@@ -12,4 +12,9 @@ public class Constants {
     public final static int ACCEPTED = 1;
     public final static int DECLINED = 2;
     public final static int BLOCKED = 3;
+
+    //Notifcations
+    public final static String NOTIFCATION_ACTIVITY = "open_activity";
+    public final static String NOTIFCATION_CHAT = "Activity_Chat.class";
+    public final static String NOTIFCATION_USER_ID = "sender_id";
 }

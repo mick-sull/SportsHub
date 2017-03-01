@@ -102,12 +102,18 @@
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
+
         <service
-            android:name=".FCM.MyFirebaseMessagingService"
+            android:name=".FCM.MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
             android:enabled="true"
             android:exported="true">
-
         </service>
+
+
+
     </application>
 
 </manifest>

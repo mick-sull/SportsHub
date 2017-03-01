@@ -10,13 +10,26 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.cit.michael.sportshub.R;
-import com.cit.michael.sportshub.activities.Activity_Main;
+import com.cit.michael.sportshub.chat.ui.Activity_Chat;
+import com.cit.michael.sportshub.model.User;
+import com.cit.michael.sportshub.rest.NetworkService;
+import com.cit.michael.sportshub.rest.RestClient;
+import com.cit.michael.sportshub.rest.model.RestProfile;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import static com.cit.michael.sportshub.Constants.NOTIFCATION_ACTIVITY;
+import static com.cit.michael.sportshub.Constants.NOTIFCATION_CHAT;
+import static com.cit.michael.sportshub.Constants.NOTIFCATION_USER_ID;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
+    NetworkService service;
 
     /**
      * Called when message is received.
@@ -35,6 +48,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // and data payloads are treated as notification messages. The Firebase console always sends notification
         // messages. For more see: https://firebase.google.com/docs/cloud-messaging/concept-options
         // [END_EXCLUDE]
+
+        service = RestClient.getSportsHubApiClient();
+        sendNotification(remoteMessage);
+
 
         // TODO(developer): Handle FCM messages here.
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
@@ -58,27 +75,47 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     /**
      * Create and show a simple notification containing the received FCM message.
      *
-     * @param messageBody FCM message body received.
+     * @param remoteMessage FCM message body received.
      */
-    private void sendNotification(String messageBody) {
-        Intent intent = new Intent(this, Activity_Main.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
-                PendingIntent.FLAG_ONE_SHOT);
+    private void sendNotification(final RemoteMessage remoteMessage) {
 
-        Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.logo_googleg_color_18dp)
-                .setContentTitle("FCM Message")
-                .setContentText(messageBody)
-                .setAutoCancel(true)
-                .setSound(defaultSoundUri)
-                .setContentIntent(pendingIntent);
+        if(remoteMessage.getData().get(NOTIFCATION_ACTIVITY).equals(NOTIFCATION_CHAT)){
+            service.getUser(remoteMessage.getData().get(NOTIFCATION_USER_ID)).enqueue(new Callback<RestProfile>() {
+                @Override
+                public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
+                    Log.d(TAG, "Getting user: " + remoteMessage.getData().get(NOTIFCATION_USER_ID));
+                    Intent intent = new Intent(getApplicationContext(), Activity_Chat.class);
+                    User user = response.body().getUser().get(0);
+                    intent.putExtra("receivingUser", user);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0 /* Request code */, intent,
+                            PendingIntent.FLAG_ONE_SHOT);
 
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                    NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext())
+                            .setSmallIcon(R.drawable.logo_googleg_color_18dp)
+                            .setContentTitle("SportsHub")
+                            .setContentText(remoteMessage.getData().get("message"))
+                            .setAutoCancel(true)
+                            .setSound(defaultSoundUri)
+                            .setContentIntent(pendingIntent);
 
-        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+                    NotificationManager notificationManager =
+                            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+                    notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+
+                }
+
+                @Override
+                public void onFailure(Call<RestProfile> call, Throwable t) {
+                    Log.d(TAG, "Getting user: " + " failed to get user error: " + t.toString());
+                }
+            });
+        }
+        else{
+            Log.d(TAG, "Activity: " + remoteMessage.getData().get(NOTIFCATION_ACTIVITY) + " is not equal to " + NOTIFCATION_CHAT);
+        }
     }
 
 }
