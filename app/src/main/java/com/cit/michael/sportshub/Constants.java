@@ -17,4 +17,10 @@ public class Constants {
     public final static String NOTIFCATION_ACTIVITY = "open_activity";
     public final static String NOTIFCATION_CHAT = "Activity_Chat.class";
     public final static String NOTIFCATION_USER_ID = "sender_id";
+
+    //Check if chat activity is opened.
+    public final static String CHAT_ACTIVITY_OPEN = "chatActivityActive";
+
+    //Shared Pref
+    public final static String APP_INFO = "appInfo";
 }

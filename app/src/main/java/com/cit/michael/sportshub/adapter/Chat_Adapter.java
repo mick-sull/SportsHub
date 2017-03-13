@@ -98,7 +98,7 @@ public class Chat_Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         Picasso.with(otherChatViewHolder.profilePic.getContext()).load(chat.getProfilePictureUrl()).placeholder(R.drawable.img_circle_placeholder).resize(200, 200).transform(new CircleTransform()).into(otherChatViewHolder.profilePic);
 
         otherChatViewHolder.username.setText(chat.getSender());
-        otherChatViewHolder.message.setText(chat.getMessage());
+        otherChatViewHolder.message.setText(chat.getSender() + chat.getMessage());
         otherChatViewHolder.timestamp.setText(converteTimestamp(chat.getTimestamp()));
 
 

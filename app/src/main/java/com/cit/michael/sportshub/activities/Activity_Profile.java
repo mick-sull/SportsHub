@@ -89,7 +89,7 @@ public class Activity_Profile extends AppCompatActivity {
                 listEvents = response.body().getEvent();
                 listLocaton = response.body().getLocation();
                 user = response.body().getUser();
-                Toast.makeText(ctx, "Activity Profile...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Activity Profile...", Toast.LENGTH_SHORT).show();
                 if(listEvents.isEmpty()){
                     //Toast.makeText(ctx, "No Previous Events...", Toast.LENGTH_SHORT).show();
                     lblPerviousEvents.setText("NO PREVIOUS EVENTS");
@@ -143,18 +143,18 @@ public class Activity_Profile extends AppCompatActivity {
         int id = item.getItemId();
 
         if(id == R.id.home){
-            Toast.makeText(this, "Finish Activity", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Finish Activity", Toast.LENGTH_SHORT).show();
             NavUtils.navigateUpFromSameTask(this);
         }
 
         if(!user.get(0).getUserId().equals(auth.getCurrentUser().getUid())) {
             if (id == R.id.addFriend) {
-                Toast.makeText(this, "addFriend", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "addFriend", Toast.LENGTH_SHORT).show();
                 //validator.validate();
             }
 
             if (id == R.id.messageUser) {
-                Toast.makeText(this, "messageUser", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "messageUser", Toast.LENGTH_SHORT).show();
                 //Toast.makeText(this, "Event Created", Toast.LENGTH_SHORT).show();
                 //validator.validate();
             }
@@ -185,7 +185,7 @@ public class Activity_Profile extends AppCompatActivity {
         if(user.get(0).getUserId().equals(auth.getCurrentUser().getUid())){
             menu.removeItem(R.id.addFriend);
             menu.removeItem(R.id.messageUser);
-            Toast.makeText(this, "addFriend", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "addFriend", Toast.LENGTH_SHORT).show();
         }
         else {
 

@@ -65,6 +65,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
     NetworkService service;
     FirebaseInstanceId mFirebaseInstanceId;
     User user;
+    public static boolean chat_active = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

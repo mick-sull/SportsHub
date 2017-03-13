@@ -30,7 +30,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
     NetworkService service;
-
+    //SharedPreferences sp = getSharedPreferences(APP_INFO, MODE_PRIVATE);
+   /* SharedPreferences sharedPreferences =this.getSharedPreferences(APP_INFO, Context.MODE_PRIVATE);
+    Boolean isChatActivityOpen = sharedPreferences.getBoolean(CHAT_ACTIVITY_OPEN, false);*/
     /**
      * Called when message is received.
      *
@@ -50,7 +52,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // [END_EXCLUDE]
 
         service = RestClient.getSportsHubApiClient();
-        sendNotification(remoteMessage);
+        Log.d("CHATISSUE", "NOTIFCATION_ACTIVITY1"  + remoteMessage.getData().get(NOTIFCATION_ACTIVITY + "is equal to " + NOTIFCATION_CHAT));
+        if(remoteMessage.getData().get(NOTIFCATION_ACTIVITY).equals(NOTIFCATION_CHAT)){
+            sendChatNotification(remoteMessage);
+        }
+        else{
+            Log.d(TAG, "Activity: " + remoteMessage.getData().get(NOTIFCATION_ACTIVITY) + " is not equal to " + NOTIFCATION_CHAT);
+        }
 
 
         // TODO(developer): Handle FCM messages here.
@@ -68,7 +76,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         // Also if you intend on generating your own notifications as a result of a received FCM
-        // message, here is where that should be initiated. See sendNotification method below.
+        // message, here is where that should be initiated. See sendChatNotification method below.
     }
     // [END receive_message]
 
@@ -77,9 +85,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      *
      * @param remoteMessage FCM message body received.
      */
-    private void sendNotification(final RemoteMessage remoteMessage) {
+    private void sendChatNotification(final RemoteMessage remoteMessage) {
+        Log.d("CHATISSUE", "NOTIFCATION_ACTIVITY2"  + remoteMessage.getData().get(NOTIFCATION_ACTIVITY));
 
-        if(remoteMessage.getData().get(NOTIFCATION_ACTIVITY).equals(NOTIFCATION_CHAT)){
+       // if(remoteMessage.getData().get(NOTIFCATION_ACTIVITY).equals(NOTIFCATION_CHAT)){
+            Log.d("CHATISSUE", "FIREBASE CREATING NOTIFICAITON" );
             service.getUser(remoteMessage.getData().get(NOTIFCATION_USER_ID)).enqueue(new Callback<RestProfile>() {
                 @Override
                 public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
@@ -95,7 +105,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext())
                             .setSmallIcon(R.drawable.logo_googleg_color_18dp)
                             .setContentTitle("SportsHub")
-                            .setContentText(remoteMessage.getData().get("message"))
+                            .setContentText(user.getUserFullName() + remoteMessage.getData().get("message"))
                             .setAutoCancel(true)
                             .setSound(defaultSoundUri)
                             .setContentIntent(pendingIntent);
@@ -112,10 +122,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     Log.d(TAG, "Getting user: " + " failed to get user error: " + t.toString());
                 }
             });
-        }
-        else{
-            Log.d(TAG, "Activity: " + remoteMessage.getData().get(NOTIFCATION_ACTIVITY) + " is not equal to " + NOTIFCATION_CHAT);
-        }
+
+
     }
 
 }
