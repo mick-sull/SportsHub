@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.cit.michael.sportshub.R;
 import com.cit.michael.sportshub.adapter.ExpandableHeightListView;
@@ -24,6 +25,7 @@ import com.cit.michael.sportshub.rest.RestClient;
 import com.cit.michael.sportshub.rest.model.RestUsers;
 import com.cit.michael.sportshub.ui.ProfileViewFragment;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +57,8 @@ public class Fragment_Friends_List extends Fragment {
     private FirebaseAuth auth;
     private RecyclerView recyclerView;
     private User_Friends_Adapter mAdapter;
+    public Button btnFriendStatus;
+    //@BindView(R.id.btnUnfriend) Button btnFriendStatus;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -92,8 +96,10 @@ public class Fragment_Friends_List extends Fragment {
             @Override
             public void onResponse(Call<RestUsers> call, Response<RestUsers> response) {
                 Log.d("FRIENDS LIST", "Result: " + response.message().toString());
+                Log.d("ABC", "Request data " + new Gson().toJson(response));
                 //if(!response.body().getUserDetails().isEmpty()){
                     listFriends = response.body().getUser();
+                    Log.d("ABC", "getAction_user " + listFriends.get(0).getAction_user());
                     displayFriends();
              //   }
             }
@@ -118,8 +124,30 @@ public class Fragment_Friends_List extends Fragment {
                     }
                 })
         );
+
+
+
         return rootView;
     }
+
+/*    @OnClick(R.id.btnUnfriend)
+    public void friendship(View rootView) {
+        // TODO submit data to server...
+        Toast.makeText(getContext(), "Status: " + btnFriendStatus.getText().toString(), Toast.LENGTH_SHORT).show();
+    }*/
+/*
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+
+        btnFriendStatus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getContext(), "Status: " + btnFriendStatus.getText().toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+*/
 
     private void displayFriends() {
         //for(User user : listFriends){
@@ -130,7 +158,7 @@ public class Fragment_Friends_List extends Fragment {
             }
         }
 
-        mAdapter = new User_Friends_Adapter(listFriends, getContext());
+        mAdapter = new User_Friends_Adapter(listFriends, getContext(), auth.getCurrentUser().getUid());
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());

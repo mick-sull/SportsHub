@@ -25,6 +25,7 @@ import retrofit2.Response;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_ACTIVITY;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_CHAT;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_USER_ID;
+import static com.cit.michael.sportshub.activities.Activity_Main.chat_active;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -53,7 +54,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         service = RestClient.getSportsHubApiClient();
         Log.d("CHATISSUE", "NOTIFCATION_ACTIVITY1"  + remoteMessage.getData().get(NOTIFCATION_ACTIVITY + "is equal to " + NOTIFCATION_CHAT));
-        if(remoteMessage.getData().get(NOTIFCATION_ACTIVITY).equals(NOTIFCATION_CHAT)){
+        if(remoteMessage.getData().get(NOTIFCATION_ACTIVITY).equals(NOTIFCATION_CHAT) && !chat_active){
             sendChatNotification(remoteMessage);
         }
         else{
@@ -105,7 +106,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext())
                             .setSmallIcon(R.drawable.logo_googleg_color_18dp)
                             .setContentTitle("SportsHub")
-                            .setContentText(user.getUserFullName() + remoteMessage.getData().get("message"))
+                            .setContentText(user.getUserFullName() +": " + remoteMessage.getData().get("message"))
                             .setAutoCancel(true)
                             .setSound(defaultSoundUri)
                             .setContentIntent(pendingIntent);

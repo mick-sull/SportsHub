@@ -39,11 +39,74 @@ public class Chat_Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         this.ctx = ctx;
     }
 
+
     public void add(Chat chat) {
-        mChats.add(chat);
+        //mChats.add(chat);
+        Boolean found = false;
+
+        //Not ideal if the app is to scale
+        for (int i = 0; i <= mChats.size() - 1; i++) {
+            if ((mChats.get(i).getReceiverUid().equals(chat.getReceiverUid()) && mChats.get(i).getSenderUid().equals(chat.getSenderUid()))
+                    || (mChats.get(i).getReceiverUid().equals(chat.getSenderUid()) && mChats.get(i).getSenderUid().equals(chat.getReceiverUid()))) {
+                mChats.set(i, chat);
+                Log.d("FRAGCHAT", "Chat found" +
+                        "mChat rID: " + mChats.get(i).getReceiverUid() + "mChat sID" + mChats.get(i).getSenderUid() +
+                        "chat rID: " + chat.getReceiverUid() + "chat sID" + chat.getSenderUid());
+                //Collections.sort(mChats, new CustomComparator());
+                notifyItemChanged(i);
+                notifyItemRangeRemoved(0, mChats.size());
+/*                mChats.remove(i);
+                notifyItemRemoved(i);
+                mChats.add(chat);
+                notifyItemInserted(mChats.size() - 1);*/
+                found = true;
+            }
+        }
+
+            if(!found){
+                Log.d("FRAGCHAT", "Chat not found");
+                mChats.add(chat);
+                Collections.sort(mChats, new CustomComparator());
+                notifyItemInserted(mChats.size() - 1);
+            }
+
+
+
+
+
+
+        //Check if a chat list is made already for the chat object that is being passed in. if no check, a duplicate will be made
+   /*
+       if(mChats.isEmpty()){
+            mChats.add(chat);
+            Collections.sort(mChats, new CustomComparator());
+            notifyItemInserted(mChats.size() - 1);
+        }
+        else {
+            for (int i = 0; i <= mChats.size() - 1; i++) {
+                if ((mChats.get(i).getReceiverUid().equals(chat.getReceiverUid()) && mChats.get(i).getSenderUid().equals(chat.getSenderUid()))
+                        || (mChats.get(i).getReceiverUid().equals(chat.getSenderUid()) && mChats.get(i).getSenderUid().equals(chat.getReceiverUid()))) {
+                    mChats.set(i, chat);
+                    Log.d("FRAGCHAT", "Chat found" +
+                            "mChat rID: " + mChats.get(i).getReceiverUid() + "mChat sID" + mChats.get(i).getSenderUid() +
+                            "chat rID: " + chat.getReceiverUid() + "chat sID" + chat.getSenderUid());
+                    //Collections.sort(mChats, new CustomComparator());
+                    notifyItemChanged(i);
+                } else {
+                    Log.d("FRAGCHAT", "Chat not found" +
+                            "mChat rID: " + mChats.get(i).getReceiverUid() + "mChat sID" + mChats.get(i).getSenderUid() +
+                            "chat rID: " + chat.getReceiverUid() + "chat sID" + chat.getSenderUid());
+                    mChats.add(chat);
+                    //Collections.sort(mChats, new CustomComparator());
+                    notifyItemInserted(mChats.size() - 1);
+                }
+            }
+        }*/
+
+
         Collections.sort(mChats, new CustomComparator());
         notifyItemInserted(mChats.size() - 1);
-        Log.d("FRAGCHAT", "Chat_Adapter add " + chat.getMessage() + " added");
+        //Log.d("FRAGCHAT", "Chat_Adapter add " + chat.getMessage() + " added");
     }
 
     @Override
@@ -55,12 +118,10 @@ public class Chat_Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             case VIEW_TYPE_ME:
                 View viewChatMine = layoutInflater.inflate(R.layout.list_open_chats, parent, false);
                 viewHolder = new Chat_Adapter.MyChatViewHolder(viewChatMine);
-                Log.d("FRAGCHAT", "Chat_Adapter add VIEW_TYPE_ME");
                 break;
             case VIEW_TYPE_OTHER:
                 View viewChatOther = layoutInflater.inflate(R.layout.list_open_chats, parent, false);
                 viewHolder = new Chat_Adapter.OtherChatViewHolder(viewChatOther);
-                Log.d("FRAGCHAT", "Chat_Adapter add VIEW_TYPE_OTHER");
                 break;
         }
         return viewHolder;
@@ -83,7 +144,17 @@ public class Chat_Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     private void configureMyChatViewHolder(Chat_Adapter.MyChatViewHolder myChatViewHolder, int position) {
         Chat chat = mChats.get(position);
-        Picasso.with(myChatViewHolder.profilePic.getContext()).load(chat.getProfilePictureUrl()).placeholder(R.drawable.img_circle_placeholder).resize(200, 200).transform(new CircleTransform()).into(myChatViewHolder.profilePic);
+
+
+
+        if(chat.getReceiverPictureUrl() == null){
+            Picasso.with(myChatViewHolder.profilePic.getContext()).load(R.drawable.fb_default_icon).placeholder(R.drawable.img_circle_placeholder).resize(200, 200).transform(new CircleTransform()).into(myChatViewHolder.profilePic);
+        }
+        else{
+            Picasso.with(myChatViewHolder.profilePic.getContext()).load(chat.getReceiverPictureUrl()).placeholder(R.drawable.img_circle_placeholder).resize(200, 200).transform(new CircleTransform()).into(myChatViewHolder.profilePic);
+        }
+
+        //Picasso.with(myChatViewHolder.profilePic.getContext()).load(chat.getProfilePictureUrl()).placeholder(R.drawable.img_circle_placeholder).resize(200, 200).transform(new CircleTransform()).into(myChatViewHolder.profilePic);
 
         //Last person to send a message
         myChatViewHolder.username.setText(chat.getReceiver());
@@ -94,11 +165,17 @@ public class Chat_Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private void configureOtherChatViewHolder(Chat_Adapter.OtherChatViewHolder otherChatViewHolder, int position) {
         Chat chat = mChats.get(position);
 
+        if(chat.getReceiverPictureUrl() == null){
+            Picasso.with(otherChatViewHolder.profilePic.getContext()).load(R.drawable.fb_default_icon).placeholder(R.drawable.img_circle_placeholder).resize(200, 200).transform(new CircleTransform()).into(otherChatViewHolder.profilePic);
+        }
+        else{
+            Picasso.with(otherChatViewHolder.profilePic.getContext()).load(chat.getProfilePictureUrl()).placeholder(R.drawable.img_circle_placeholder).resize(200, 200).transform(new CircleTransform()).into(otherChatViewHolder.profilePic);
 
-        Picasso.with(otherChatViewHolder.profilePic.getContext()).load(chat.getProfilePictureUrl()).placeholder(R.drawable.img_circle_placeholder).resize(200, 200).transform(new CircleTransform()).into(otherChatViewHolder.profilePic);
+        }
+
 
         otherChatViewHolder.username.setText(chat.getSender());
-        otherChatViewHolder.message.setText(chat.getSender() + chat.getMessage());
+        otherChatViewHolder.message.setText(chat.getSender() +": " + chat.getMessage());
         otherChatViewHolder.timestamp.setText(converteTimestamp(chat.getTimestamp()));
 
 
@@ -122,6 +199,7 @@ public class Chat_Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             return VIEW_TYPE_OTHER;
         }
     }
+
 
     private static class MyChatViewHolder extends RecyclerView.ViewHolder {
         ImageView profilePic;

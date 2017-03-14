@@ -110,9 +110,7 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
             rvListMessage.setLayoutManager(mLinearLayoutManager);
             rvListMessage.setAdapter(firebaseAdapter);
         }*/
-        dialog = new ProgressDialog(this);
-        dialog.setMessage("Loading....");
-        dialog.show();
+
         getMessageFromFirebaseUser(mFirebaseAuth.getCurrentUser().getUid(),  receivingUser.getUserId());
 
         }
@@ -133,14 +131,14 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
     }
     @Override
     protected void onDestroy() {
-        super.onStop();
+        super.onDestroy();
 
         // Store our shared preference
         chat_active = false;
     }
     @Override
     protected void onResume() {
-        super.onStop();
+        super.onResume();
 
         // Store our shared preference
         chat_active = true;
@@ -172,7 +170,7 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
         //mFirebaseDatabaseReference.child(CHAT_REFERENCE).push().setValue(model);
         //mFirebaseDatabaseReference.child(mId).push().setValue(model);
         //edMessage.setText(null);
-        chat = new Chat(mFirebaseUser.getDisplayName(),receivingUser.getUserFullName(),mFirebaseUser.getUid(), receivingUser.getUserId(),edMessage.getText().toString(), Calendar.getInstance().getTime().getTime()+"", mFirebaseUser.getPhotoUrl().toString());
+        chat = new Chat(mFirebaseUser.getDisplayName(),receivingUser.getUserFullName(),mFirebaseUser.getUid(), receivingUser.getUserId(),edMessage.getText().toString(), Calendar.getInstance().getTime().getTime()+"", mFirebaseUser.getPhotoUrl().toString(), receivingUser.getUserProfileUrl());
         final String room_type_1 = mFirebaseAuth.getCurrentUser().getUid() + "_" + receivingUser.getUserId();
         final String room_type_2 = receivingUser.getUserId() + "_" + mFirebaseAuth.getCurrentUser().getUid();
         //mFirebaseDatabaseReference.child(CHAT_REFERENCE).push().setValue(model);
@@ -237,6 +235,9 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
         Log.d("CHATISSUE", "getMessageFromFirebaseUser called" );
 
+        dialog = new ProgressDialog(this);
+        dialog.setMessage("Loading....");
+        dialog.show();
 
         databaseReference.child(ARG_CHAT_ROOMS).getRef().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -282,7 +283,7 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
                             onGetMessagesFailure("Unable to get message: " + databaseError.getMessage());
                         }
                     });
-                   // dialog.hide();
+                    dialog.hide();
                 } else if (dataSnapshot.hasChild(room_type_2)) {
                     Log.e(TAG, "getMessageFromFirebaseUser: " + room_type_2 + " exists");
                     //getAllMesages(room_type_2);

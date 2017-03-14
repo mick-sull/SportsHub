@@ -12,12 +12,13 @@ public class Chat {
     private String message;
     private String timestamp;
     private String profilePictureUrl;
+    private String receiverPictureUrl;
 
 
 
     public Chat() {}
 
-    public Chat(String sender, String receiver, String senderUid, String receiverUid, String message, String timestamp, String profilePictureUrl) {
+    public Chat(String sender, String receiver, String senderUid, String receiverUid, String message, String timestamp, String profilePictureUrl, String receiverPictureUrl) {
         this.sender = sender;
         this.receiver = receiver;
         this.senderUid = senderUid;
@@ -25,6 +26,7 @@ public class Chat {
         this.message = message;
         this.timestamp = timestamp;
         this.profilePictureUrl = profilePictureUrl;
+        this.receiverPictureUrl = receiverPictureUrl;
     }
 
     public String getSender() {
@@ -81,5 +83,13 @@ public class Chat {
 
     public void setProfilePictureUrl(String profilePictureUrl) {
         this.profilePictureUrl = profilePictureUrl;
+    }
+
+    public String getReceiverPictureUrl() {
+        return receiverPictureUrl;
+    }
+
+    public void setReceiverPictureUrl(String receiverPictureUrl) {
+        this.receiverPictureUrl = receiverPictureUrl;
     }
 }

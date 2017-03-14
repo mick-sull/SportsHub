@@ -41,6 +41,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.cit.michael.sportshub.activities.Activity_Main.chat_active;
 import static com.cit.michael.sportshub.chat.ui.Activity_Chat.ARG_CHAT_ROOMS;
 
 /**
@@ -163,9 +164,18 @@ public class Fragment_Chat_List extends Fragment {
 
     }
 
+/*    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("FRAGCHAT ", "onResume called");
+        chatListAdapter.clearArrayList();
+        getData();
+    }*/
+
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         Log.d("FRAGCHAT ", "onViewCreated");
+        Log.d("FRAGCHAT1 ", "is chat opened: " + chat_active);
         getData();
     }
 
@@ -196,6 +206,7 @@ public class Fragment_Chat_List extends Fragment {
 
                                             Log.d("FRAGCHAT ", "addChildEventListener ID:" + cID.getChatId() + "  message: " + model.getMessage());
                                             Log.d("FRAGCHAT ", "addChildEventListener sender name: " + model.getSender() + "  recevier name: " + model.getReceiver());
+
                                             onGetMessagesSuccess(model);
                                             listOfChats.add(model);
                                         } catch (Exception ex) {
@@ -206,6 +217,9 @@ public class Fragment_Chat_List extends Fragment {
 
                                 @Override
                                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                                    Chat model = dataSnapshot.getValue(Chat.class);
+                                    Log.d("FRAGCHAT ", "onChildChanged ID:" + cID.getChatId() + "  message: " + model.getMessage());
+                                    Log.d("FRAGCHAT ", "onChildChanged sender name: " + model.getSender() + "  recevier name: " + model.getReceiver());
 
                                 }
 

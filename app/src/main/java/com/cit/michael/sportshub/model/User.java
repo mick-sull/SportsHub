@@ -46,6 +46,11 @@ public class User implements Parcelable {
     @Nullable
     private int status;
 
+    @SerializedName("action_user_id")
+    @Expose
+    @Nullable
+    private String action_user;
+
     /**
      * No args constructor for use in serialization
      *
@@ -139,7 +144,14 @@ public class User implements Parcelable {
         this.status = status;
     }
 
+    @Nullable
+    public String getAction_user() {
+        return action_user;
+    }
 
+    public void setAction_user(@Nullable String action_user) {
+        this.action_user = action_user;
+    }
 
     protected User(Parcel in) {
         userId = in.readString();
@@ -149,6 +161,7 @@ public class User implements Parcelable {
         failedAttendances = in.readByte() == 0x00 ? null : in.readInt();
         organized = in.readByte() == 0x00 ? null : in.readInt();
         userToken = in.readString();
+        action_user = in.readString();
         status = in.readInt();
     }
 
@@ -182,6 +195,7 @@ public class User implements Parcelable {
         }
         dest.writeString(userToken);
         dest.writeInt(status);
+        dest.writeString(action_user);
     }
 
     @SuppressWarnings("unused")
