@@ -10,6 +10,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.cit.michael.sportshub.R;
+import com.cit.michael.sportshub.activities.Activity_Profile;
 import com.cit.michael.sportshub.chat.ui.Activity_Chat;
 import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.NetworkService;
@@ -24,6 +25,8 @@ import retrofit2.Response;
 
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_ACTIVITY;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_CHAT;
+import static com.cit.michael.sportshub.Constants.NOTIFCATION_FRIEND_REQUEST;
+import static com.cit.michael.sportshub.Constants.NOTIFCATION_TYPE;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_USER_ID;
 import static com.cit.michael.sportshub.activities.Activity_Main.chat_active;
 
@@ -54,8 +57,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         service = RestClient.getSportsHubApiClient();
         Log.d("CHATISSUE", "NOTIFCATION_ACTIVITY1"  + remoteMessage.getData().get(NOTIFCATION_ACTIVITY + "is equal to " + NOTIFCATION_CHAT));
-        if(remoteMessage.getData().get(NOTIFCATION_ACTIVITY).equals(NOTIFCATION_CHAT) && !chat_active){
+       // if(remoteMessage.getData().get(NOTIFCATION_ACTIVITY).equals(NOTIFCATION_CHAT) && !chat_active){
+        if(remoteMessage.getData().get(NOTIFCATION_TYPE).equals(NOTIFCATION_CHAT) && !chat_active){
             sendChatNotification(remoteMessage);
+        }
+        else if(remoteMessage.getData().get(NOTIFCATION_TYPE).equals(NOTIFCATION_FRIEND_REQUEST)){
+            sendFriendRequestNotifcations(remoteMessage);
         }
         else{
             Log.d(TAG, "Activity: " + remoteMessage.getData().get(NOTIFCATION_ACTIVITY) + " is not equal to " + NOTIFCATION_CHAT);
@@ -78,6 +85,47 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendChatNotification method below.
+    }
+
+    private void sendFriendRequestNotifcations(final RemoteMessage remoteMessage) {
+        service.getUser(remoteMessage.getData().get(NOTIFCATION_USER_ID)).enqueue(new Callback<RestProfile>() {
+            @Override
+            public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
+                Log.d(TAG, "Getting user: " + remoteMessage.getData().get(NOTIFCATION_USER_ID));
+                Intent indentReqProfile = new Intent(getApplicationContext(), Activity_Profile.class);
+                User user = response.body().getUser().get(0);
+                indentReqProfile.putExtra("user_id", user);
+                indentReqProfile.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0 /* Request code */, indentReqProfile,
+                        PendingIntent.FLAG_ONE_SHOT);
+
+                Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext())
+                        .setSmallIcon(R.drawable.logo_googleg_color_18dp)
+                        .setContentTitle("SportsHub")
+                        .setContentText(user.getUserFullName() +": " + remoteMessage.getData().get("message"))
+                        .setAutoCancel(true)
+                        .setSound(defaultSoundUri)
+                        //.setContentIntent(pendingIntent);
+                        .addAction(R.drawable.ic_person_outline_black_24dp,"View Profile",pendingIntent)
+                        .addAction(R.drawable.ic_check_black_24dp,"Accept",confirmFriendRequest());
+
+                NotificationManager notificationManager =
+                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+                notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+
+            }
+
+            @Override
+            public void onFailure(Call<RestProfile> call, Throwable t) {
+                Log.d(TAG, "Getting user: " + " failed to get user error: " + t.toString());
+            }
+        });
+    }
+
+    public void confirmFriendRequest(){
+
     }
     // [END receive_message]
 

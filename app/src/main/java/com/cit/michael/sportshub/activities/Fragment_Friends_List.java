@@ -1,11 +1,13 @@
 package com.cit.michael.sportshub.activities;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,14 +16,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.cit.michael.sportshub.R;
 import com.cit.michael.sportshub.adapter.ExpandableHeightListView;
 import com.cit.michael.sportshub.adapter.RecyclerItemClickListener;
 import com.cit.michael.sportshub.adapter.User_Friends_Adapter;
+import com.cit.michael.sportshub.model.Friendship;
 import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
+import com.cit.michael.sportshub.rest.model.RestRelationship;
 import com.cit.michael.sportshub.rest.model.RestUsers;
 import com.cit.michael.sportshub.ui.ProfileViewFragment;
 import com.google.firebase.auth.FirebaseAuth;
@@ -37,6 +42,7 @@ import retrofit2.Response;
 
 import static com.cit.michael.sportshub.Constants.ACCEPTED;
 import static com.cit.michael.sportshub.Constants.PENDING_REQUEST;
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -53,11 +59,13 @@ public class Fragment_Friends_List extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     private ExpandableHeightListView listview;
     private List<User> listFriends;
+    private List<User> listFriendsRequests;
     NetworkService service;
     private FirebaseAuth auth;
     private RecyclerView recyclerView;
     private User_Friends_Adapter mAdapter;
     public Button btnFriendStatus;
+    ProfileViewFragment editNameDialogFragment;
     //@BindView(R.id.btnUnfriend) Button btnFriendStatus;
 
     // TODO: Rename and change types of parameters
@@ -73,10 +81,6 @@ public class Fragment_Friends_List extends Fragment {
     public static Fragment_Friends_List newInstance(/*String param1, String param2*/) {
         Fragment_Friends_List fragment = new Fragment_Friends_List();
         Bundle args = new Bundle();
-/*        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);*/
-        //fragment.setArguments(args);
-        //Log.d("FRIENDS LIST", "newInstance");
         return fragment;
     }
 
@@ -87,6 +91,7 @@ public class Fragment_Friends_List extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_fragement__friends__list, container, false);
         listFriends = new ArrayList<User>();
+        listFriendsRequests = new ArrayList<User>();
         recyclerView = (RecyclerView) rootView.findViewById(R.id.friends_list_recycler_view);
         ButterKnife.bind(this, rootView);
 
@@ -114,48 +119,85 @@ public class Fragment_Friends_List extends Fragment {
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getContext(), new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
+                        if(listFriends.get(position).getStatus() == PENDING_REQUEST && listFriends.get(position).getAction_user() != auth.getCurrentUser().getUid()) {
 
-                        //FragmentManager fm = getSupportFragmentManager();
-                        FragmentTransaction fm = ((FragmentActivity)getActivity()).getSupportFragmentManager().beginTransaction();
-                        //ProfileViewFragment editNameDialogFragment = new ProfileViewFragment(listUserAttending.get(position).getUserProfileUrl(), listUserAttending.get(position).getUserId());
-                        User user = listFriends.get(position);
-                        ProfileViewFragment editNameDialogFragment = new ProfileViewFragment(user, getContext());
-                        editNameDialogFragment.show(fm, "test");
+                            displayDialog(listFriends.get(position), position);
+                        }
+                        else {
+                            //FragmentManager fm = getSupportFragmentManager();
+                            FragmentTransaction fm = ((FragmentActivity) getActivity()).getSupportFragmentManager().beginTransaction();
+                            //ProfileViewFragment editNameDialogFragment = new ProfileViewFragment(listUserAttending.get(position).getUserProfileUrl(), listUserAttending.get(position).getUserId());
+                            User user = listFriends.get(position);
+                            editNameDialogFragment = new ProfileViewFragment(user, getContext());
+                            editNameDialogFragment.show(fm, "test");
+                        }
                     }
                 })
         );
-
-
-
         return rootView;
     }
 
-/*    @OnClick(R.id.btnUnfriend)
-    public void friendship(View rootView) {
-        // TODO submit data to server...
-        Toast.makeText(getContext(), "Status: " + btnFriendStatus.getText().toString(), Toast.LENGTH_SHORT).show();
-    }*/
-/*
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    private void displayDialog(User user, final int position) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
 
-        btnFriendStatus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getContext(), "Status: " + btnFriendStatus.getText().toString(), Toast.LENGTH_SHORT).show();
+        // Setting Dialog Title
+        alertDialog.setTitle("Confirm friendship...");
+
+        // Setting Dialog Message
+        alertDialog.setMessage("Are you sure you want accept " + user.getUserFullName() + " as a friend?");
+
+        // Setting Icon to Dialog
+       // alertDialog.setIcon(R.drawable.delete);
+
+        // Setting Positive "Yes" Button
+        alertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog,int which) {
+
+                // Write your code here to invoke YES event
+                Toast.makeText(getApplicationContext(), "You clicked on YES", Toast.LENGTH_SHORT).show();
+                //mAdapter.notifyItemChanged(position);
+ /*               listFriends.get(position).setStatus(ACCEPTED);
+                mAdapter.notifyItemChanged(position, listFriends.get(position));*/
+                Friendship friendship = new Friendship(auth.getCurrentUser().getUid(), listFriends.get(position).getUserId(), ACCEPTED, auth.getCurrentUser().getUid());
+                service.friendRequestResponse(friendship).enqueue(new Callback<RestRelationship>() {
+                    @Override
+                    public void onResponse(Call<RestRelationship> call, Response<RestRelationship> response) {
+                        Toast.makeText(getContext(), "Now friends with " +  listFriends.get(position).getUserFullName(), Toast.LENGTH_SHORT).show();
+                        listFriends.get(position).setStatus(ACCEPTED);
+                        mAdapter.notifyItemChanged(position, listFriends.get(position));
+                    }
+
+                    @Override
+                    public void onFailure(Call<RestRelationship> call, Throwable t) {
+
+                    }
+                });
             }
         });
 
+        // Setting Negative "NO" Button
+        alertDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                // Write your code here to invoke NO event
+                Toast.makeText(getApplicationContext(), "You clicked on NO", Toast.LENGTH_SHORT).show();
+                dialog.cancel();
+            }
+        });
+
+        // Showing Alert Message
+        alertDialog.show();
     }
-*/
+
 
     private void displayFriends() {
         //for(User user : listFriends){
         for(int i = 0; i < listFriends.size(); i++){
             if(listFriends.get(i).getStatus() != ACCEPTED && listFriends.get(i).getStatus() != PENDING_REQUEST){
-                Log.d("REMOVED", listFriends.get(i).getUserFullName() + "STATUS: " + listFriends.get(i).getStatus());
-                listFriends.remove(listFriends.get(i));
+                //Log.d("REMOVED", listFriends.get(i).getUserFullName() + "STATUS: " + listFriends.get(i).getStatus());
+                //listFriends.remove(listFriends.get(i));
+                listFriends.remove(i);
             }
+
         }
 
         mAdapter = new User_Friends_Adapter(listFriends, getContext(), auth.getCurrentUser().getUid());
