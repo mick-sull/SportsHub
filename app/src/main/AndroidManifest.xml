@@ -110,7 +110,9 @@
             </intent-filter>
         </service>
 
-
+        <service
+            android:name="com.cit.michael.sportshub.MyService"
+            android:exported="false"/>
 
     </application>
 

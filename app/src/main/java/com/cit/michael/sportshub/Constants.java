@@ -12,6 +12,8 @@ public class Constants {
     public final static int ACCEPTED = 1;
     public final static int DECLINED = 2;
     public final static int BLOCKED = 3;
+    public final static int CANCELLED = 4;
+
 
     //Notifcations
     public final static String NOTIFCATION_ACTIVITY = "open_activity";

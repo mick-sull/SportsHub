@@ -19,6 +19,8 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import static com.cit.michael.sportshub.Constants.ACCEPTED;
+import static com.cit.michael.sportshub.Constants.CANCELLED;
+import static com.cit.michael.sportshub.Constants.PENDING_REQUEST;
 
 /**
  * Created by micha on 21/02/2017.
@@ -74,12 +76,16 @@ public class User_Friends_Adapter extends RecyclerView.Adapter<User_Friends_Adap
     public void onBindViewHolder(User_Friends_Adapter.UserViewHolder holder, int position) {
         holder.title.setText(users.get(position).getUserFullName());
         Picasso.with(context).load(users.get(position).getUserProfileUrl()).placeholder(R.drawable.img_circle_placeholder).resize(100,100).transform(new CircleTransform()).into(holder.image);
-        if(users.get(position).getStatus() == 0 && users.get(position).getAction_user().equals(uID)){
+        if(users.get(position).getStatus() == PENDING_REQUEST && users.get(position).getAction_user().equals(uID)){
             holder.btnUnfriend.setText("PENDING");
             holder.btnUnfriend.setTextColor(Color.parseColor("#ff1a1a"));
         }
-        else if(users.get(position).getStatus() == 0 && !users.get(position).getAction_user().equals(uID)){
+        else if(users.get(position).getStatus() == PENDING_REQUEST && !users.get(position).getAction_user().equals(uID)){
             holder.btnUnfriend.setText("ACCEPT");
+            holder.btnUnfriend.setTextColor(Color.parseColor("#ff1a1a"));
+        }
+        else if(users.get(position).getStatus() == CANCELLED && !users.get(position).getAction_user().equals(uID)){
+            holder.btnUnfriend.setText("CANCELLED");
             holder.btnUnfriend.setTextColor(Color.parseColor("#ff1a1a"));
         }
         else if(users.get(position).getStatus() == ACCEPTED){

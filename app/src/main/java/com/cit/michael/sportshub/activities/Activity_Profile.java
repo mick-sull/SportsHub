@@ -76,7 +76,7 @@ public class Activity_Profile extends AppCompatActivity {
         listLocaton = new ArrayList<Location>();
         user = new ArrayList<User>();
         recyclerView = (RecyclerView) findViewById(R.id.profile_recycler_view);
-        Log.d("TEST123", "Activity PROFILE");
+        Log.d("MyFirebaseMsgService ", "Profile: " +  user_id);
         ButterKnife.bind(this);
 
 

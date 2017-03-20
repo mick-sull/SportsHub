@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.cit.michael.sportshub.MyService;
 import com.cit.michael.sportshub.R;
 import com.cit.michael.sportshub.activities.Activity_Profile;
 import com.cit.michael.sportshub.chat.ui.Activity_Chat;
@@ -94,21 +95,34 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 Log.d(TAG, "Getting user: " + remoteMessage.getData().get(NOTIFCATION_USER_ID));
                 Intent indentReqProfile = new Intent(getApplicationContext(), Activity_Profile.class);
                 User user = response.body().getUser().get(0);
-                indentReqProfile.putExtra("user_id", user);
+                indentReqProfile.putExtra("user_id", remoteMessage.getData().get(NOTIFCATION_USER_ID));
+                Log.d(TAG, "USER: " + user.getUserFullName());
                 indentReqProfile.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0 /* Request code */, indentReqProfile,
+                PendingIntent pendingIntentReqProfile = PendingIntent.getActivity(getApplicationContext(), 0 /* Request code */, indentReqProfile,
                         PendingIntent.FLAG_ONE_SHOT);
+
+
+                Intent indentAcceptFriendRequest = new Intent(getApplicationContext(), MyService.class);
+                indentAcceptFriendRequest.setAction(MyService.ACTION1);
+                indentAcceptFriendRequest.putExtra("user_id", remoteMessage.getData().get(NOTIFCATION_USER_ID));
+                indentAcceptFriendRequest.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                PendingIntent piAcceptFriendRequest = PendingIntent.getService(getApplicationContext(), 0, indentAcceptFriendRequest, /*PendingIntent.FLAG_UPDATE_CURRENT*/ PendingIntent.FLAG_ONE_SHOT);
+
+
+
 
                 Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                 NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext())
                         .setSmallIcon(R.drawable.logo_googleg_color_18dp)
                         .setContentTitle("SportsHub")
-                        .setContentText(user.getUserFullName() +": " + remoteMessage.getData().get("message"))
+                        .setContentText(/*user.getUserFullName() +": " +*/ remoteMessage.getData().get("message"))
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)
-                        //.setContentIntent(pendingIntent);
-                        .addAction(R.drawable.ic_person_outline_black_24dp,"View Profile",pendingIntent)
-                        .addAction(R.drawable.ic_check_black_24dp,"Accept",confirmFriendRequest());
+                        //.setContentIntent(pendingIntentReqProfile);
+                        .addAction(R.drawable.ic_person_outline_black_24dp,"View Profile",pendingIntentReqProfile)
+                        .addAction(R.drawable.ic_check_black_24dp,"Accept",piAcceptFriendRequest);
+
+
 
                 NotificationManager notificationManager =
                         (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

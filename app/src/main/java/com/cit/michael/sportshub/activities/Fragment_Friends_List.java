@@ -2,6 +2,7 @@ package com.cit.michael.sportshub.activities;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -41,6 +42,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static com.cit.michael.sportshub.Constants.ACCEPTED;
+import static com.cit.michael.sportshub.Constants.CANCELLED;
 import static com.cit.michael.sportshub.Constants.PENDING_REQUEST;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
@@ -104,7 +106,7 @@ public class Fragment_Friends_List extends Fragment {
                 Log.d("ABC", "Request data " + new Gson().toJson(response));
                 //if(!response.body().getUserDetails().isEmpty()){
                     listFriends = response.body().getUser();
-                    Log.d("ABC", "getAction_user " + listFriends.get(0).getAction_user());
+//                    Log.d("ABC", "getAction_user " + listFriends.get(0).getAction_user());
                     displayFriends();
              //   }
             }
@@ -119,9 +121,16 @@ public class Fragment_Friends_List extends Fragment {
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getContext(), new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        if(listFriends.get(position).getStatus() == PENDING_REQUEST && listFriends.get(position).getAction_user() != auth.getCurrentUser().getUid()) {
+                        Log.d("FRIEND_DEBUG", "Action User: " + listFriends.get(position).getAction_user() + "Current User: " + auth.getCurrentUser().getUid() );
+                        //if(listFriends.get(position).getStatus() == PENDING_REQUEST && listFriends.get(position).getAction_user() != auth.getCurrentUser().getUid()) {
+                        if(listFriends.get(position).getStatus() == PENDING_REQUEST && !listFriends.get(position).getAction_user().equals(auth.getCurrentUser().getUid())) {
 
-                            displayDialog(listFriends.get(position), position);
+                            displayDialog(listFriends.get(position), position,"Confirm friendship...","Are you sure you want accept ", ACCEPTED, "Now friends with ");
+                        }
+
+                        else if(listFriends.get(position).getStatus() == PENDING_REQUEST && listFriends.get(position).getAction_user().equals(auth.getCurrentUser().getUid())) {
+
+                            displayDialog(listFriends.get(position), position,"Cancel Request...","Are you sure you want cancel the request to add ", CANCELLED, "Request cancelled with ");
                         }
                         else {
                             //FragmentManager fm = getSupportFragmentManager();
@@ -137,14 +146,21 @@ public class Fragment_Friends_List extends Fragment {
         return rootView;
     }
 
-    private void displayDialog(User user, final int position) {
+
+
+
+    private void displayDialog(User user, final int position, String title, String message, final int ACTION, final String toastMessage) {
+
+
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
 
         // Setting Dialog Title
-        alertDialog.setTitle("Confirm friendship...");
+       // alertDialog.setTitle("Confirm friendship...");
+        alertDialog.setTitle(title);
 
         // Setting Dialog Message
-        alertDialog.setMessage("Are you sure you want accept " + user.getUserFullName() + " as a friend?");
+        //alertDialog.setMessage("Are you sure you want accept " + user.getUserFullName() + " as a friend?");
+        alertDialog.setMessage(message + user.getUserFullName() + " as a friend?");
 
         // Setting Icon to Dialog
        // alertDialog.setIcon(R.drawable.delete);
@@ -153,17 +169,12 @@ public class Fragment_Friends_List extends Fragment {
         alertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog,int which) {
 
-                // Write your code here to invoke YES event
-                Toast.makeText(getApplicationContext(), "You clicked on YES", Toast.LENGTH_SHORT).show();
-                //mAdapter.notifyItemChanged(position);
- /*               listFriends.get(position).setStatus(ACCEPTED);
-                mAdapter.notifyItemChanged(position, listFriends.get(position));*/
-                Friendship friendship = new Friendship(auth.getCurrentUser().getUid(), listFriends.get(position).getUserId(), ACCEPTED, auth.getCurrentUser().getUid());
+                Friendship friendship = new Friendship(auth.getCurrentUser().getUid(), listFriends.get(position).getUserId(), ACTION, auth.getCurrentUser().getUid());
                 service.friendRequestResponse(friendship).enqueue(new Callback<RestRelationship>() {
                     @Override
                     public void onResponse(Call<RestRelationship> call, Response<RestRelationship> response) {
-                        Toast.makeText(getContext(), "Now friends with " +  listFriends.get(position).getUserFullName(), Toast.LENGTH_SHORT).show();
-                        listFriends.get(position).setStatus(ACCEPTED);
+                        Toast.makeText(getContext(), toastMessage +  listFriends.get(position).getUserFullName(), Toast.LENGTH_SHORT).show();
+                        listFriends.get(position).setStatus(ACTION);
                         mAdapter.notifyItemChanged(position, listFriends.get(position));
                     }
 
@@ -181,6 +192,16 @@ public class Fragment_Friends_List extends Fragment {
                 // Write your code here to invoke NO event
                 Toast.makeText(getApplicationContext(), "You clicked on NO", Toast.LENGTH_SHORT).show();
                 dialog.cancel();
+            }
+        });
+
+        alertDialog.setNeutralButton("View Profile",  new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog,int which) {
+
+                Intent intent = new Intent(getApplicationContext(), Activity_Profile.class);
+                intent.putExtra("user_id", listFriends.get(position).getUserId());
+                startActivity(intent);
+
             }
         });
 
