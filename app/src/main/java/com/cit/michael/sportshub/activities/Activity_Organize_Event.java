@@ -32,11 +32,13 @@ import com.cit.michael.sportshub.R;
 import com.cit.michael.sportshub.model.Event;
 import com.cit.michael.sportshub.model.Location;
 import com.cit.michael.sportshub.model.Sport;
+import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
 import com.cit.michael.sportshub.rest.model.RestEvent;
 import com.cit.michael.sportshub.rest.model.RestLocation;
 import com.cit.michael.sportshub.rest.model.RestSport;
+import com.cit.michael.sportshub.rest.model.RestUsers;
 import com.google.firebase.auth.FirebaseAuth;
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
@@ -89,6 +91,9 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     @BindView(R.id.txtEventCost) TextView txtEventCost;
     @BindView(R.id.rgEventGender) RadioGroup rgEventGender;
     @BindView(R.id.cbPublicGame) CheckBox cbPublicGame;
+    @BindView(R.id.txtInviteFriends) TextView txtInviteFriends;
+    @BindView(R.id.ivInviteFriends) ImageView ivInviteFriends;
+
 
     //Dates selected
     public static int sYear;
@@ -97,6 +102,8 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     private Subscription subscription_sports;
     public List<Sport> listOfSports;
     public List<Location> listOfLocations;
+    public List<User> listOfFriends;
+    private List<CharSequence> listOfNames;
     private FirebaseAuth auth;
     public Validator validator;
     public int selectedLocationId = 0;
@@ -113,6 +120,8 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
         service = RestClient.getSportsHubApiClient();
         listOfLocations = new ArrayList<Location>();
         listOfSports = new ArrayList<Sport>();
+        listOfFriends = new ArrayList<User>();
+        listOfNames = new ArrayList<CharSequence>();
         setContentView(R.layout.activity_organize_event);
         set_date = (TextView) findViewById(R.id.txtEventDate);
         set_time = (TextView) findViewById(R.id.txtEventTime);
@@ -122,6 +131,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
         ButterKnife.bind(this);
         getSportData();
         getLocationData();
+        getFriendsListData();
 
     }
 
@@ -148,6 +158,75 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     public void createEvent(View view) {
         // TODO submit data to server...
         validator.validate();
+    }
+
+    @OnClick(R.id.ivInviteFriends)
+    public void inviiteFriends(View view) {
+        // TODO submit data to server...
+        displayFriendsList(listOfNames);
+    }
+
+    private void displayFriendsList(final List<CharSequence> listOfNames) {
+        AlertDialog dialog;
+        //following code will be in your activity.java file
+  /*      final CharSequence[] items = {" Easy "," Medium "," Hard "," Very Hard "};
+        List<CharSequence> list = new ArrayList<CharSequence>();
+        list = listOfNames;*/
+
+
+        // arraylist to keep the selected items
+        final ArrayList seletedItems=new ArrayList();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select The Difficulty Level");
+        builder.setMultiChoiceItems(listOfNames.toArray((new CharSequence[listOfNames.size()])), null,
+                new DialogInterface.OnMultiChoiceClickListener() {
+                    // indexSelected contains the index of item (of which checkbox checked)
+                    @Override
+                    public void onClick(DialogInterface dialog, int indexSelected,
+                                        boolean isChecked) {
+                        if (isChecked) {
+                            // If the user checked the item, add it to the selected items
+                            // write your code when user checked the checkbox
+                            seletedItems.add(indexSelected);
+                        } else if (seletedItems.contains(indexSelected)) {
+                            // Else, if the item is already in the array, remove it
+                            // write your code when user Uchecked the checkbox
+                            seletedItems.remove(Integer.valueOf(indexSelected));
+                        }
+                    }
+                })
+                // Set the action buttons
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        //  Your code when user clicked on OK
+                        //  You can write the code  to save the selected item here
+
+                    }
+                });
+
+        dialog = builder.create();//AlertDialog dialog; create like this outside onClick
+        dialog.show();
+    }
+
+
+
+    private void getFriendsListData() {
+        service.getUserFriends(auth.getCurrentUser().getUid()).enqueue(new Callback<RestUsers>() {
+            @Override
+            public void onResponse(Call<RestUsers> call, Response<RestUsers> response) {
+                    listOfFriends = response.body().getUser();
+                for(int i = 0; i< listOfFriends.size(); i++){
+                    listOfNames.add(listOfFriends.get(i).getUserFullName());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RestUsers> call, Throwable t) {
+
+            }
+        });
     }
 
     private void dialogChooseLocation() {
