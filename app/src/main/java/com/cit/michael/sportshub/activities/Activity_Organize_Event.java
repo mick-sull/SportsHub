@@ -113,7 +113,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     NetworkConnectionUtil networkConnectionUtil;
     public int finishDownloading;
     ProgressDialog progress;
-    ArrayList<String> selectedUsers;
+    ArrayList<User> selectedUsers;
 
 /*    @BindView(R.id.txtEventDate) TextView set_date;
     @BindView(R.id.txtEventTime) TextView set_time;*/
@@ -127,7 +127,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
         listOfSports = new ArrayList<Sport>();
         listOfFriends = new ArrayList<User>();
         listOfNames = new ArrayList<CharSequence>();
-        selectedUsers = new ArrayList<String>();
+        selectedUsers = new ArrayList<User>();
         setContentView(R.layout.activity_organize_event);
         set_date = (TextView) findViewById(R.id.txtEventDate);
         set_time = (TextView) findViewById(R.id.txtEventTime);
@@ -179,10 +179,10 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     @OnClick(R.id.ivInviteFriends)
     public void inviiteFriends(View view) {
         // TODO submit data to server...
-        displayFriendsList(listOfNames);
+        displayFriendsList(listOfFriends);
     }
 
-    private void displayFriendsList(final List<CharSequence> listOfNames) {
+    private void displayFriendsList(final List<User> listOfNames) {
 
         AlertDialog.Builder alerBuilder = new AlertDialog.Builder(this);
         //final DBHelper dbHelper = new DBHelper(this);
@@ -190,10 +190,10 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
         String[] deviceNameArr = new String[listOfNames.size()];
         final boolean[] selectedItems = new boolean[listOfNames.size()];
         for(int i = 0 ; i < deviceNameArr.length ; i++){
-            deviceNameArr[i] = listOfNames.get(i).toString();
+            deviceNameArr[i] = listOfNames.get(i).getUserFullName();
             selectedItems[i] = false;
             for(int j = 0 ; j < selectedUsers.size() ; j++){
-                if(selectedUsers.get(j).toString() == listOfNames.get(i).toString()){
+                if(selectedUsers.get(j).getUserId() == listOfNames.get(i).getUserId()){
                     selectedItems[i] = true;
                     break;
                 }
@@ -203,21 +203,25 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
             @Override
             public void onClick(DialogInterface dialogInterface, int i, boolean b) {
                 Log.e("CheckStatus",String.valueOf(b));
-                selectedUsers.add(listOfFriends.get(i).getUserToken().toString());
+                //selectedUsers.add(listOfFriends.get(i).getUserToken().toString());
+                selectedUsers.add(listOfFriends.get(i));
             }
         }).setPositiveButton("OK",new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int ii) {
-                //selectedUsers.clear();
-
+                selectedUsers.clear();
                 for(int i = 0 ; i < selectedItems.length ; i++) {
                     Log.e("Sizzz", String.valueOf(selectedItems[i]));
-
+                    if(selectedItems[i]) {
+                        selectedUsers.add(listOfFriends.get(i));
+                    }
                 }
-                if(selectedUsers.size() >2){
-                    txtInviteFriends =
+                if(selectedUsers.size() >1){
+                    txtInviteFriends.setText(selectedUsers.get(0).getUserFullName() + " and " + (selectedUsers.size() -1) + " others");
                 }
-
+                else{
+                    txtInviteFriends.setText(selectedUsers.get(0).getUserFullName());
+                }
             }
         }).setCancelable(false).setTitle("Select friends").create().show();
 
@@ -270,10 +274,10 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
         service.getUserFriends(auth.getCurrentUser().getUid()).enqueue(new Callback<RestUsers>() {
             @Override
             public void onResponse(Call<RestUsers> call, Response<RestUsers> response) {
-                    listOfFriends = response.body().getUser();
-                for(int i = 0; i< listOfFriends.size(); i++){
+                listOfFriends = response.body().getUser();
+/*                for(int i = 0; i< listOfFriends.size(); i++){
                     listOfNames.add(listOfFriends.get(i).getUserFullName());
-                }
+                }*/
 
                 if(finishDownloading !=0){
                     finishDownloading--;
@@ -461,29 +465,29 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     }
 
     private void getSportData() {
-            service.getSport().enqueue(new Callback<RestSport>() {
-                @Override
-                public void onResponse(Call<RestSport> call, Response<RestSport> response) {
-                    if(response.body().getError()){
-                        Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
-                        if(finishDownloading !=0){
-                            finishDownloading--;
-                        }
-                        else {
-                            progress.dismiss();
-                        }
-
-                    }
-                    else{
-                        listOfSports = response.body().getSport();
-                    }
-                }
-                @Override
-                public void onFailure(Call<RestSport> call, Throwable t) {
+        service.getSport().enqueue(new Callback<RestSport>() {
+            @Override
+            public void onResponse(Call<RestSport> call, Response<RestSport> response) {
+                if(response.body().getError()){
                     Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
+                    if(finishDownloading !=0){
+                        finishDownloading--;
+                    }
+                    else {
+                        progress.dismiss();
+                    }
 
                 }
-            });
+                else{
+                    listOfSports = response.body().getSport();
+                }
+            }
+            @Override
+            public void onFailure(Call<RestSport> call, Throwable t) {
+                Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
+
+            }
+        });
 
     }
 
