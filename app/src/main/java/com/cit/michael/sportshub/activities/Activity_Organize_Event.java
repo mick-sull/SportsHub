@@ -165,7 +165,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
         addNewSport();
     }
 
-    @OnClick(R.id.txtSearchLocation)
+    @OnClick({R.id.txtSearchLocation, R.id.txtDisplayLocation})
     public void selectLocation(View view) {
         // TODO submit data to server...
         dialogChooseLocation();
@@ -176,7 +176,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
         validator.validate();
     }
 
-    @OnClick(R.id.ivInviteFriends)
+    @OnClick({R.id.ivInviteFriends, R.id.txtInviteFriends})
     public void inviiteFriends(View view) {
         // TODO submit data to server...
         displayFriendsList(listOfFriends);
@@ -186,11 +186,10 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
 
         AlertDialog.Builder alerBuilder = new AlertDialog.Builder(this);
         //final DBHelper dbHelper = new DBHelper(this);
-        //final List<String> totalDeviceList = listOfNames;
-        String[] deviceNameArr = new String[listOfNames.size()];
+        String[] userFullNames = new String[listOfNames.size()];
         final boolean[] selectedItems = new boolean[listOfNames.size()];
-        for(int i = 0 ; i < deviceNameArr.length ; i++){
-            deviceNameArr[i] = listOfNames.get(i).getUserFullName();
+        for(int i = 0 ; i < userFullNames.length ; i++){
+            userFullNames[i] = listOfNames.get(i).getUserFullName();
             selectedItems[i] = false;
             for(int j = 0 ; j < selectedUsers.size() ; j++){
                 if(selectedUsers.get(j).getUserId() == listOfNames.get(i).getUserId()){
@@ -199,7 +198,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
                 }
             }
         }
-        alerBuilder.setMultiChoiceItems(deviceNameArr,selectedItems,new DialogInterface.OnMultiChoiceClickListener() {
+        alerBuilder.setMultiChoiceItems(userFullNames,selectedItems,new DialogInterface.OnMultiChoiceClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i, boolean b) {
                 Log.e("CheckStatus",String.valueOf(b));
@@ -211,7 +210,6 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
             public void onClick(DialogInterface dialogInterface, int ii) {
                 selectedUsers.clear();
                 for(int i = 0 ; i < selectedItems.length ; i++) {
-                    Log.e("Sizzz", String.valueOf(selectedItems[i]));
                     if(selectedItems[i]) {
                         selectedUsers.add(listOfFriends.get(i));
                     }
@@ -224,47 +222,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
                 }
             }
         }).setCancelable(false).setTitle("Select friends").create().show();
-
-
-
-
-
-/*
-        AlertDialog dialog;
-        // arraylist to keep the selected items
-        final ArrayList seletedItems=new ArrayList();
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select The Difficulty Level");
-        builder.setMultiChoiceItems(listOfNames.toArray((new CharSequence[listOfNames.size()])), null,
-                new DialogInterface.OnMultiChoiceClickListener() {
-                    // indexSelected contains the index of item (of which checkbox checked)
-                    @Override
-                    public void onClick(DialogInterface dialog, int indexSelected,
-                                        boolean isChecked) {
-                        if (isChecked) {
-                            // If the user checked the item, add it to the selected items
-                            // write your code when user checked the checkbox
-                            seletedItems.add(indexSelected);
-                        } else if (seletedItems.contains(indexSelected)) {
-                            // Else, if the item is already in the array, remove it
-                            // write your code when user Uchecked the checkbox
-                            seletedItems.remove(Integer.valueOf(indexSelected));
-                        }
-                    }
-                })
-                // Set the action buttons
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        //  Your code when user clicked on OK
-                        //  You can write the code  to save the selected item here
-
-                    }
-                });
-
-        dialog = builder.create();//AlertDialog dialog; create like this outside onClick
-        dialog.show();*/
+        
     }
 
 

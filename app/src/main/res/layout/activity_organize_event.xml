@@ -164,7 +164,8 @@
                         android:id="@+id/txtEventDate"
                         android:layout_width="190dp"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/colorTex" />
+                        android:textColor="@color/colorTex"
+                        android:onClick="btnDate"/>
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -205,14 +206,15 @@
                         android:id="@+id/txtEventTime"
                         android:layout_width="190dp"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/colorTex" />
+                        android:textColor="@color/colorTex"
+                        android:onClick="btnTime"/>
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:srcCompat="@mipmap/time_icon"
                         android:id="@+id/imageView4"
                         android:layout_weight="0.20"
-                        android:onClick="btnTime"/>
+                        />
                 </LinearLayout>
                 <View
                     android:layout_marginTop="16dp"
@@ -413,13 +415,6 @@
                     android:id="@+id/btnAddSport"
                     android:layout_weight="0.20"
                     android:onClick="btnTime"/>
-
-<!--                <com.cit.michael.sportshub.ui.MyTextView
-                    android:text="New Sport"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/btnAddSport"
-                    />-->
             </LinearLayout>
 
             <View
@@ -572,7 +567,7 @@
                     app:srcCompat="@drawable/ic_person_add_black_24dp"
                     android:id="@+id/ivInviteFriends"
                     android:layout_weight="0.20"
-                    android:onClick="btnTime"/>
+                    />
             </LinearLayout>
 
         </LinearLayout>
