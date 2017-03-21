@@ -5,12 +5,14 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Created by micha on 17/01/2017.
  */
 
-public class RestSport {
+public class RestSport implements Observer {
 
     @SerializedName("Error")
     @Expose
@@ -46,5 +48,10 @@ public class RestSport {
 
     public void setSport(List<Sport> sport) {
         this.sport = sport;
+    }
+
+    @Override
+    public void update(Observable observable, Object data) {
+
     }
 }

@@ -39,9 +39,13 @@ public interface NetworkService {
     //Sport
     @GET("sport/")
     Call<RestSport> getSport();
+/*    @GET("sport/")
+    Observable<RestSport> getSport();*/
+
 
     @POST("sport/new")
     Call<RestSport> createSport(@Body Sport sport);
+
 
     @GET("sport/{id}")
     Call<List<RestSport>> groupList(@Path("id") int groupId, @Query("sort") String sort);

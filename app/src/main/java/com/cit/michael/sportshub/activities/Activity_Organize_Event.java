@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -109,6 +111,9 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     public int selectedLocationId = 0;
     public int selectedSportId = 0;
     NetworkConnectionUtil networkConnectionUtil;
+    public int finishDownloading;
+    ProgressDialog progress;
+    ArrayList<String> selectedUsers;
 
 /*    @BindView(R.id.txtEventDate) TextView set_date;
     @BindView(R.id.txtEventTime) TextView set_time;*/
@@ -122,6 +127,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
         listOfSports = new ArrayList<Sport>();
         listOfFriends = new ArrayList<User>();
         listOfNames = new ArrayList<CharSequence>();
+        selectedUsers = new ArrayList<String>();
         setContentView(R.layout.activity_organize_event);
         set_date = (TextView) findViewById(R.id.txtEventDate);
         set_time = (TextView) findViewById(R.id.txtEventTime);
@@ -129,9 +135,19 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
         validator.setValidationListener(this);
         networkConnectionUtil = new NetworkConnectionUtil();
         ButterKnife.bind(this);
+
+        progress = new ProgressDialog(this);
+        progress.setTitle("Loading");
+        progress.setMessage("Wait while loading...");
+        progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
+        progress.show();
+// To dismiss the dialog
+        progress.dismiss();
+        finishDownloading = 2;
         getSportData();
         getLocationData();
         getFriendsListData();
+
 
     }
 
@@ -167,13 +183,50 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     }
 
     private void displayFriendsList(final List<CharSequence> listOfNames) {
+
+        AlertDialog.Builder alerBuilder = new AlertDialog.Builder(this);
+        //final DBHelper dbHelper = new DBHelper(this);
+        //final List<String> totalDeviceList = listOfNames;
+        String[] deviceNameArr = new String[listOfNames.size()];
+        final boolean[] selectedItems = new boolean[listOfNames.size()];
+        for(int i = 0 ; i < deviceNameArr.length ; i++){
+            deviceNameArr[i] = listOfNames.get(i).toString();
+            selectedItems[i] = false;
+            for(int j = 0 ; j < selectedUsers.size() ; j++){
+                if(selectedUsers.get(j).toString() == listOfNames.get(i).toString()){
+                    selectedItems[i] = true;
+                    break;
+                }
+            }
+        }
+        alerBuilder.setMultiChoiceItems(deviceNameArr,selectedItems,new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+                Log.e("CheckStatus",String.valueOf(b));
+                selectedUsers.add(listOfFriends.get(i).getUserToken().toString());
+            }
+        }).setPositiveButton("OK",new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int ii) {
+                //selectedUsers.clear();
+
+                for(int i = 0 ; i < selectedItems.length ; i++) {
+                    Log.e("Sizzz", String.valueOf(selectedItems[i]));
+
+                }
+                if(selectedUsers.size() >2){
+                    txtInviteFriends =
+                }
+
+            }
+        }).setCancelable(false).setTitle("Select friends").create().show();
+
+
+
+
+
+/*
         AlertDialog dialog;
-        //following code will be in your activity.java file
-  /*      final CharSequence[] items = {" Easy "," Medium "," Hard "," Very Hard "};
-        List<CharSequence> list = new ArrayList<CharSequence>();
-        list = listOfNames;*/
-
-
         // arraylist to keep the selected items
         final ArrayList seletedItems=new ArrayList();
 
@@ -207,18 +260,26 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
                 });
 
         dialog = builder.create();//AlertDialog dialog; create like this outside onClick
-        dialog.show();
+        dialog.show();*/
     }
 
 
 
     private void getFriendsListData() {
+
         service.getUserFriends(auth.getCurrentUser().getUid()).enqueue(new Callback<RestUsers>() {
             @Override
             public void onResponse(Call<RestUsers> call, Response<RestUsers> response) {
                     listOfFriends = response.body().getUser();
                 for(int i = 0; i< listOfFriends.size(); i++){
                     listOfNames.add(listOfFriends.get(i).getUserFullName());
+                }
+
+                if(finishDownloading !=0){
+                    finishDownloading--;
+                }
+                else {
+                    progress.dismiss();
                 }
             }
 
@@ -382,6 +443,13 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
                 else{
                     listOfLocations = response.body().getLocation();
                 }
+
+                if(finishDownloading !=0){
+                    finishDownloading--;
+                }
+                else {
+                    progress.dismiss();
+                }
             }
 
             @Override
@@ -398,6 +466,12 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
                 public void onResponse(Call<RestSport> call, Response<RestSport> response) {
                     if(response.body().getError()){
                         Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
+                        if(finishDownloading !=0){
+                            finishDownloading--;
+                        }
+                        else {
+                            progress.dismiss();
+                        }
 
                     }
                     else{
