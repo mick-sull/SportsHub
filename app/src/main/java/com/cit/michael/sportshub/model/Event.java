@@ -11,6 +11,7 @@ import com.google.gson.annotations.SerializedName;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 
@@ -66,6 +67,11 @@ public class Event implements Parcelable {
     @Nullable
     private int appearance;
 
+    @SerializedName("friends_invited")
+    @Expose
+    @Nullable
+    private ArrayList<String> friends_tokens;
+
     /**
      * No args constructor for use in serialization
      */
@@ -87,7 +93,7 @@ public class Event implements Parcelable {
      * @param cost
      * @param eventName
      */
-    public Event(Integer eventId, Integer locationId, String creatorUserId, String eventDate, String eventTime, Integer sportId, Integer noSpace, Integer spaceLeft, Integer duration, String gender, Double cost, Integer publicGame, String eventName) {
+    public Event(Integer eventId, Integer locationId, String creatorUserId, String eventDate, String eventTime, Integer sportId, Integer noSpace, Integer spaceLeft, Integer duration, String gender, Double cost, Integer publicGame, String eventName,ArrayList<String> friends_tokens ) {
         super();
         this.eventId = eventId;
         this.locationId = locationId;
@@ -102,6 +108,7 @@ public class Event implements Parcelable {
         this.cost = cost;
         this.publicGame = publicGame;
         this.eventName = eventName;
+        this.friends_tokens = friends_tokens;
     }
 
 

@@ -26,6 +26,7 @@ import retrofit2.Response;
 
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_ACTIVITY;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_CHAT;
+import static com.cit.michael.sportshub.Constants.NOTIFCATION_EVENT_REQUEST;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_FRIEND_REQUEST;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_TYPE;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_USER_ID;
@@ -65,6 +66,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         else if(remoteMessage.getData().get(NOTIFCATION_TYPE).equals(NOTIFCATION_FRIEND_REQUEST)){
             sendFriendRequestNotifcations(remoteMessage);
         }
+        else if(remoteMessage.getData().get(NOTIFCATION_TYPE).equals(NOTIFCATION_EVENT_REQUEST)){
+            sendEventNotifcation(remoteMessage);
+        }
         else{
             Log.d(TAG, "Activity: " + remoteMessage.getData().get(NOTIFCATION_ACTIVITY) + " is not equal to " + NOTIFCATION_CHAT);
         }
@@ -86,6 +90,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendChatNotification method below.
+    }
+
+    private void sendEventNotifcation(RemoteMessage remoteMessage) {
+
     }
 
     private void sendFriendRequestNotifcations(final RemoteMessage remoteMessage) {

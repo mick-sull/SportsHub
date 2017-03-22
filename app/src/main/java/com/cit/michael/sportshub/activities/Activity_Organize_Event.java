@@ -105,6 +105,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     public List<Sport> listOfSports;
     public List<Location> listOfLocations;
     public List<User> listOfFriends;
+    ArrayList<String> userTokens;
     private List<CharSequence> listOfNames;
     private FirebaseAuth auth;
     public Validator validator;
@@ -468,9 +469,16 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
                 break;
         }
 
+        if(!selectedUsers.isEmpty()){
+            userTokens = new ArrayList<String>();
+            for(int i = 0; i< selectedUsers.size(); i++){
+                userTokens.add(selectedUsers.get(i).getUserToken().toString());
+            }
+        }
+
         Event newEvent = new Event(null,selectedLocationId,auth.getCurrentUser().getUid(),set_date.getText().toString(),set_time.getText().toString(), selectedSportId,
                 Integer.parseInt(txtNumSpaces.getText().toString()),
-                Integer.parseInt(txtNumSpaces.getText().toString()), Integer.parseInt(txtEventDuration.getText().toString()), eventGender, Double.parseDouble(txtEventCost.getText().toString()) ,publicGame, txtEventName.getText().toString());
+                Integer.parseInt(txtNumSpaces.getText().toString()), Integer.parseInt(txtEventDuration.getText().toString()), eventGender, Double.parseDouble(txtEventCost.getText().toString()) ,publicGame, txtEventName.getText().toString(), userTokens);
 
         service.createEvent(newEvent).enqueue(new Callback<RestEvent>(){
             @Override
