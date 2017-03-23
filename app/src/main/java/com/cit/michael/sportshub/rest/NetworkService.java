@@ -116,7 +116,8 @@ public interface NetworkService {
 
     //This should be a post but I need the new group ID passed back.
     @GET("group/groups/new/{group_name}")
-    Call<RestGroup> createGroup(@Query("group_name") String groupName);
+    Call<RestGroup> createGroup(@Query("group_name") String groupName,
+                                @Query("user_id") String userID);
 
 
 

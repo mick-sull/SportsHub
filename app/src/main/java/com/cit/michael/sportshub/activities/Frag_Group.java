@@ -353,7 +353,7 @@ public class Frag_Group extends Fragment {
                                 // edit text
                                 final String groupName = String.valueOf((userInput.getText()));
                                 //service = RestClient.getSportsHubApiClient();
-                                service.createGroup(groupName).enqueue(new Callback<RestGroup>() {
+                                service.createGroup(groupName, auth.getCurrentUser().getUid()).enqueue(new Callback<RestGroup>() {
                                     @Override
                                     public void onResponse(Call<RestGroup> call, Response<RestGroup> response) {
                                         Chat chat = new Chat(auth.getCurrentUser().getDisplayName(), groupName, auth.getCurrentUser().getUid(), response.body().getGroup().get(0).getGroupId().toString(), "Group Created", Calendar.getInstance().getTime().getTime() + "", auth.getCurrentUser().getPhotoUrl().toString(), auth.getCurrentUser().getPhotoUrl().toString());
