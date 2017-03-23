@@ -23,6 +23,7 @@ import com.cit.michael.sportshub.rest.model.RestAttendee;
 import com.cit.michael.sportshub.rest.model.RestEventDetails;
 import com.cit.michael.sportshub.ui.ProfileViewFragment;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.Gson;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -43,7 +44,8 @@ public class Activity_Event_Details extends AppCompatActivity  {
     public Location location;
     public Event event;
     public List<User> listUserAttending;
-    final String TAG = "EVENT DETAILS";
+    public List<User> organizer;
+    final String TAG = "EVENTDETAILS";
     private ExpandableHeightListView listview;
     private ProfileListView profileListView;
     private Boolean userAttending;
@@ -75,6 +77,7 @@ public class Activity_Event_Details extends AppCompatActivity  {
         Log.d("CHATISSUE3", "NOTIFCATION_ACTIVITY1"  + selectedEventID);
         Log.d("CHATISSUE4", "Event ID: " + getIntent().getIntExtra("eventSelected", 0));
         listUserAttending = new ArrayList<User>();
+        organizer = new ArrayList<User>();
         load_event_data(selectedEventID);
         userAttending = false;
         ButterKnife.bind(this);
@@ -145,6 +148,7 @@ public class Activity_Event_Details extends AppCompatActivity  {
             public void onResponse(Call<RestEventDetails> call, Response<RestEventDetails> response) {
 
              //   if (response.isSuccessful()) {
+                    Log.w(TAG, "JSON: " + new Gson().toJson(response));
 
                     if(response.body().getUser().isEmpty()){
                         Log.d(TAG, "getAttendee empty");
@@ -152,6 +156,13 @@ public class Activity_Event_Details extends AppCompatActivity  {
                     else {
                         listUserAttending = response.body().getUser();
                         Log.d(TAG, "listUserAttending not  empty size: " + response.body().getUser().size());
+                    }
+                    if(response.body().getOrganizer().isEmpty()){
+                        Log.d(TAG, "getOrganizer empty");
+                    }
+                    else {
+                        organizer = response.body().getOrganizer();
+                        Log.d(TAG, "getOrganizer not  empty size: " + response.body().getOrganizer().size());
                     }
 
                     if(response.body().getLocation().isEmpty()){
@@ -176,8 +187,11 @@ public class Activity_Event_Details extends AppCompatActivity  {
                             userAttending = true;
                             changeButtonColor();
                         }
+
                     }
                 }
+                Log.d("CHATISSUE2", "Organizer Size: " + organizer.size());
+                Log.d("CHATISSUE2", "Attendee: " + listUserAttending.size());
                         displayInfo();
 
             }
@@ -201,7 +215,9 @@ public class Activity_Event_Details extends AppCompatActivity  {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        txtDisplayOrganizer.setText(auth.getCurrentUser().getDisplayName());
+
+
+        txtDisplayOrganizer.setText(organizer.get(0).getUserFullName());
         txtDisplayDuration.setText(event.getDuration() + " mins");
         txtDisplayGender.setText(event.getGender());
         txtDisplayLocation.setText(location.getLocationName() + ", " + location.getAddress1() + ", "  + location.getAddress2());

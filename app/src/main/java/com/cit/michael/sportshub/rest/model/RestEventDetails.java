@@ -26,6 +26,12 @@ public class RestEventDetails {
     @SerializedName("User")
     @Expose
     private List<User> user = null;
+
+
+    @SerializedName("Organizer")
+    @Expose
+    private List<User> organizer = null;
+
     @SerializedName("Location")
     @Expose
     private List<Location> location = null;
@@ -69,4 +75,13 @@ public class RestEventDetails {
     public void setLocation(List<Location> location) {
         this.location = location;
     }
+
+    public List<User> getOrganizer() {
+        return organizer;
+    }
+
+    public void setOrganizer(List<User> organizer) {
+        this.organizer = organizer;
+    }
+
 }

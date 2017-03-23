@@ -13,6 +13,7 @@ import com.cit.michael.sportshub.rest.model.RestBase;
 import com.cit.michael.sportshub.rest.model.RestConversations;
 import com.cit.michael.sportshub.rest.model.RestEvent;
 import com.cit.michael.sportshub.rest.model.RestEventDetails;
+import com.cit.michael.sportshub.rest.model.RestGroup;
 import com.cit.michael.sportshub.rest.model.RestLocation;
 import com.cit.michael.sportshub.rest.model.RestProfile;
 import com.cit.michael.sportshub.rest.model.RestRelationship;
@@ -109,6 +110,14 @@ public interface NetworkService {
     //Notifications
     @POST("notification/chat_notification")
     Call<RestBase> sendChatNotification(@Body ChatNotification chatNotification);
+
+    @GET("group/groups/{user_id}")
+    Call<RestGroup> getGroups(@Query("user_id") String userID);
+
+    //This should be a post but I need the new group ID passed back.
+    @GET("group/groups/new/{group_name}")
+    Call<RestGroup> createGroup(@Query("group_name") String groupName);
+
 
 
     //Call<RestEventDetails> getEventDetails();

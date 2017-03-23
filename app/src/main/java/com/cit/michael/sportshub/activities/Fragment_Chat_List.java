@@ -164,13 +164,6 @@ public class Fragment_Chat_List extends Fragment {
 
     }
 
-/*    @Override
-    public void onResume() {
-        super.onResume();
-        Log.d("FRAGCHAT ", "onResume called");
-        chatListAdapter.clearArrayList();
-        getData();
-    }*/
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {

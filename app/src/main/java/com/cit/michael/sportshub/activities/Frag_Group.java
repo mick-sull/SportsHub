@@ -1,16 +1,55 @@
 package com.cit.michael.sportshub.activities;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.cit.michael.sportshub.R;
+import com.cit.michael.sportshub.adapter.Chat_Adapter;
+import com.cit.michael.sportshub.adapter.RecyclerItemClickListener;
+import com.cit.michael.sportshub.chat.model.Chat;
+import com.cit.michael.sportshub.chat.ui.Activity_Chat;
+import com.cit.michael.sportshub.model.Group;
+import com.cit.michael.sportshub.rest.NetworkService;
+import com.cit.michael.sportshub.rest.RestClient;
+import com.cit.michael.sportshub.rest.model.RestGroup;
+import com.cit.michael.sportshub.rest.model.RestProfile;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.gson.Gson;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import static com.cit.michael.sportshub.chat.ui.Activity_Chat.ARG_CHAT_ROOMS;
 
 
 /**
@@ -30,10 +69,18 @@ public class Frag_Group extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    NetworkService service;
+    private FirebaseAuth auth;
+    private List<Group> listOfGroups;
+    private Chat_Adapter chatListAdapter;
+    private RecyclerView recyclerView;
+    LinearLayoutManager layoutManager;
+    private List<Chat> listOfChats;
 
     private OnFragmentInteractionListener mListener;
     TextView info;
     Button createGroup;
+    private DatabaseReference mFirebaseDatabaseReference;
 
     public Frag_Group() {
         // Required empty public constructor
@@ -66,17 +113,164 @@ public class Frag_Group extends Fragment {
         }
     }
 
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_group, container, false);
-        info = (TextView) v.findViewById(R.id.txtGroupInfo);
-        createGroup = (Button) v.findViewById(R.id.btnCreateGroup);
-        info.setText("This screen displays the groups you belong to");
-        return v;
+        View rootView = inflater.inflate(R.layout.fragment_group, container, false);
+        auth = FirebaseAuth.getInstance();
+        mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
+
+        listOfGroups = new ArrayList<Group>();
+        listOfChats = new ArrayList<Chat>();
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.group_chats_list_recycler_view);
+        chatListAdapter = new Chat_Adapter(getContext(), new ArrayList<Chat>());
+
+
+
+
+        //recyclerView = (RecyclerView) rootView.findViewById(R.id.chats_list_recycler_view);
+        //info = (TextView) rootView.findViewById(R.id.txtGroupInfo);
+        //info.setText("This screen displays the groups you belong to");
+        //createGroup = (Button) rootView.findViewById(R.id.btnCreateGroup);
+        //info.setText("This screen displays the groups you belong to");
+
+        layoutManager = new LinearLayoutManager(getActivity());
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(chatListAdapter);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getContext(), new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        // TODO Handle item click
+                        // changeActivity(position);
+                        Log.d("FRAGCHAT ", "addOnItemTouchListener: position: " + position);
+                        List<Chat> sortedChatList = new ArrayList<Chat>();
+                        String receivingUser;
+                        sortedChatList = chatListAdapter.getSortedArrayList();
+
+                        if (auth.getCurrentUser().getUid().equals(sortedChatList.get(position).getSenderUid())) {
+                            receivingUser = sortedChatList.get(position).getReceiverUid();
+                        } else {
+                            receivingUser = sortedChatList.get(position).getSenderUid();
+                        }
+                        service.getUser(receivingUser).enqueue(new Callback<RestProfile>() {
+                            @Override
+                            public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
+                                if (!response.body().getError()) {
+                                    Intent intent = new Intent(getContext(), Activity_Chat.class);
+                                    intent.putExtra("receivingUser", response.body().getUser().get(0));
+                                    startActivity(intent);
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<RestProfile> call, Throwable t) {
+
+                            }
+                        });
+                    }
+
+
+                })
+        );
+
+
+
+/*        mLinearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
+        mLinearLayoutManager.setStackFromEnd(true);*/
+
+        ButterKnife.bind(this, rootView);
+
+        return rootView;
 
     }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        getGroups();
+    }
+
+    private void getGroups() {
+        Log.d("FRAGGROUP ", "getting groups....");
+        service = RestClient.getSportsHubApiClient();
+        service.getGroups(auth.getCurrentUser().getUid()).enqueue(new Callback<RestGroup>() {
+            @Override
+            public void onResponse(Call<RestGroup> call, Response<RestGroup> response) {
+                listOfGroups = response.body().getGroup();
+                Log.d("FRAGGROUP ", "onResponse listOfGroups.size()" + listOfGroups.size());
+                Log.d("FRAGGROUP ", "JSON: " + new Gson().toJson(response));
+                displayGroups();
+            }
+
+            @Override
+            public void onFailure(Call<RestGroup> call, Throwable t) {
+
+            }
+        });
+
+    }
+
+    private void displayGroups() {
+        final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+        if (!listOfGroups.isEmpty()) {
+            Log.d("FRAGGROUP ", "displayGroups listOfGroups.size()" + listOfGroups.size());
+
+            for (int i = 0; i < listOfGroups.size(); i++) {
+                Query getLastMessages = databaseReference.child(ARG_CHAT_ROOMS).child(listOfGroups.get(i).getGroupId().toString())
+                        .limitToLast(1);
+
+                getLastMessages.addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        if (dataSnapshot != null && dataSnapshot.getValue() != null) {
+                            try {
+
+                                Chat model = dataSnapshot.getValue(Chat.class);
+                                Log.d("FRAGGROUP ", "displayGroups getMessage" + model.getMessage());
+                                //Log.d("FRAGCHAT ", "addChildEventListener ID:" + listOfGroups.get(i).getGroupId().toString() + "  message: " + model.getMessage());
+                                //Log.d("FRAGCHAT ", "addChildEventListener sender name: " + model.getSender() + "  recevier name: " + model.getReceiver());
+
+                                onGetMessagesSuccess(model);
+                                listOfChats.add(model);
+                            } catch (Exception ex) {
+                                Log.e(getTag(), ex.getMessage());
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                        Chat model = dataSnapshot.getValue(Chat.class);
+                        // Log.d("FRAGCHAT ", "onChildChanged ID:" + cID.getChatId() + "  message: " + model.getMessage());
+                        Log.d("FRAGCHAT ", "onChildChanged sender name: " + model.getSender() + "  recevier name: " + model.getReceiver());
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+
+                });
+
+
+            }
+
+        }
+    }
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -94,6 +288,27 @@ public class Frag_Group extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+    }
+
+    public void onGetMessagesSuccess(Chat chat) {
+        Log.d("FRAGCHAT", "onGetMessagesSuccess " + chat.getMessage() + " added");
+/*        if (chatListAdapter == null) {
+            Log.d("FRAGCHAT",  "onGetMessagesSuccess chatListAdapter == null" );
+            chatListAdapter = new Chat_Adapter(getContext(),new ArrayList<Chat>());
+            layoutManager = new LinearLayoutManager(getActivity().getBaseContext());
+            layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+            recyclerView.setLayoutManager(layoutManager);
+            recyclerView.setAdapter(chatListAdapter);
+        }*/
+        chatListAdapter.add(chat);
+        recyclerView.smoothScrollToPosition(chatListAdapter.getItemCount() - 1);
+    }
+
+    @OnClick(R.id.btnCreateGroup)
+    public void createNewGroup(View rootView) {
+        // TODO submit data to server...
+        createNewGroup();
+
     }
 
     @Override
@@ -115,5 +330,60 @@ public class Frag_Group extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    public void createNewGroup() {
+        LayoutInflater li = LayoutInflater.from(getContext());
+        View promptsView = li.inflate(R.layout.fragment_add_sport, null);
+        //final String groupName;
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(getContext(), android.R.style.Theme_Holo_Light));
+
+        // set prompts.xml to alertdialog builder
+        alertDialogBuilder.setView(promptsView);
+        final EditText userInput = (EditText) promptsView
+                .findViewById(R.id.txtAddSport);
+        // set dialog message
+        alertDialogBuilder
+                .setCancelable(false)
+                .setTitle("Create new group: ")
+                .setPositiveButton("Add",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // get user input and set it to result
+                                // edit text
+                                final String groupName = String.valueOf((userInput.getText()));
+                                //service = RestClient.getSportsHubApiClient();
+                                service.createGroup(groupName).enqueue(new Callback<RestGroup>() {
+                                    @Override
+                                    public void onResponse(Call<RestGroup> call, Response<RestGroup> response) {
+                                        Chat chat = new Chat(auth.getCurrentUser().getDisplayName(), groupName, auth.getCurrentUser().getUid(), response.body().getGroup().get(0).getGroupId().toString(), "Group Created", Calendar.getInstance().getTime().getTime() + "", auth.getCurrentUser().getPhotoUrl().toString(), auth.getCurrentUser().getPhotoUrl().toString());
+                                        mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(response.body().getGroup().get(0).getGroupId().toString()).child(String.valueOf(chat.getTimestamp())).setValue(chat);
+                                        listOfGroups.add(response.body().getGroup().get(0));
+                                        listOfChats.add(chat);
+                                        chatListAdapter.add(chat);
+                                        recyclerView.smoothScrollToPosition(chatListAdapter.getItemCount() - 1);
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<RestGroup> call, Throwable t) {
+
+                                    }
+                                });
+
+                            }
+                        })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        // show it
+        alertDialog.show();
     }
 }
