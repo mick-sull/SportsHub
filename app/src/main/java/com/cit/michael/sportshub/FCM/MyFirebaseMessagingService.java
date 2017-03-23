@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.cit.michael.sportshub.MyService;
 import com.cit.michael.sportshub.R;
+import com.cit.michael.sportshub.activities.Activity_Event_Details;
 import com.cit.michael.sportshub.activities.Activity_Profile;
 import com.cit.michael.sportshub.chat.ui.Activity_Chat;
 import com.cit.michael.sportshub.model.User;
@@ -26,6 +27,7 @@ import retrofit2.Response;
 
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_ACTIVITY;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_CHAT;
+import static com.cit.michael.sportshub.Constants.NOTIFCATION_EVENT_ID;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_EVENT_REQUEST;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_FRIEND_REQUEST;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_TYPE;
@@ -67,6 +69,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             sendFriendRequestNotifcations(remoteMessage);
         }
         else if(remoteMessage.getData().get(NOTIFCATION_TYPE).equals(NOTIFCATION_EVENT_REQUEST)){
+            Log.d("CHATISSUE", "Event ID: " + remoteMessage.getData().get(NOTIFCATION_EVENT_ID));
             sendEventNotifcation(remoteMessage);
         }
         else{
@@ -93,6 +96,35 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void sendEventNotifcation(RemoteMessage remoteMessage) {
+        Intent indentEventReq = new Intent(getApplicationContext(), Activity_Event_Details.class);
+        Log.d("CHATISSUE2", "Event ID: " + (Integer.parseInt(remoteMessage.getData().get(NOTIFCATION_EVENT_ID).toString())));
+
+
+        indentEventReq.putExtra("eventSelected",  (Integer.parseInt(remoteMessage.getData().get(NOTIFCATION_EVENT_ID).toString())));
+
+
+
+
+        indentEventReq.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntentEventRequest = PendingIntent.getActivity(getApplicationContext(), 0 /* Request code */, indentEventReq,
+                PendingIntent.FLAG_ONE_SHOT);
+        Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext())
+                .setSmallIcon(R.drawable.logo_googleg_color_18dp)
+                .setContentTitle("SportsHub")
+                .setContentText(remoteMessage.getData().get("message"))
+                .setAutoCancel(true)
+                .setSound(defaultSoundUri)
+                //.setContentIntent(pendingIntentReqProfile);
+                //.setContentIntent(pendingIntentEventRequest)
+                .addAction(R.mipmap.date_icon,"View Event",pendingIntentEventRequest);
+
+
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
 
     }
 

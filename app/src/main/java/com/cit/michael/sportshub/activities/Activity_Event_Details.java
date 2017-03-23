@@ -72,6 +72,8 @@ public class Activity_Event_Details extends AppCompatActivity  {
         auth = FirebaseAuth.getInstance();
         service = RestClient.getSportsHubApiClient();
         selectedEventID = getIntent().getIntExtra("eventSelected", 0);
+        Log.d("CHATISSUE3", "NOTIFCATION_ACTIVITY1"  + selectedEventID);
+        Log.d("CHATISSUE4", "Event ID: " + getIntent().getIntExtra("eventSelected", 0));
         listUserAttending = new ArrayList<User>();
         load_event_data(selectedEventID);
         userAttending = false;
