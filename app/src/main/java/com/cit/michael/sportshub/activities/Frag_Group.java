@@ -21,15 +21,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.cit.michael.sportshub.R;
-import com.cit.michael.sportshub.adapter.Chat_Adapter;
 import com.cit.michael.sportshub.adapter.RecyclerItemClickListener;
+import com.cit.michael.sportshub.chat.adapter.Group_Chat_Adapter;
 import com.cit.michael.sportshub.chat.model.Chat;
-import com.cit.michael.sportshub.chat.ui.Activity_Chat;
+import com.cit.michael.sportshub.chat.model.Group_Chat;
+import com.cit.michael.sportshub.chat.ui.Activity_Group_Chat;
 import com.cit.michael.sportshub.model.Group;
 import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
 import com.cit.michael.sportshub.rest.model.RestGroup;
-import com.cit.michael.sportshub.rest.model.RestProfile;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -72,10 +72,11 @@ public class Frag_Group extends Fragment {
     NetworkService service;
     private FirebaseAuth auth;
     private List<Group> listOfGroups;
-    private Chat_Adapter chatListAdapter;
+    private Group_Chat_Adapter chatListAdapter;
     private RecyclerView recyclerView;
     LinearLayoutManager layoutManager;
-    private List<Chat> listOfChats;
+    private List<Group_Chat> listOfChats;
+    List<Group_Chat> sortedChatList;
 
     private OnFragmentInteractionListener mListener;
     TextView info;
@@ -121,18 +122,9 @@ public class Frag_Group extends Fragment {
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
         listOfGroups = new ArrayList<Group>();
-        listOfChats = new ArrayList<Chat>();
+        listOfChats = new ArrayList<Group_Chat>();
         recyclerView = (RecyclerView) rootView.findViewById(R.id.group_chats_list_recycler_view);
-        chatListAdapter = new Chat_Adapter(getContext(), new ArrayList<Chat>());
-
-
-
-
-        //recyclerView = (RecyclerView) rootView.findViewById(R.id.chats_list_recycler_view);
-        //info = (TextView) rootView.findViewById(R.id.txtGroupInfo);
-        //info.setText("This screen displays the groups you belong to");
-        //createGroup = (Button) rootView.findViewById(R.id.btnCreateGroup);
-        //info.setText("This screen displays the groups you belong to");
+        chatListAdapter = new Group_Chat_Adapter(getContext(), new ArrayList<Group_Chat>());
 
         layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -145,41 +137,38 @@ public class Frag_Group extends Fragment {
                     public void onItemClick(View view, int position) {
                         // TODO Handle item click
                         // changeActivity(position);
-                        Log.d("FRAGCHAT ", "addOnItemTouchListener: position: " + position);
-                        List<Chat> sortedChatList = new ArrayList<Chat>();
+                        Log.d("FRAG_GROUP ", "addOnItemTouchListener: position: " + position);
+                        sortedChatList = new ArrayList<Group_Chat>();
                         String receivingUser;
                         sortedChatList = chatListAdapter.getSortedArrayList();
 
-                        if (auth.getCurrentUser().getUid().equals(sortedChatList.get(position).getSenderUid())) {
+/*                        if (auth.getCurrentUser().getUid().equals(sortedChatList.get(position).getSenderUid())) {
                             receivingUser = sortedChatList.get(position).getReceiverUid();
                         } else {
                             receivingUser = sortedChatList.get(position).getSenderUid();
-                        }
-                        service.getUser(receivingUser).enqueue(new Callback<RestProfile>() {
+                        }*/
+/*                        service.getUser(receivingUser).enqueue(new Callback<RestProfile>() {
                             @Override
                             public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
-                                if (!response.body().getError()) {
-                                    Intent intent = new Intent(getContext(), Activity_Chat.class);
-                                    intent.putExtra("receivingUser", response.body().getUser().get(0));
-                                    startActivity(intent);
-                                }
+                                if (!response.body().getError()) {*/
+                                    Intent intent = new Intent(getContext(), Activity_Group_Chat.class);
+
+                        intent.putExtra("group_name", sortedChatList.get(position).getChatName());
+                        intent.putExtra("group_id", sortedChatList.get(position).getGroupID());
+                        Log.d("FRAG_GROUP ", "addOnItemTouchListener: getGroupID: " + sortedChatList.get(position).getGroupID());
+                        Log.d("FRAG_GROUP ", "addOnItemTouchListener: getChatName: " + sortedChatList.get(position).getChatName());
+                        startActivity(intent);
+  /*                              }
                             }
 
                             @Override
                             public void onFailure(Call<RestProfile> call, Throwable t) {
 
                             }
-                        });
+                        });*/
                     }
-
-
                 })
         );
-
-
-
-/*        mLinearLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
-        mLinearLayoutManager.setStackFromEnd(true);*/
 
         ButterKnife.bind(this, rootView);
 
@@ -227,10 +216,8 @@ public class Frag_Group extends Fragment {
                         if (dataSnapshot != null && dataSnapshot.getValue() != null) {
                             try {
 
-                                Chat model = dataSnapshot.getValue(Chat.class);
+                                Group_Chat model = dataSnapshot.getValue(Group_Chat.class);
                                 Log.d("FRAGGROUP ", "displayGroups getMessage" + model.getMessage());
-                                //Log.d("FRAGCHAT ", "addChildEventListener ID:" + listOfGroups.get(i).getGroupId().toString() + "  message: " + model.getMessage());
-                                //Log.d("FRAGCHAT ", "addChildEventListener sender name: " + model.getSender() + "  recevier name: " + model.getReceiver());
 
                                 onGetMessagesSuccess(model);
                                 listOfChats.add(model);
@@ -290,7 +277,7 @@ public class Frag_Group extends Fragment {
         }
     }
 
-    public void onGetMessagesSuccess(Chat chat) {
+    public void onGetMessagesSuccess(Group_Chat chat) {
         Log.d("FRAGCHAT", "onGetMessagesSuccess " + chat.getMessage() + " added");
 /*        if (chatListAdapter == null) {
             Log.d("FRAGCHAT",  "onGetMessagesSuccess chatListAdapter == null" );
@@ -356,7 +343,9 @@ public class Frag_Group extends Fragment {
                                 service.createGroup(groupName, auth.getCurrentUser().getUid()).enqueue(new Callback<RestGroup>() {
                                     @Override
                                     public void onResponse(Call<RestGroup> call, Response<RestGroup> response) {
-                                        Chat chat = new Chat(auth.getCurrentUser().getDisplayName(), groupName, auth.getCurrentUser().getUid(), response.body().getGroup().get(0).getGroupId().toString(), "Group Created", Calendar.getInstance().getTime().getTime() + "", auth.getCurrentUser().getPhotoUrl().toString(), auth.getCurrentUser().getPhotoUrl().toString());
+
+                                        Group_Chat chat = new Group_Chat(auth.getCurrentUser().getDisplayName(),auth.getCurrentUser().getUid(), "Group Created", Calendar.getInstance().getTime().getTime()+"", auth.getCurrentUser().getPhotoUrl().toString(), groupName, response.body().getGroup().get(0).getGroupId().toString());
+
                                         mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(response.body().getGroup().get(0).getGroupId().toString()).child(String.valueOf(chat.getTimestamp())).setValue(chat);
                                         listOfGroups.add(response.body().getGroup().get(0));
                                         listOfChats.add(chat);
