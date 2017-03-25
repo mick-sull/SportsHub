@@ -114,7 +114,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     NetworkConnectionUtil networkConnectionUtil;
     public int finishDownloading;
     ProgressDialog progress;
-    ArrayList<User> selectedUsers;
+    private ArrayList<User> selectedUsers;
 
 /*    @BindView(R.id.txtEventDate) TextView set_date;
     @BindView(R.id.txtEventTime) TextView set_time;*/
@@ -218,8 +218,12 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
                 if(selectedUsers.size() >1){
                     txtInviteFriends.setText(selectedUsers.get(0).getUserFullName() + " and " + (selectedUsers.size() -1) + " others");
                 }
-                else{
+                else if(selectedUsers.size()==1){
                     txtInviteFriends.setText(selectedUsers.get(0).getUserFullName());
+                }
+                else{
+                    //do nothing
+                    //txtInviteFriends.setText(selectedUsers.get(0).getUserFullName());
                 }
             }
         }).setCancelable(false).setTitle("Select friends").create().show();

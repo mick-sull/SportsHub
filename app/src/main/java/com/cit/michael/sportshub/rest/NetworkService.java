@@ -22,19 +22,20 @@ import com.cit.michael.sportshub.rest.model.RestUsers;
 
 import java.util.List;
 
-import dagger.Module;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import rx.Observable;
+
 
 /**
  * Created by micha on 17/01/2017.
  */
 
-@Module
+
 public interface NetworkService {
 
     //Sport
@@ -111,13 +112,25 @@ public interface NetworkService {
     @POST("notification/chat_notification")
     Call<RestBase> sendChatNotification(@Body ChatNotification chatNotification);
 
+
+
+
     @GET("group/groups/{user_id}")
     Call<RestGroup> getGroups(@Query("user_id") String userID);
+
+
 
     //This should be a post but I need the new group ID passed back.
     @GET("group/groups/new/{group_name}")
     Call<RestGroup> createGroup(@Query("group_name") String groupName,
                                 @Query("user_id") String userID);
+
+    @GET("group/invite/")
+    Observable<RestUsers> getNonGroupMembers(@Query("group_id") String groupID,
+                                             @Query("user_id") String userID);
+
+
+
 
 
 

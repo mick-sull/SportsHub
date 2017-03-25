@@ -1,4 +1,4 @@
-package com.cit.michael.sportshub.adapter;
+package com.cit.michael.sportshub.chat.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;

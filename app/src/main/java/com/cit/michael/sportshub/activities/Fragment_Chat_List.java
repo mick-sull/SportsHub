@@ -14,7 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.cit.michael.sportshub.R;
-import com.cit.michael.sportshub.adapter.Chat_Adapter;
+import com.cit.michael.sportshub.chat.adapter.Chat_Adapter;
 import com.cit.michael.sportshub.adapter.RecyclerItemClickListener;
 import com.cit.michael.sportshub.chat.model.Chat;
 import com.cit.michael.sportshub.chat.ui.Activity_Chat;

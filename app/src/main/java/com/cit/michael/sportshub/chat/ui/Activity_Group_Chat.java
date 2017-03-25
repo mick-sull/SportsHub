@@ -1,6 +1,8 @@
 package com.cit.michael.sportshub.chat.ui;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -19,8 +21,11 @@ import com.cit.michael.sportshub.chat.adapter.ChatFirebaseAdapter;
 import com.cit.michael.sportshub.chat.model.Chat;
 import com.cit.michael.sportshub.chat.model.Group_Chat;
 import com.cit.michael.sportshub.chat.util.Util;
+import com.cit.michael.sportshub.model.Group;
+import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
+import com.cit.michael.sportshub.rest.model.RestUsers;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,9 +40,13 @@ import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import hani.momanii.supernova_emoji_library.Actions.EmojIconActions;
 import hani.momanii.supernova_emoji_library.Helper.EmojiconEditText;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 import static com.cit.michael.sportshub.activities.Activity_Main.chat_active;
 import static com.cit.michael.sportshub.chat.ui.Activity_Chat.ARG_CHAT_ROOMS;
@@ -62,6 +71,9 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
     NetworkService service;
     public String chatID;
     public String chatName;
+    public List<User> friendsNotInGroup;
+    ArrayList<User> selectedUsersInvFriends;
+    ArrayList<String> userTokens;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +95,11 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
         chatID = Integer.toString(intent.getIntExtra("group_id", 0));
         chatName = intent.getStringExtra("group_name");
         chatID = intent.getStringExtra("group_id");
+
+        friendsNotInGroup = new ArrayList<User>();
+        selectedUsersInvFriends = new ArrayList<User>();
+
+        loadData();
 
         Log.d("FRAG_GROUP ", "Activity_Group_Chat: getGroupID: " + chatID);
         Log.d("FRAG_GROUP ", "Activity_Group_Chat: getChatName: " +chatName);
@@ -131,19 +148,98 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
+
         switch (item.getItemId()) {
             case R.id.inviteUSerGroup:
-                newGame();
+                //This will display the users friends who arent in the group.
+                displayFriends();
                 return true;
             case R.id.removeUser:
-                showHelp();
+                //showHelp();
                 return true;
             case R.id.leaveGroup:
-                showHelp();
+                //showHelp();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void loadData(){
+
+      service.getNonGroupMembers(chatID.toString(),mFirebaseAuth.getCurrentUser().getUid())
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<RestUsers>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(RestUsers restUsers) {
+                        friendsNotInGroup = restUsers.getUser();
+                        Log.d("FRAG_GROUP ", "Activity_Group_Chat: friendsNotInGroup size: " + friendsNotInGroup.size());
+                    }
+
+                });
+    }
+
+    private void displayFriends() {
+
+
+        AlertDialog.Builder alerBuilder = new AlertDialog.Builder(this);
+        //final DBHelper dbHelper = new DBHelper(this);
+        String[] userFullNames = new String[friendsNotInGroup.size()];
+        final boolean[] selectedItems = new boolean[friendsNotInGroup.size()];
+        for(int i = 0 ; i < userFullNames.length ; i++){
+            userFullNames[i] = friendsNotInGroup.get(i).getUserFullName();
+            selectedItems[i] = false;
+            for(int j = 0 ; j < selectedUsersInvFriends.size() ; j++){
+                if(selectedUsersInvFriends.get(j).getUserId() == friendsNotInGroup.get(i).getUserId()){
+                    selectedItems[i] = true;
+                    break;
+                }
+            }
+        }
+
+        alerBuilder.setMultiChoiceItems(userFullNames,selectedItems,new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+                Log.e("CheckStatus",String.valueOf(b));
+                //selectedUsers.add(listOfFriends.get(i).getUserToken().toString());
+                selectedUsersInvFriends.add(friendsNotInGroup.get(i));
+            }
+        }).setPositiveButton("OK",new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int ii) {
+                selectedUsersInvFriends.clear();
+                for(int i = 0 ; i < selectedItems.length ; i++) {
+                    if(selectedItems[i]) {
+                        selectedUsersInvFriends.add(friendsNotInGroup.get(i));
+                    }
+                }
+                if(!selectedUsersInvFriends.isEmpty())
+                    sendRequestToSelectedUsers();
+
+
+            }
+        }).setCancelable(false).setTitle("Select friends").create().show();
+    }
+
+    private void sendRequestToSelectedUsers() {
+        if(!selectedUsersInvFriends.isEmpty()){
+            userTokens = new ArrayList<String>();
+            for(int i = 0; i< selectedUsersInvFriends.size(); i++){
+                userTokens.add(selectedUsersInvFriends.get(i).getUserToken().toString());
+            }
+        }
+        Group requestToGroup = new Group(Integer.parseInt(chatID),chatName,userTokens);
     }
 
     @Override
