@@ -25,6 +25,7 @@ import com.cit.michael.sportshub.model.Group;
 import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
+import com.cit.michael.sportshub.rest.model.RestGroup;
 import com.cit.michael.sportshub.rest.model.RestUsers;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -44,6 +45,9 @@ import java.util.List;
 
 import hani.momanii.supernova_emoji_library.Actions.EmojIconActions;
 import hani.momanii.supernova_emoji_library.Helper.EmojiconEditText;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -52,7 +56,7 @@ import static com.cit.michael.sportshub.activities.Activity_Main.chat_active;
 import static com.cit.michael.sportshub.chat.ui.Activity_Chat.ARG_CHAT_ROOMS;
 
 public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
-    private FirebaseAuth mFirebaseAuth;
+    private FirebaseAuth auth;
     private FirebaseUser mFirebaseUser;
     private DatabaseReference mFirebaseDatabaseReference;
     static final String TAG = Activity_Chat.class.getSimpleName();
@@ -82,9 +86,9 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
 
         bindViews();
         Log.d("CHATISSUE", "CHAT ACT CREATED" );
-        mFirebaseAuth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         mFirebaseInstanceId = FirebaseInstanceId.getInstance();
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+        mFirebaseUser = auth.getCurrentUser();
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
         service = service = RestClient.getSportsHubApiClient();
 
@@ -155,7 +159,7 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
                 displayFriends();
                 return true;
             case R.id.removeUser:
-                //showHelp();
+                displayGroupMembers();
                 return true;
             case R.id.leaveGroup:
                 //showHelp();
@@ -165,9 +169,13 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
         }
     }
 
+    private void displayGroupMembers() {
+        
+    }
+
     private void loadData(){
 
-      service.getNonGroupMembers(chatID.toString(),mFirebaseAuth.getCurrentUser().getUid())
+      service.getNonGroupMembers(chatID.toString(), auth.getCurrentUser().getUid())
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<RestUsers>() {
@@ -239,7 +247,18 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
                 userTokens.add(selectedUsersInvFriends.get(i).getUserToken().toString());
             }
         }
-        Group requestToGroup = new Group(Integer.parseInt(chatID),chatName,userTokens);
+        Group requestToGroup = new Group(Integer.parseInt(chatID),chatName,userTokens, auth.getCurrentUser().getDisplayName());
+        service.sendUsersGroupInvite(requestToGroup).enqueue(new Callback<RestGroup>() {
+            @Override
+            public void onResponse(Call<RestGroup> call, Response<RestGroup> response) {
+                Toast.makeText(Activity_Group_Chat.this, response.message().toString(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Call<RestGroup> call, Throwable t) {
+
+            }
+        });
     }
 
     @Override
@@ -258,7 +277,7 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
 
         chat = new Group_Chat(mFirebaseUser.getDisplayName(),mFirebaseUser.getUid(), edMessage.getText().toString(), Calendar.getInstance().getTime().getTime()+"", mFirebaseUser.getPhotoUrl().toString(), chatName, chatID);
         //final String room_type_1 = Integer.toString(chatID);
-        //final String room_type_2 = receivingUser.getUserId() + "_" + mFirebaseAuth.getCurrentUser().getUid();
+        //final String room_type_2 = receivingUser.getUserId() + "_" + auth.getCurrentUser().getUid();
         //mFirebaseDatabaseReference.child(CHAT_REFERENCE).push().setValue(model);
 
         mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).getRef().addListenerForSingleValueEvent(new ValueEventListener() {

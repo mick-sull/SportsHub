@@ -20,9 +20,11 @@ public class Constants {
     public final static String NOTIFCATION_TYPE = "type";
     public final static String NOTIFCATION_CHAT = "chat";
     public final static String NOTIFCATION_USER_ID = "sender_id";
+    public final static String NOTIFCATION_GROUP_ID = "group_id";
     public final static String NOTIFCATION_FRIEND_REQUEST = "friend_request";
     public final static String NOTIFCATION_EVENT_REQUEST = "event_request";
     public final static String NOTIFCATION_EVENT_ID = "event_id";
+    public final static String NOTIFCATION_GROUP_REQUEST = "group_request";
 
     //Check if chat activity is opened.
     public final static String CHAT_ACTIVITY_OPEN = "chatActivityActive";

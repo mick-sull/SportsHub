@@ -25,10 +25,17 @@ public class Group {
     @Nullable
     private ArrayList<String> friends_tokens;
 
-    public Group(Integer groupId, String groupName, ArrayList<String> friends_tokens) {
+    @SerializedName("fullUserName")
+    @Expose
+    @Nullable
+    private String fullUserName;
+
+
+    public Group(Integer groupId, String groupName, ArrayList<String> friends_tokens, String fullUserName) {
         this.groupId = groupId;
         this.groupName = groupName;
         this.friends_tokens = friends_tokens;
+        this.fullUserName = fullUserName;
     }
 
     public Integer getGroupId() {

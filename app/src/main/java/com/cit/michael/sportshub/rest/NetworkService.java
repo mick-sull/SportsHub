@@ -4,6 +4,7 @@ import com.cit.michael.sportshub.model.Attendee;
 import com.cit.michael.sportshub.model.ChatNotification;
 import com.cit.michael.sportshub.model.Event;
 import com.cit.michael.sportshub.model.Friendship;
+import com.cit.michael.sportshub.model.Group;
 import com.cit.michael.sportshub.model.Location;
 import com.cit.michael.sportshub.model.Search;
 import com.cit.michael.sportshub.model.Sport;
@@ -113,12 +114,13 @@ public interface NetworkService {
     Call<RestBase> sendChatNotification(@Body ChatNotification chatNotification);
 
 
+    /********************************************************
+     GROUPS
+     ********************************************************    */
 
 
     @GET("group/groups/{user_id}")
     Call<RestGroup> getGroups(@Query("user_id") String userID);
-
-
 
     //This should be a post but I need the new group ID passed back.
     @GET("group/groups/new/{group_name}")
@@ -129,21 +131,15 @@ public interface NetworkService {
     Observable<RestUsers> getNonGroupMembers(@Query("group_id") String groupID,
                                              @Query("user_id") String userID);
 
+    @POST("group/sendInvite/")
+    Call<RestGroup> sendUsersGroupInvite(@Body Group group);
+
+    @POST("group/acceptInvite/")
+    Call<RestGroup> acceptGroupInvite(@Query("group_id") String groupID,
+                                      @Query("user_id") String userID);
 
 
 
 
-
-    //Call<RestEventDetails> getEventDetails();
-
-/*    //Get the users who are attending an event
-    @GET("event/attendee")
-    Call<RestUsers> getEventAttendee(@Query("event_id"))*/
-
-
-/*    @GET("group/{id}/users")
-    Call<List<User>> groupList(@Path("id") int groupId, @Query("sort") String sort);
-
-    @POST("users/new")
-    Call<User> createUser(@Body User user);*/
 }
+

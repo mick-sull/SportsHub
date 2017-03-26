@@ -30,6 +30,8 @@ import static com.cit.michael.sportshub.Constants.NOTIFCATION_CHAT;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_EVENT_ID;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_EVENT_REQUEST;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_FRIEND_REQUEST;
+import static com.cit.michael.sportshub.Constants.NOTIFCATION_GROUP_ID;
+import static com.cit.michael.sportshub.Constants.NOTIFCATION_GROUP_REQUEST;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_TYPE;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_USER_ID;
 import static com.cit.michael.sportshub.activities.Activity_Main.chat_active;
@@ -72,6 +74,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Log.d("CHATISSUE", "Event ID: " + remoteMessage.getData().get(NOTIFCATION_EVENT_ID));
             sendEventNotifcation(remoteMessage);
         }
+        else if(remoteMessage.getData().get(NOTIFCATION_TYPE).equals(NOTIFCATION_GROUP_REQUEST)){
+            Log.d("CHATISSUE", "Event ID: " + remoteMessage.getData().get(NOTIFCATION_EVENT_ID));
+            sendGroupInvite(remoteMessage);
+        }
         else{
             Log.d(TAG, "Activity: " + remoteMessage.getData().get(NOTIFCATION_ACTIVITY) + " is not equal to " + NOTIFCATION_CHAT);
         }
@@ -93,6 +99,34 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendChatNotification method below.
+    }
+
+    private void sendGroupInvite(RemoteMessage remoteMessage) {
+        Intent indentAcceptGroupRequest = new Intent(getApplicationContext(), MyService.class);
+        indentAcceptGroupRequest.setAction(MyService.ACCECP_GROUP_INVITE);
+        //indentAcceptGroupRequest.putExtra("user_id", remoteMessage.getData().get(NOTIFCATION_USER_ID));
+        indentAcceptGroupRequest.putExtra("group_id", remoteMessage.getData().get(NOTIFCATION_GROUP_ID));
+        indentAcceptGroupRequest.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent piAcceptFriendRequest = PendingIntent.getService(getApplicationContext(), 0, indentAcceptGroupRequest, /*PendingIntent.FLAG_UPDATE_CURRENT*/ PendingIntent.FLAG_ONE_SHOT);
+
+        Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext())
+                .setSmallIcon(R.drawable.logo_googleg_color_18dp)
+                .setContentTitle("SportsHub")
+                .setContentText(/*user.getUserFullName() +": " +*/ remoteMessage.getData().get("message"))
+                .setAutoCancel(true)
+                .setSound(defaultSoundUri)
+                //.setContentIntent(pendingIntentReqProfile);
+                .addAction(R.drawable.ic_check_black_24dp,"Accept",piAcceptFriendRequest);
+
+
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+
+
     }
 
     private void sendEventNotifcation(RemoteMessage remoteMessage) {
