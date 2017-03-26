@@ -1,7 +1,6 @@
 package com.cit.michael.sportshub.adapter;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,10 +16,6 @@ import com.cit.michael.sportshub.ui.CircleTransform;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
-
-import static com.cit.michael.sportshub.Constants.ACCEPTED;
-import static com.cit.michael.sportshub.Constants.CANCELLED;
-import static com.cit.michael.sportshub.Constants.PENDING_REQUEST;
 
 /**
  * Created by micha on 21/02/2017.
@@ -76,7 +71,7 @@ public class User_Friends_Adapter extends RecyclerView.Adapter<User_Friends_Adap
     public void onBindViewHolder(User_Friends_Adapter.UserViewHolder holder, int position) {
         holder.title.setText(users.get(position).getUserFullName());
         Picasso.with(context).load(users.get(position).getUserProfileUrl()).placeholder(R.drawable.img_circle_placeholder).resize(100,100).transform(new CircleTransform()).into(holder.image);
-        if(users.get(position).getStatus() == PENDING_REQUEST && users.get(position).getAction_user().equals(uID)){
+        /*if(users.get(position).getStatus() == PENDING_REQUEST && users.get(position).getAction_user().equals(uID)){
             holder.btnUnfriend.setText("PENDING");
             holder.btnUnfriend.setTextColor(Color.parseColor("#ff1a1a"));
         }
@@ -91,7 +86,7 @@ public class User_Friends_Adapter extends RecyclerView.Adapter<User_Friends_Adap
         else if(users.get(position).getStatus() == ACCEPTED){
             holder.btnUnfriend.setText("UNFRIEND");
         }
-
+*/
     }
 
     @Override

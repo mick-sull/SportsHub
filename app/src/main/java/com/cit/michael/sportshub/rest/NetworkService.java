@@ -139,6 +139,10 @@ public interface NetworkService {
                                       @Query("user_id") String userID);
 
 
+    @GET("group/getMemebers/")
+    Observable<RestUsers> getGroupMembers(@Query("group_id") String groupID);
+
+
 
 
 }

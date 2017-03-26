@@ -1,6 +1,7 @@
 package com.cit.michael.sportshub.chat.ui;
 
 import android.app.AlertDialog;
+import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,6 +28,7 @@ import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
 import com.cit.michael.sportshub.rest.model.RestGroup;
 import com.cit.michael.sportshub.rest.model.RestUsers;
+import com.cit.michael.sportshub.ui.UserListFragment;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
@@ -56,6 +58,7 @@ import static com.cit.michael.sportshub.activities.Activity_Main.chat_active;
 import static com.cit.michael.sportshub.chat.ui.Activity_Chat.ARG_CHAT_ROOMS;
 
 public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
+//public class Activity_Group_Chat extends FragmentActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
     private FirebaseAuth auth;
     private FirebaseUser mFirebaseUser;
     private DatabaseReference mFirebaseDatabaseReference;
@@ -73,9 +76,10 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
     public ChatFirebaseAdapter firebaseAdapter;
     ProgressDialog dialog;
     NetworkService service;
-    public String chatID;
+    public String groupID;
     public String chatName;
     public List<User> friendsNotInGroup;
+    public List<User> groupMembers;
     ArrayList<User> selectedUsersInvFriends;
     ArrayList<String> userTokens;
 
@@ -95,17 +99,18 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
         Intent intent = getIntent();
         //receivingUser = intent.getParcelableExtra("receivingUser");
         //receivingUser = intent.getParcelableExtra("receivingUser");
-        //chatID = intent.getIntExtra("group_id", 0);
-        chatID = Integer.toString(intent.getIntExtra("group_id", 0));
+        //groupID = intent.getIntExtra("group_id", 0);
+        groupID = Integer.toString(intent.getIntExtra("group_id", 0));
         chatName = intent.getStringExtra("group_name");
-        chatID = intent.getStringExtra("group_id");
+        groupID = intent.getStringExtra("group_id");
 
         friendsNotInGroup = new ArrayList<User>();
+        groupMembers = new ArrayList<User>();
         selectedUsersInvFriends = new ArrayList<User>();
 
         loadData();
 
-        Log.d("FRAG_GROUP ", "Activity_Group_Chat: getGroupID: " + chatID);
+        Log.d("FRAG_GROUP ", "Activity_Group_Chat: getGroupID: " + groupID);
         Log.d("FRAG_GROUP ", "Activity_Group_Chat: getChatName: " +chatName);
 
 /*        if (firebaseAdapter == null) {
@@ -170,12 +175,25 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
     }
 
     private void displayGroupMembers() {
-        
+        // WORKING
+/*
+        FragmentManager fm = getSupportFragmentManager();
+        //ProfileViewFragment editNameDialogFragment = new ProfileViewFragment(listUserAttending.get(position).getUserProfileUrl(), listUserAttending.get(position).getUserId());
+        //User user = listUserAttending.get(position);
+        UserListFragment editNameDialogFragment = new UserListFragment(getApplicationContext(), (ArrayList<User>) groupMembers);
+        editNameDialogFragment.show(fm, "");
+*/
+
+        FragmentManager fm = getFragmentManager();
+        UserListFragment editNameDialogFragment = new UserListFragment(getApplicationContext(), (ArrayList<User>) groupMembers);
+        editNameDialogFragment.show(fm, "abc");
+
+
     }
 
     private void loadData(){
 
-      service.getNonGroupMembers(chatID.toString(), auth.getCurrentUser().getUid())
+      service.getNonGroupMembers(groupID.toString(), auth.getCurrentUser().getUid())
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<RestUsers>() {
@@ -196,6 +214,30 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
                     }
 
                 });
+
+        service.getGroupMembers(groupID)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<RestUsers>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(RestUsers restUsers) {
+                        groupMembers = restUsers.getUser();
+                        Log.d("FRAG_GROUP ", "Activity_Group_Chat: friendsNotInGroup size: " + groupMembers.size());
+                    }
+
+                });
+
+
     }
 
     private void displayFriends() {
@@ -247,7 +289,7 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
                 userTokens.add(selectedUsersInvFriends.get(i).getUserToken().toString());
             }
         }
-        Group requestToGroup = new Group(Integer.parseInt(chatID),chatName,userTokens, auth.getCurrentUser().getDisplayName());
+        Group requestToGroup = new Group(Integer.parseInt(groupID),chatName,userTokens, auth.getCurrentUser().getDisplayName());
         service.sendUsersGroupInvite(requestToGroup).enqueue(new Callback<RestGroup>() {
             @Override
             public void onResponse(Call<RestGroup> call, Response<RestGroup> response) {
@@ -275,20 +317,20 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
 
     private void sendMessageFirebase(){
 
-        chat = new Group_Chat(mFirebaseUser.getDisplayName(),mFirebaseUser.getUid(), edMessage.getText().toString(), Calendar.getInstance().getTime().getTime()+"", mFirebaseUser.getPhotoUrl().toString(), chatName, chatID);
-        //final String room_type_1 = Integer.toString(chatID);
+        chat = new Group_Chat(mFirebaseUser.getDisplayName(),mFirebaseUser.getUid(), edMessage.getText().toString(), Calendar.getInstance().getTime().getTime()+"", mFirebaseUser.getPhotoUrl().toString(), chatName, groupID);
+        //final String room_type_1 = Integer.toString(groupID);
         //final String room_type_2 = receivingUser.getUserId() + "_" + auth.getCurrentUser().getUid();
         //mFirebaseDatabaseReference.child(CHAT_REFERENCE).push().setValue(model);
 
         mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).getRef().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.hasChild(chatID)) {
-                    Log.d("ActChat", "sendMessageToFirebaseUser: " + chatID + " exists");
-                    mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(chatID).child(String.valueOf(chat.getTimestamp())).setValue(chat);
+                if (dataSnapshot.hasChild(groupID)) {
+                    Log.d("ActChat", "sendMessageToFirebaseUser: " + groupID + " exists");
+                    mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(groupID).child(String.valueOf(chat.getTimestamp())).setValue(chat);
                 } else {
                     Log.d("ActChat",  "sendMessageToFirebaseUser else: success");
-                    mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(chatID).child(String.valueOf(chat.getTimestamp())).setValue(chat);
+                    mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(groupID).child(String.valueOf(chat.getTimestamp())).setValue(chat);
                 }
 
                 ///sendNotification();
@@ -316,13 +358,13 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
         databaseReference.child(ARG_CHAT_ROOMS).getRef().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.hasChild(chatID.toString())) {
-                    Log.e("FRAG_GROUP ", "getMessageFromFirebaseUser: " + chatID + " exists");
+                if (dataSnapshot.hasChild(groupID.toString())) {
+                    Log.e("FRAG_GROUP ", "getMessageFromFirebaseUser: " + groupID + " exists");
                     //getAllMesages(room_type_1);
                     FirebaseDatabase.getInstance()
                             .getReference()
                             .child(ARG_CHAT_ROOMS)
-                            .child(chatID).addChildEventListener(new ChildEventListener() {
+                            .child(groupID).addChildEventListener(new ChildEventListener() {
                         @Override
                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                             if (dataSnapshot != null && dataSnapshot.getValue() != null) {
