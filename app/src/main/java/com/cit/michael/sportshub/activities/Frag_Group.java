@@ -37,7 +37,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -188,8 +187,8 @@ public class Frag_Group extends Fragment {
             @Override
             public void onResponse(Call<RestGroup> call, Response<RestGroup> response) {
                 listOfGroups = response.body().getGroup();
-                Log.d("FRAGGROUP ", "onResponse listOfGroups.size()" + listOfGroups.size());
-                Log.d("FRAGGROUP ", "JSON: " + new Gson().toJson(response));
+//                Log.d("FRAGGROUP ", "onResponse listOfGroups.size()" + listOfGroups.size());
+           //     Log.d("FRAGGROUP ", "JSON: " + new Gson().toJson(response));
                 displayGroups();
             }
 

@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:textAlignment="center">
 
 
     <LinearLayout
@@ -28,15 +29,64 @@
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:weightSum="1"
-            android:layout_weight="0.13">
+            android:layout_weight="1"
+            android:layout_height="wrap_content">
 
             <android.support.v7.widget.RecyclerView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/rvDialogUserView"/>
+                android:id="@+id/rvDialogUserView"
+                android:layout_weight="50"/>
         </LinearLayout>
-    </LinearLayout>
 
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp">
+
+            <View
+                android:layout_marginTop="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/colordevider"
+                android:padding="16dp"
+                />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:text="CANCEL"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/txtListUserCancel"
+                    android:layout_weight="1"
+                    android:textAlignment="center"
+                    android:textSize="10sp"
+                    android:cursorVisible="false"
+                    android:background="@drawable/chamfer_corners_light" />
+
+                <TextView
+                    android:text="DONE"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/txtListUserDone"
+                    android:layout_weight="1"
+                    android:textAlignment="center"
+                    android:textSize="10sp"
+                    android:cursorVisible="false"
+                    android:background="@drawable/chamfer_corners_light"
+                    android:paddingBottom="10dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
 </LinearLayout>
+

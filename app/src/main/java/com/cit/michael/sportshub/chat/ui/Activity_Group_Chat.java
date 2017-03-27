@@ -1,9 +1,7 @@
 package com.cit.michael.sportshub.chat.ui;
 
-import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -54,6 +52,8 @@ import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
+import static com.cit.michael.sportshub.Constants.ACTION_GROUP_ADD_MEMBER;
+import static com.cit.michael.sportshub.Constants.ACTION_GROUP_REMOVE_MEMBER;
 import static com.cit.michael.sportshub.activities.Activity_Main.chat_active;
 import static com.cit.michael.sportshub.chat.ui.Activity_Chat.ARG_CHAT_ROOMS;
 
@@ -161,7 +161,7 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
         switch (item.getItemId()) {
             case R.id.inviteUSerGroup:
                 //This will display the users friends who arent in the group.
-                displayFriends();
+                displayFriendsToInvite();
                 return true;
             case R.id.removeUser:
                 displayGroupMembers();
@@ -185,7 +185,7 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
 */
 
         FragmentManager fm = getFragmentManager();
-        UserListFragment editNameDialogFragment = new UserListFragment(getApplicationContext(), (ArrayList<User>) groupMembers);
+        UserListFragment editNameDialogFragment = new UserListFragment(getApplicationContext(), (ArrayList<User>) groupMembers, ACTION_GROUP_REMOVE_MEMBER,  groupID, chatName);
         editNameDialogFragment.show(fm, "abc");
 
 
@@ -240,9 +240,13 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
 
     }
 
-    private void displayFriends() {
+    private void displayFriendsToInvite() {
+        FragmentManager fm = getFragmentManager();
+        UserListFragment editNameDialogFragment = new UserListFragment(getApplicationContext(), (ArrayList<User>) friendsNotInGroup, ACTION_GROUP_ADD_MEMBER, groupID, chatName);
+        editNameDialogFragment.show(fm, "abc");
+        editNameDialogFragment.setTargetFragment(this, 0);
 
-
+/*
         AlertDialog.Builder alerBuilder = new AlertDialog.Builder(this);
         //final DBHelper dbHelper = new DBHelper(this);
         String[] userFullNames = new String[friendsNotInGroup.size()];
@@ -279,7 +283,7 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
 
 
             }
-        }).setCancelable(false).setTitle("Select friends").create().show();
+        }).setCancelable(false).setTitle("Select friends").create().show();*/
     }
 
     private void sendRequestToSelectedUsers() {

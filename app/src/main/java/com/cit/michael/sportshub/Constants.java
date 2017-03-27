@@ -26,6 +26,14 @@ public class Constants {
     public final static String NOTIFCATION_EVENT_ID = "event_id";
     public final static String NOTIFCATION_GROUP_REQUEST = "group_request";
 
+    //User_Friends_Adapter Actions
+    public final static String ACTION_FRIENDS_LIST = "FriendsFrag";
+    public final static String ACTION_GROUP_ADD_MEMBER = "groupAddMembers";
+    public final static String ACTION_GROUP_REMOVE_MEMBER = "removeGroupMemeber";
+    public final static int ACTION_GROUP_NOT_SELECTED = 0;
+    public final static int ACTION_GROUP_SELECTED = 1;
+
+
     //Check if chat activity is opened.
     public final static String CHAT_ACTIVITY_OPEN = "chatActivityActive";
 

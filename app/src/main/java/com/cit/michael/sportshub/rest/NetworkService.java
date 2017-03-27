@@ -142,6 +142,9 @@ public interface NetworkService {
     @GET("group/getMemebers/")
     Observable<RestUsers> getGroupMembers(@Query("group_id") String groupID);
 
+    @POST("group/removeMembers/")
+    Call<RestGroup> removeUser(@Body Group group);
+
 
 
 

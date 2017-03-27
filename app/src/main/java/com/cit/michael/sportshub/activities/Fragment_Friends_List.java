@@ -42,6 +42,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static com.cit.michael.sportshub.Constants.ACCEPTED;
+import static com.cit.michael.sportshub.Constants.ACTION_FRIENDS_LIST;
 import static com.cit.michael.sportshub.Constants.CANCELLED;
 import static com.cit.michael.sportshub.Constants.PENDING_REQUEST;
 import static com.facebook.FacebookSdk.getApplicationContext;
@@ -221,7 +222,7 @@ public class Fragment_Friends_List extends Fragment {
 
         }
 
-        mAdapter = new User_Friends_Adapter(listFriends, getContext(), auth.getCurrentUser().getUid());
+        mAdapter = new User_Friends_Adapter(listFriends, getContext(), auth.getCurrentUser().getUid(), ACTION_FRIENDS_LIST);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());

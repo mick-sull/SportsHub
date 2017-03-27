@@ -20,21 +20,26 @@ public class Group {
     @Expose
     private String groupName;
 
-    @SerializedName("friends_invited")
+    @SerializedName("group_data")
     @Expose
     @Nullable
-    private ArrayList<String> friends_tokens;
+    private ArrayList<String> group_data;
 
     @SerializedName("fullUserName")
     @Expose
     @Nullable
     private String fullUserName;
 
+    @SerializedName("active")
+    @Expose
+    @Nullable
+    private int active;
 
-    public Group(Integer groupId, String groupName, ArrayList<String> friends_tokens, String fullUserName) {
+
+    public Group(Integer groupId, String groupName, ArrayList<String> group_data, String fullUserName) {
         this.groupId = groupId;
         this.groupName = groupName;
-        this.friends_tokens = friends_tokens;
+        this.group_data = group_data;
         this.fullUserName = fullUserName;
     }
 
@@ -55,11 +60,11 @@ public class Group {
     }
 
     @Nullable
-    public ArrayList<String> getFriends_tokens() {
-        return friends_tokens;
+    public ArrayList<String> getGroup_data() {
+        return group_data;
     }
 
-    public void setFriends_tokens(@Nullable ArrayList<String> friends_tokens) {
-        this.friends_tokens = friends_tokens;
+    public void setGroup_data(@Nullable ArrayList<String> friends_tokens) {
+        this.group_data = friends_tokens;
     }
 }
