@@ -40,32 +40,21 @@ public class Group_Chat_Adapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public void add(Group_Chat chat) {
         //mChats.add(chat);
         Boolean found = false;
-
+        Log.d("FRAGCHAT", "Chat add id: " + chat.getGroupID());
         //Not ideal if the app is to scale
         for (int i = 0; i <= mChats.size() - 1; i++) {
-/*            if ((mChats.get(i).getReceiverUid().equals(chat.getReceiverUid()) && mChats.get(i).getSenderUid().equals(chat.getSenderUid()))
-                    || (mChats.get(i).getReceiverUid().equals(chat.getSenderUid()) && mChats.get(i).getSenderUid().equals(chat.getReceiverUid()))) {
-                mChats.set(i, chat);
-                Log.d("FRAGCHAT", "Chat found" +
-                        "mChat rID: " + mChats.get(i).getReceiverUid() + "mChat sID" + mChats.get(i).getSenderUid() +
-                        "chat rID: " + chat.getReceiverUid() + "chat sID" + chat.getSenderUid());*/
-
                 if (mChats.get(i).getGroupID().equals(chat.getGroupID())) {
                     mChats.set(i, chat);
-                }
-                //Collections.sort(mChats, new CustomComparator());
+                    Log.d("FRAGCHAT", "Chat already created add id: " + chat.getGroupID());
                 notifyItemChanged(i);
                 notifyItemRangeRemoved(0, mChats.size());
-/*                mChats.remove(i);
-                notifyItemRemoved(i);
-                mChats.add(chat);
-                notifyItemInserted(mChats.size() - 1);*/
                 found = true;
+                }
             }
 
 
         if (!found) {
-            Log.d("FRAGCHAT", "Chat not found");
+            Log.d("FRAGCHAT", "Chat found not add id: " + chat.getGroupID());
             mChats.add(chat);
             Collections.sort(mChats, new Group_Chat_Adapter.CustomComparator());
             notifyItemInserted(mChats.size() - 1);
@@ -210,5 +199,15 @@ public class Group_Chat_Adapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     public List<Group_Chat> getSortedArrayList(){
         return mChats;
+    }
+
+    public void removeGroup(String groupID) {
+        for (int i = 0; i < getSortedArrayList().size(); i++) {
+            if (getSortedArrayList().get(i).getGroupID().equals(groupID)) {
+                mChats.remove(i);
+                notifyItemRemoved(i);
+                Log.d("FRAGCHAT1", "onActivityResult FOUND");
+            }
+        }
     }
 }

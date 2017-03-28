@@ -106,9 +106,15 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
         chatName = intent.getStringExtra("group_name");
         groupID = intent.getStringExtra("group_id");
 
+        Log.d("FRAG_GROUP ", " Activity_Group_Chat CHAT NAME:  " +  chatName);
+
         friendsNotInGroup = new ArrayList<User>();
         groupMembers = new ArrayList<User>();
         selectedUsersInvFriends = new ArrayList<User>();
+        android.support.v7.app.ActionBar ab = getSupportActionBar();
+        ab.setTitle(chatName);
+        ab.setDisplayHomeAsUpEnabled(true);
+
 
 //        mListener = (UserLeftGroupListner) this;
 
@@ -175,6 +181,10 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
                 return true;
             case R.id.leaveGroup:
                 leaveGroup();
+                return true;
+            case android.R.id.home:
+                // app icon in action bar clicked; goto parent activity.
+                finishChat();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -468,8 +478,16 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
             groupMembers= dialogListener;
         }
     }
+    @Override
+    public void onBackPressed() {
+        finishChat();
+    }
 
-    public interface UserLeftGroupListner {
-        void groupListener(String groupID);
+    public void finishChat(){
+        Intent data = new Intent();
+        Log.d("FRAGCHAT",  "onActivityResult CALLED:     public void finishChat()");
+        data.putExtra("group_id", "null");
+        setResult(RESULT_OK, data);
+        finish();
     }
 }

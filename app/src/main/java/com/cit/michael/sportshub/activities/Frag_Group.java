@@ -23,7 +23,6 @@ import android.widget.TextView;
 import com.cit.michael.sportshub.R;
 import com.cit.michael.sportshub.adapter.RecyclerItemClickListener;
 import com.cit.michael.sportshub.chat.adapter.Group_Chat_Adapter;
-import com.cit.michael.sportshub.chat.model.Chat;
 import com.cit.michael.sportshub.chat.model.Group_Chat;
 import com.cit.michael.sportshub.chat.ui.Activity_Group_Chat;
 import com.cit.michael.sportshub.model.Group;
@@ -122,6 +121,7 @@ public class Frag_Group extends Fragment {
 
         listOfGroups = new ArrayList<Group>();
         listOfChats = new ArrayList<Group_Chat>();
+        sortedChatList = new ArrayList<Group_Chat>();
         recyclerView = (RecyclerView) rootView.findViewById(R.id.group_chats_list_recycler_view);
         chatListAdapter = new Group_Chat_Adapter(getContext(), new ArrayList<Group_Chat>());
 
@@ -137,12 +137,13 @@ public class Frag_Group extends Fragment {
                         // TODO Handle item click
                         // changeActivity(position);
                         Log.d("FRAG_GROUP ", "addOnItemTouchListener: position: " + position);
-                        sortedChatList = new ArrayList<Group_Chat>();
+
                         String receivingUser;
                         sortedChatList = chatListAdapter.getSortedArrayList();
                         Intent intent = new Intent(getContext(), Activity_Group_Chat.class);
 
                         intent.putExtra("group_name", sortedChatList.get(position).getChatName());
+                        Log.d("FRAG_GROUP ", "CHAT NAME:  " +  sortedChatList.get(position).getChatName());
                         intent.putExtra("group_id", sortedChatList.get(position).getGroupID());
                         startActivityForResult(intent, 1);
                     }
@@ -161,16 +162,68 @@ public class Frag_Group extends Fragment {
     }
 
     private void getGroups() {
+        final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
         Log.d("FRAGGROUP ", "getting groups....");
+        listOfGroups.clear();
         service = RestClient.getSportsHubApiClient();
         service.getGroups(auth.getCurrentUser().getUid()).enqueue(new Callback<RestGroup>() {
             @Override
             public void onResponse(Call<RestGroup> call, Response<RestGroup> response) {
-                //listOfGroups.clear();
                 listOfGroups = response.body().getGroup();
-//                Log.d("FRAGGROUP ", "onResponse listOfGroups.size()" + listOfGroups.size());
-           //     Log.d("FRAGGROUP ", "JSON: " + new Gson().toJson(response));
-                displayGroups();
+                //displayGroups();
+                if (response.body().getError()) {
+                    Log.d("Chat ID: ", "ERROR: " + response.body().getMessage());
+                } else {
+                    if (!listOfGroups.isEmpty()) {
+                        for (int i = 0; i < listOfGroups.size(); i++) {
+                            Query getLastMessages = databaseReference.child(ARG_CHAT_ROOMS).child(listOfGroups.get(i).getGroupId().toString())
+                                    .limitToLast(1);
+
+                            getLastMessages.addChildEventListener(new ChildEventListener() {
+                                @Override
+                                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                                    if (dataSnapshot != null && dataSnapshot.getValue() != null) {
+                                        try {
+
+                                            Group_Chat model = dataSnapshot.getValue(Group_Chat.class);
+                                            Log.d("FRAGCHAT ", "displayGroups getMessage" + model.getMessage());
+
+                                            onGetMessagesSuccess(model);
+                                            listOfChats.add(model);
+                                        } catch (Exception ex) {
+                                            Log.e(getTag(), ex.getMessage());
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                                    Group_Chat model = dataSnapshot.getValue(Group_Chat.class);
+                                    // Log.d("FRAGCHAT ", "onChildChanged ID:" + cID.getChatId() + "  message: " + model.getMessage());
+                                    Log.d("FRAGCHAT ", "onChildChanged sender name: " + model.getSender() + "  recevier name: " + model.getReceiver());
+
+                                }
+
+                                @Override
+                                public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                                }
+
+                                @Override
+                                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+
+                            });
+
+                        }
+                    }
+                }
             }
 
             @Override
@@ -184,7 +237,7 @@ public class Frag_Group extends Fragment {
     private void displayGroups() {
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
         if (!listOfGroups.isEmpty()) {
-            Log.d("FRAGGROUP ", "displayGroups listOfGroups.size()" + listOfGroups.size());
+            Log.d("FRAGCHAT ", "displayGroups listOfGroups.size()" + listOfGroups.size());
             //listOfChats.clear();
             for (int i = 0; i < listOfGroups.size(); i++) {
                 Query getLastMessages = databaseReference.child(ARG_CHAT_ROOMS).child(listOfGroups.get(i).getGroupId().toString())
@@ -197,7 +250,7 @@ public class Frag_Group extends Fragment {
                             try {
 
                                 Group_Chat model = dataSnapshot.getValue(Group_Chat.class);
-                                Log.d("FRAGGROUP ", "displayGroups getMessage" + model.getMessage());
+                                Log.d("FRAGCHAT ", "displayGroups getMessage" + model.getMessage());
 
                                 onGetMessagesSuccess(model);
                                 listOfChats.add(model);
@@ -209,7 +262,7 @@ public class Frag_Group extends Fragment {
 
                     @Override
                     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                        Chat model = dataSnapshot.getValue(Chat.class);
+                        Group_Chat model = dataSnapshot.getValue(Group_Chat.class);
                         // Log.d("FRAGCHAT ", "onChildChanged ID:" + cID.getChatId() + "  message: " + model.getMessage());
                         Log.d("FRAGCHAT ", "onChildChanged sender name: " + model.getSender() + "  recevier name: " + model.getReceiver());
 
@@ -283,8 +336,12 @@ public class Frag_Group extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d("FRAGCHAT",  "onActivityResult CALLED");
         if (requestCode == 1) {
-            // make use of "data" = profit
-                getGroups();
+
+            Log.d("FRAGCHAT",  "onActivityResult CALLED: " + data.getExtras().getString("group_id"));
+
+            if(!data.getExtras().getString("group_id").equals("null") )
+                chatListAdapter.removeGroup(data.getExtras().getString("group_id"));
+
             }
     }
 

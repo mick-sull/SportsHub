@@ -292,7 +292,17 @@ public class Fragment_Chat_List extends Fragment {
                     + " must implement OnFragmentInteractionListener");
         }
     }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("FRAGCHAT",  "onActivityResult CALLED");
+        if (requestCode == 1) {
+            Log.d("FRAGCHAT",  "onActivityResult" + data.getExtras().get("group_id") );
+            // make use of "data" = profit
+            for(int i = 0; i< listOfChats.size(); i++){
 
+            }
+        }
+    }
 
     @Override
     public void onDetach() {

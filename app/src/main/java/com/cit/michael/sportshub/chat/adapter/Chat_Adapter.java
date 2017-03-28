@@ -71,39 +71,6 @@ public class Chat_Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             }
 
 
-
-
-
-
-        //Check if a chat list is made already for the chat object that is being passed in. if no check, a duplicate will be made
-   /*
-       if(mChats.isEmpty()){
-            mChats.add(chat);
-            Collections.sort(mChats, new CustomComparator());
-            notifyItemInserted(mChats.size() - 1);
-        }
-        else {
-            for (int i = 0; i <= mChats.size() - 1; i++) {
-                if ((mChats.get(i).getReceiverUid().equals(chat.getReceiverUid()) && mChats.get(i).getSenderUid().equals(chat.getSenderUid()))
-                        || (mChats.get(i).getReceiverUid().equals(chat.getSenderUid()) && mChats.get(i).getSenderUid().equals(chat.getReceiverUid()))) {
-                    mChats.set(i, chat);
-                    Log.d("FRAGCHAT", "Chat found" +
-                            "mChat rID: " + mChats.get(i).getReceiverUid() + "mChat sID" + mChats.get(i).getSenderUid() +
-                            "chat rID: " + chat.getReceiverUid() + "chat sID" + chat.getSenderUid());
-                    //Collections.sort(mChats, new CustomComparator());
-                    notifyItemChanged(i);
-                } else {
-                    Log.d("FRAGCHAT", "Chat not found" +
-                            "mChat rID: " + mChats.get(i).getReceiverUid() + "mChat sID" + mChats.get(i).getSenderUid() +
-                            "chat rID: " + chat.getReceiverUid() + "chat sID" + chat.getSenderUid());
-                    mChats.add(chat);
-                    //Collections.sort(mChats, new CustomComparator());
-                    notifyItemInserted(mChats.size() - 1);
-                }
-            }
-        }*/
-
-
         Collections.sort(mChats, new CustomComparator());
         notifyItemInserted(mChats.size() - 1);
         //Log.d("FRAGCHAT", "Chat_Adapter add " + chat.getMessage() + " added");
