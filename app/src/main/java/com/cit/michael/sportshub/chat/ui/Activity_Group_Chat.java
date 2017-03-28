@@ -2,9 +2,11 @@ package com.cit.michael.sportshub.chat.ui;
 
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -56,8 +58,8 @@ import static com.cit.michael.sportshub.Constants.ACTION_GROUP_ADD_MEMBER;
 import static com.cit.michael.sportshub.Constants.ACTION_GROUP_REMOVE_MEMBER;
 import static com.cit.michael.sportshub.activities.Activity_Main.chat_active;
 import static com.cit.michael.sportshub.chat.ui.Activity_Chat.ARG_CHAT_ROOMS;
-
-public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
+//UserListDialogListener
+public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener, UserListFragment.UserListDialogListener {
 //public class Activity_Group_Chat extends FragmentActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
     private FirebaseAuth auth;
     private FirebaseUser mFirebaseUser;
@@ -108,6 +110,10 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
         groupMembers = new ArrayList<User>();
         selectedUsersInvFriends = new ArrayList<User>();
 
+//        mListener = (UserLeftGroupListner) this;
+
+
+
         loadData();
 
         Log.d("FRAG_GROUP ", "Activity_Group_Chat: getGroupID: " + groupID);
@@ -128,6 +134,8 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
         // Store our shared preference
         chat_active = true;
     }
+
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -138,7 +146,6 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         // Store our shared preference
         chat_active = false;
     }
@@ -167,28 +174,75 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
                 displayGroupMembers();
                 return true;
             case R.id.leaveGroup:
-                //showHelp();
+                leaveGroup();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private void displayGroupMembers() {
-        // WORKING
-/*
-        FragmentManager fm = getSupportFragmentManager();
-        //ProfileViewFragment editNameDialogFragment = new ProfileViewFragment(listUserAttending.get(position).getUserProfileUrl(), listUserAttending.get(position).getUserId());
-        //User user = listUserAttending.get(position);
-        UserListFragment editNameDialogFragment = new UserListFragment(getApplicationContext(), (ArrayList<User>) groupMembers);
-        editNameDialogFragment.show(fm, "");
-*/
+    private void leaveGroup() {
 
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+
+        // Setting Dialog Title
+        // alertDialog.setTitle("Confirm friendship...");
+        alertDialog.setTitle("Confirm");
+
+        // Setting Dialog Message
+        //alertDialog.setMessage("Are you sure you want accept " + user.getUserFullName() + " as a friend?");
+        alertDialog.setMessage("Are you sure you want to leave " + chatName + "?");
+
+        // Setting Icon to Dialog
+        // alertDialog.setIcon(R.drawable.delete);
+
+        // Setting Positive "Yes" Button
+        alertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog,int which) {
+                ArrayList<String> user = new ArrayList<String>();
+                user.add(auth.getCurrentUser().getUid());
+                Group removeUsers = new Group(Integer.parseInt(groupID),chatName, user, auth.getCurrentUser().getDisplayName());
+                service.removeUser(removeUsers).enqueue(new Callback<RestGroup>() {
+                    @Override
+                    public void onResponse(Call<RestGroup> call, Response<RestGroup> response) {
+                        Toast.makeText(getApplicationContext(), "You have left the group...", Toast.LENGTH_SHORT).show();
+                        Intent data = new Intent();
+                        data.putExtra("group_id", groupID);
+                        setResult(RESULT_OK, data);
+                        finish();
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<RestGroup> call, Throwable t) {
+                        Toast.makeText(getApplicationContext(), "Error...", Toast.LENGTH_SHORT).show();
+
+                    }
+
+                });
+                dialog.dismiss();
+
+            }
+        });
+
+        // Setting Negative "NO" Button
+        alertDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                // Write your code here to invoke NO event
+                Toast.makeText(getApplicationContext(), "You clicked on NO", Toast.LENGTH_SHORT).show();
+                dialog.cancel();
+            }
+        });
+
+
+        // Showing Alert Message
+        alertDialog.show();
+    }
+
+    private void displayGroupMembers() {
         FragmentManager fm = getFragmentManager();
         UserListFragment editNameDialogFragment = new UserListFragment(getApplicationContext(), (ArrayList<User>) groupMembers, ACTION_GROUP_REMOVE_MEMBER,  groupID, chatName);
         editNameDialogFragment.show(fm, "abc");
-
-
     }
 
     private void loadData(){
@@ -215,7 +269,7 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
 
                 });
 
-        service.getGroupMembers(groupID)
+        service.getGroupMembers(groupID, auth.getCurrentUser().getUid())
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<RestUsers>() {
@@ -244,47 +298,9 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
         FragmentManager fm = getFragmentManager();
         UserListFragment editNameDialogFragment = new UserListFragment(getApplicationContext(), (ArrayList<User>) friendsNotInGroup, ACTION_GROUP_ADD_MEMBER, groupID, chatName);
         editNameDialogFragment.show(fm, "abc");
-        editNameDialogFragment.setTargetFragment(this, 0);
 
-/*
-        AlertDialog.Builder alerBuilder = new AlertDialog.Builder(this);
-        //final DBHelper dbHelper = new DBHelper(this);
-        String[] userFullNames = new String[friendsNotInGroup.size()];
-        final boolean[] selectedItems = new boolean[friendsNotInGroup.size()];
-        for(int i = 0 ; i < userFullNames.length ; i++){
-            userFullNames[i] = friendsNotInGroup.get(i).getUserFullName();
-            selectedItems[i] = false;
-            for(int j = 0 ; j < selectedUsersInvFriends.size() ; j++){
-                if(selectedUsersInvFriends.get(j).getUserId() == friendsNotInGroup.get(i).getUserId()){
-                    selectedItems[i] = true;
-                    break;
-                }
-            }
-        }
-
-        alerBuilder.setMultiChoiceItems(userFullNames,selectedItems,new DialogInterface.OnMultiChoiceClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
-                Log.e("CheckStatus",String.valueOf(b));
-                //selectedUsers.add(listOfFriends.get(i).getUserToken().toString());
-                selectedUsersInvFriends.add(friendsNotInGroup.get(i));
-            }
-        }).setPositiveButton("OK",new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int ii) {
-                selectedUsersInvFriends.clear();
-                for(int i = 0 ; i < selectedItems.length ; i++) {
-                    if(selectedItems[i]) {
-                        selectedUsersInvFriends.add(friendsNotInGroup.get(i));
-                    }
-                }
-                if(!selectedUsersInvFriends.isEmpty())
-                    sendRequestToSelectedUsers();
-
-
-            }
-        }).setCancelable(false).setTitle("Select friends").create().show();*/
     }
+
 
     private void sendRequestToSelectedUsers() {
         if(!selectedUsersInvFriends.isEmpty()){
@@ -355,9 +371,9 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
         Log.d("FRAG_GROUP", "getMessageFromFirebaseUser called" );
 
-        dialog = new ProgressDialog(this);
+  /*      dialog = new ProgressDialog(this);
         dialog.setMessage("Loading....");
-        dialog.show();
+        dialog.show();*/
 
         databaseReference.child(ARG_CHAT_ROOMS).getRef().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -403,10 +419,10 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
                             onGetMessagesFailure("Unable to get message: " + databaseError.getMessage());
                         }
                     });
-                    dialog.hide();
+                    //dialog.hide();
                 } else {
                     Log.e(TAG, "getMessageFromFirebaseUser: no such room available");
-                    dialog.hide();
+                    //dialog.hide();
                 }
             }
 
@@ -442,4 +458,18 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
         mLinearLayoutManager.setStackFromEnd(true);
     }
 
+    @Override
+    public void dialogListener(ArrayList<User> dialogListener, String action) {
+        Log.d("FRAG_GROUP ", "dialogListener: arraylist size: " + dialogListener.size() + " action: " + action);
+        if(action.equals(ACTION_GROUP_ADD_MEMBER)){
+            friendsNotInGroup = dialogListener;
+        }
+        else if(action.equals(ACTION_GROUP_REMOVE_MEMBER)){
+            groupMembers= dialogListener;
+        }
+    }
+
+    public interface UserLeftGroupListner {
+        void groupListener(String groupID);
+    }
 }

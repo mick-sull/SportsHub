@@ -1,5 +1,6 @@
 package com.cit.michael.sportshub.ui;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
@@ -52,6 +53,7 @@ public class UserListFragment extends DialogFragment {
     NetworkService service;
     User user;
     ArrayList<User> listOfUsers;
+    ArrayList<User> returnedListOfUsers;
     public int friendshipFoundIndex = -1;
     public String TAG = "ProfileDialog";
     Context ctx;
@@ -65,25 +67,39 @@ public class UserListFragment extends DialogFragment {
     ArrayList<String> group_data;//this will either be user tokens or user_id of the members to remove.
     String groupID, groupName;
     Dialog dialog;
+    UserListDialogListener mListener;
 
 
     public UserListFragment(Context ctx, ArrayList<User> listOfUsers, String action, String groupID, String groupName ) {
         this.ctx = ctx;
         this.action = action;
         this.listOfUsers = listOfUsers;
+        //this.returnedListOfUsers = listOfUsers;
         this.groupID = groupID;
         this.groupName = groupName;
     }
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mListener = (UserListDialogListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnArticleSelectedListener");
+        }
+    }
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         auth = FirebaseAuth.getInstance();
         service = RestClient.getSportsHubApiClient();
         selectedUsersInvFriends = new ArrayList<User>();
+        returnedListOfUsers = new ArrayList<User>();
         group_data = new ArrayList<String>();
 
         //Set all user statuses to 0 (not selected),  1 = selected
         for(int i = 0; i < listOfUsers.size(); i++){
                 listOfUsers.get(i).setStatus(ACTION_GROUP_NOT_SELECTED);
+                //returnedListOfUsers.get(i).setStatus(ACTION_GROUP_NOT_SELECTED);
         }
 
 
@@ -118,8 +134,11 @@ public class UserListFragment extends DialogFragment {
                             listOfUsers.get(position).setStatus(ACTION_GROUP_NOT_SELECTED);
                         }
                         mAdapter.notifyItemChanged(position);
+
                     }
                 })
+
+
         );
 
         mAdapter = new User_Friends_Adapter(listOfUsers, ctx, auth.getCurrentUser().getUid(), action);
@@ -136,11 +155,17 @@ public class UserListFragment extends DialogFragment {
     @OnClick(R.id.txtListUserDone)
     public void doneText(){
         Log.d("UserListFragment", "@OnClick(R.id.txtListUserDone)");
+        for(int i = 0; i< listOfUsers.size(); i++){
+            if(listOfUsers.get(i).getStatus() == ACTION_GROUP_NOT_SELECTED){
+                returnedListOfUsers.add(listOfUsers.get(i));
+            }
+        }
+        mListener.dialogListener(returnedListOfUsers, action);
         if(action.equals(ACTION_GROUP_ADD_MEMBER)){
             if(!selectedUsersInvFriends.isEmpty()){
-
                 for(int i = 0; i< selectedUsersInvFriends.size(); i++){
                     group_data.add(selectedUsersInvFriends.get(i).getUserToken().toString());
+
                 }
             }
             Group requestToGroup = new Group(Integer.parseInt(groupID),groupName, group_data, auth.getCurrentUser().getDisplayName());
@@ -185,6 +210,7 @@ public class UserListFragment extends DialogFragment {
                 dialog.dismiss();
             }
         }
+        dialog.cancel();
     }
     @OnClick(R.id.txtListUserCancel)
     public void cancelRequest(){
@@ -199,8 +225,8 @@ public class UserListFragment extends DialogFragment {
 
     }
 
-    public interface DialogListener {
-        void DialogListener(ArrayList<User> selectedUsers);
+    public interface UserListDialogListener {
+        void dialogListener(ArrayList<User> selectedUsers, String action);
     }
 }
 

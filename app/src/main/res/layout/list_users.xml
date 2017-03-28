@@ -46,14 +46,6 @@
             android:layout_height="wrap_content"
             android:paddingTop="10dp">
 
-            <View
-                android:layout_marginTop="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/colordevider"
-                android:padding="16dp"
-                />
-
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"

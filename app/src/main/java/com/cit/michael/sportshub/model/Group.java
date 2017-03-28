@@ -43,6 +43,7 @@ public class Group {
         this.fullUserName = fullUserName;
     }
 
+
     public Integer getGroupId() {
         return groupId;
     }

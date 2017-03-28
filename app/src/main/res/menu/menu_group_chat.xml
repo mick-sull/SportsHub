@@ -10,7 +10,7 @@
     <item
         android:id="@+id/removeUser"
         android:orderInCategory="100"
-        android:title="Remove Friend"
+        android:title="Remove Member"
         app:showAsAction="never" />
 
     <item

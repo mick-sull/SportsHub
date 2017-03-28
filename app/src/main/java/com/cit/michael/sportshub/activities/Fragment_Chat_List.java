@@ -14,8 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.cit.michael.sportshub.R;
-import com.cit.michael.sportshub.chat.adapter.Chat_Adapter;
 import com.cit.michael.sportshub.adapter.RecyclerItemClickListener;
+import com.cit.michael.sportshub.chat.adapter.Chat_Adapter;
 import com.cit.michael.sportshub.chat.model.Chat;
 import com.cit.michael.sportshub.chat.ui.Activity_Chat;
 import com.cit.michael.sportshub.model.Conversation;
@@ -139,6 +139,7 @@ public class Fragment_Chat_List extends Fragment {
                                     Intent intent = new Intent(getContext(), Activity_Chat.class);
                                     intent.putExtra("receivingUser",  response.body().getUser().get(0));
                                     startActivity(intent);
+
                                 }
                             }
 
@@ -292,11 +293,14 @@ public class Fragment_Chat_List extends Fragment {
         }
     }
 
+
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
     }
+
+
 
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name

@@ -140,31 +140,11 @@ public class Frag_Group extends Fragment {
                         sortedChatList = new ArrayList<Group_Chat>();
                         String receivingUser;
                         sortedChatList = chatListAdapter.getSortedArrayList();
-
-/*                        if (auth.getCurrentUser().getUid().equals(sortedChatList.get(position).getSenderUid())) {
-                            receivingUser = sortedChatList.get(position).getReceiverUid();
-                        } else {
-                            receivingUser = sortedChatList.get(position).getSenderUid();
-                        }*/
-/*                        service.getUser(receivingUser).enqueue(new Callback<RestProfile>() {
-                            @Override
-                            public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
-                                if (!response.body().getError()) {*/
-                                    Intent intent = new Intent(getContext(), Activity_Group_Chat.class);
+                        Intent intent = new Intent(getContext(), Activity_Group_Chat.class);
 
                         intent.putExtra("group_name", sortedChatList.get(position).getChatName());
                         intent.putExtra("group_id", sortedChatList.get(position).getGroupID());
-                        Log.d("FRAG_GROUP ", "addOnItemTouchListener: getGroupID: " + sortedChatList.get(position).getGroupID());
-                        Log.d("FRAG_GROUP ", "addOnItemTouchListener: getChatName: " + sortedChatList.get(position).getChatName());
-                        startActivity(intent);
-  /*                              }
-                            }
-
-                            @Override
-                            public void onFailure(Call<RestProfile> call, Throwable t) {
-
-                            }
-                        });*/
+                        startActivityForResult(intent, 1);
                     }
                 })
         );
@@ -186,6 +166,7 @@ public class Frag_Group extends Fragment {
         service.getGroups(auth.getCurrentUser().getUid()).enqueue(new Callback<RestGroup>() {
             @Override
             public void onResponse(Call<RestGroup> call, Response<RestGroup> response) {
+                //listOfGroups.clear();
                 listOfGroups = response.body().getGroup();
 //                Log.d("FRAGGROUP ", "onResponse listOfGroups.size()" + listOfGroups.size());
            //     Log.d("FRAGGROUP ", "JSON: " + new Gson().toJson(response));
@@ -204,7 +185,7 @@ public class Frag_Group extends Fragment {
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
         if (!listOfGroups.isEmpty()) {
             Log.d("FRAGGROUP ", "displayGroups listOfGroups.size()" + listOfGroups.size());
-
+            //listOfChats.clear();
             for (int i = 0; i < listOfGroups.size(); i++) {
                 Query getLastMessages = databaseReference.child(ARG_CHAT_ROOMS).child(listOfGroups.get(i).getGroupId().toString())
                         .limitToLast(1);
@@ -258,6 +239,8 @@ public class Frag_Group extends Fragment {
     }
 
 
+
+
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
@@ -295,6 +278,14 @@ public class Frag_Group extends Fragment {
         // TODO submit data to server...
         createNewGroup();
 
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("FRAGCHAT",  "onActivityResult CALLED");
+        if (requestCode == 1) {
+            // make use of "data" = profit
+                getGroups();
+            }
     }
 
     @Override
