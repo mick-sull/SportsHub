@@ -55,10 +55,6 @@ public class Chat_Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 //Collections.sort(mChats, new CustomComparator());
                 notifyItemChanged(i);
                 notifyItemRangeRemoved(0, mChats.size());
-/*                mChats.remove(i);
-                notifyItemRemoved(i);
-                mChats.add(chat);
-                notifyItemInserted(mChats.size() - 1);*/
                 found = true;
             }
         }

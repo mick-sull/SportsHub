@@ -401,7 +401,7 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
                                 try {
 
                                     Group_Chat model = dataSnapshot.getValue(Group_Chat.class);
-                                    Log.d("FRAG_GROUP", "onChildAdded ChatList message: " + model.getMessage());
+                                    //Log.d("FRAG_GROUP12", "onChildAdded ChatList chat NAME: " + model.getChatName());
                                     onGetMessagesSuccess(model);
                                 } catch (Exception ex) {
                                     Log.e(TAG, ex.getMessage());

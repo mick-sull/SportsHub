@@ -1,5 +1,6 @@
 package com.cit.michael.sportshub.activities;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -27,6 +28,7 @@ import com.cit.michael.sportshub.rest.model.RestUsers;
 import com.cit.michael.sportshub.ui.CircleTransform;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -117,6 +119,7 @@ public class Fragment_Profile extends Fragment {
         listLocaton = new ArrayList<Location>();
         user = new ArrayList<User>();
         recyclerView = (RecyclerView) view.findViewById(R.id.profile_recycler_view);
+        recyclerView.setNestedScrollingEnabled(false);
 
 
 
@@ -126,6 +129,7 @@ public class Fragment_Profile extends Fragment {
             public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
                 //Log.d("TEST123", "JSON: " + new Gson().toJson(response));
                 if (!response.body().getError()) {
+                    Log.d("ABC1", "Request data " + new Gson().toJson(response));
                     listEvents = response.body().getEvent();
                     listLocaton = response.body().getLocation();
                     user = response.body().getUser();
@@ -153,12 +157,10 @@ public class Fragment_Profile extends Fragment {
 
         recyclerView.addOnItemTouchListener( new RecyclerItemClickListener(getContext(), new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
-/*                        // TODO Handle item click
-                        // changeActivity(position);
-                        Intent intent = new Intent(Activity_Search_Results.this,Activity_Event_Details.class);
+                        Intent intent = new Intent(getContext(),Activity_Event_Details.class);
                         //Intent intent = new Intent(Activity_Search_Results.this,MapsActivity.class);
-                        intent.putExtra("eventSelected", arrayEvents.get(position).getEventId());
-                        startActivity(intent);*/
+                        intent.putExtra("eventSelected", listEvents.get(position).getEventId());
+                        startActivity(intent);
                     }
 
 

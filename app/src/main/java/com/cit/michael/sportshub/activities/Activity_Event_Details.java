@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import butterknife.BindView;
@@ -102,7 +103,11 @@ public class Activity_Event_Details extends AppCompatActivity  {
                     public void onResponse(Call<RestAttendee> call, Response<RestAttendee> response) {
                         //Toast.makeText(Activity_Event_Details.this, ""+ response.message(), Toast.LENGTH_SHORT).show();
                         userAttending = false;
-                        changeButtonColor();
+                        try {
+                            changeButtonColor();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                         load_event_data(selectedEventID);
                     }
 
@@ -117,7 +122,11 @@ public class Activity_Event_Details extends AppCompatActivity  {
                     public void onResponse(Call<RestAttendee> call, Response<RestAttendee> response) {
                         //Toast.makeText(Activity_Event_Details.this, ""+ response.message(), Toast.LENGTH_SHORT).show();
                         userAttending = false;
-                        changeButtonColor();
+                        try {
+                            changeButtonColor();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                         load_event_data(selectedEventID);
 
                     }
@@ -185,14 +194,22 @@ public class Activity_Event_Details extends AppCompatActivity  {
                     for (int i = 0; i < listUserAttending.size(); i++) {
                         if (auth.getCurrentUser().getUid().equals(listUserAttending.get(i).getUserId())) {
                             userAttending = true;
-                            changeButtonColor();
+                            try {
+                                changeButtonColor();
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
                         }
 
                     }
                 }
                 Log.d("CHATISSUE2", "Organizer Size: " + organizer.size());
                 Log.d("CHATISSUE2", "Attendee: " + listUserAttending.size());
-                        displayInfo();
+                try {
+                    displayInfo();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
 
             }
 
@@ -205,7 +222,7 @@ public class Activity_Event_Details extends AppCompatActivity  {
     }
 
     //Display event information
-    private void displayInfo() {
+    private void displayInfo() throws ParseException {
 
         txtEventName.setText(event.getEventName());
         txtDisplayCost.setText(event.getFormattedCost());
@@ -237,20 +254,6 @@ public class Activity_Event_Details extends AppCompatActivity  {
                 User user = listUserAttending.get(position);
                 ProfileViewFragment editNameDialogFragment = new ProfileViewFragment(user, getApplicationContext());
                 editNameDialogFragment.show(fm, "test");
-
-/*                LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
-                View dialogLayout = inflater.inflate(R.layout.profile_dialog, null);
-                AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
-                builder.setView(dialogLayout);
-*//*                TextView indtruction = (TextView)dialogLayout.findViewById(R.id.text_instruction);
-                final EditText userInput = (EditText)dialogLayout.findViewById(R.id.user_input);*//*
-                AlertDialog customAlertDialog = builder.create();
-                customAlertDialog.show();*/
-
-
-/*                Object o = prestListView.getItemAtPosition(position);
-                prestationEco str=(prestationEco)o;//As you are using Default String Adapter
-                Toast.makeText(getBaseContext(),str.getTitle(),Toast.LENGTH_SHORT).show();*/
             }
         });
 
@@ -263,8 +266,13 @@ public class Activity_Event_Details extends AppCompatActivity  {
 
     }
 
-    public void changeButtonColor(){
-        if(event.getSpaceLeft() == 0 && userAttending){
+    public void changeButtonColor() throws ParseException {
+        if(event.getTimeInMilliSeconds() < Calendar.getInstance().getTime().getTime()){
+            btnJoinLeave.setBackgroundColor(getResources().getColor(R.color.ProfileSecondary));
+            btnJoinLeave.setText("CLOSED");
+            btnJoinLeave.setClickable(false);
+        }
+        else if(event.getSpaceLeft() == 0 && userAttending){
             btnJoinLeave.setBackgroundColor(getResources().getColor(R.color.ProfileSecondary));
             btnJoinLeave.setText("LEAVE");
 
@@ -272,6 +280,7 @@ public class Activity_Event_Details extends AppCompatActivity  {
         else if (event.getSpaceLeft() == 0 && !userAttending){
             btnJoinLeave.setBackgroundColor(getResources().getColor(R.color.primary_light));
             btnJoinLeave.setText("EVENT FULL");
+            btnJoinLeave.setClickable(false);
 
         }
         else if(userAttending){

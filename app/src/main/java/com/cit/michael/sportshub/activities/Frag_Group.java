@@ -186,7 +186,8 @@ public class Frag_Group extends Fragment {
                                         try {
 
                                             Group_Chat model = dataSnapshot.getValue(Group_Chat.class);
-                                            Log.d("FRAGCHAT ", "displayGroups getMessage" + model.getMessage());
+                                           // Log.d("FRAGCHAT ", "displayGroups getMessage" + model.getMessage());
+                                            Log.d("FRAG_GROUP12", "onChildAdded ChatList chat NAME: " + model.getChatName());
 
                                             onGetMessagesSuccess(model);
                                             listOfChats.add(model);
@@ -234,6 +235,7 @@ public class Frag_Group extends Fragment {
 
     }
 
+/*
     private void displayGroups() {
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
         if (!listOfGroups.isEmpty()) {
@@ -290,6 +292,7 @@ public class Frag_Group extends Fragment {
 
         }
     }
+*/
 
 
 
@@ -314,14 +317,6 @@ public class Frag_Group extends Fragment {
 
     public void onGetMessagesSuccess(Group_Chat chat) {
         Log.d("FRAGCHAT", "onGetMessagesSuccess " + chat.getMessage() + " added");
-/*        if (chatListAdapter == null) {
-            Log.d("FRAGCHAT",  "onGetMessagesSuccess chatListAdapter == null" );
-            chatListAdapter = new Chat_Adapter(getContext(),new ArrayList<Chat>());
-            layoutManager = new LinearLayoutManager(getActivity().getBaseContext());
-            layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-            recyclerView.setLayoutManager(layoutManager);
-            recyclerView.setAdapter(chatListAdapter);
-        }*/
         chatListAdapter.add(chat);
         recyclerView.smoothScrollToPosition(chatListAdapter.getItemCount() - 1);
     }

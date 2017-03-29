@@ -31,7 +31,6 @@ import com.cit.michael.sportshub.rest.model.RestRelationship;
 import com.cit.michael.sportshub.rest.model.RestUsers;
 import com.cit.michael.sportshub.ui.ProfileViewFragment;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,7 +92,7 @@ public class Fragment_Friends_List extends Fragment {
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_fragement__friends__list, container, false);
-        listFriends = new ArrayList<User>();
+
         listFriendsRequests = new ArrayList<User>();
         recyclerView = (RecyclerView) rootView.findViewById(R.id.friends_list_recycler_view);
         ButterKnife.bind(this, rootView);
@@ -104,7 +103,7 @@ public class Fragment_Friends_List extends Fragment {
             @Override
             public void onResponse(Call<RestUsers> call, Response<RestUsers> response) {
                 Log.d("FRIENDS LIST", "Result: " + response.message().toString());
-                Log.d("ABC", "Request data " + new Gson().toJson(response));
+                //Log.d("ABC", "Request data " + new Gson().toJson(response));
                 //if(!response.body().getUserDetails().isEmpty()){
                     listFriends = response.body().getUser();
 //                    Log.d("ABC", "getAction_user " + listFriends.get(0).getAction_user());
@@ -213,13 +212,14 @@ public class Fragment_Friends_List extends Fragment {
 
     private void displayFriends() {
         //for(User user : listFriends){
-        for(int i = 0; i < listFriends.size(); i++){
-            if(listFriends.get(i).getStatus() != ACCEPTED && listFriends.get(i).getStatus() != PENDING_REQUEST){
-                //Log.d("REMOVED", listFriends.get(i).getUserFullName() + "STATUS: " + listFriends.get(i).getStatus());
-                //listFriends.remove(listFriends.get(i));
-                listFriends.remove(i);
+        if(!listFriends.isEmpty()) {
+            for (int i = 0; i < listFriends.size(); i++) {
+                if (listFriends.get(i).getStatus() != ACCEPTED && listFriends.get(i).getStatus() != PENDING_REQUEST) {
+                    //Log.d("REMOVED", listFriends.get(i).getUserFullName() + "STATUS: " + listFriends.get(i).getStatus());
+                    //listFriends.remove(listFriends.get(i));
+                    listFriends.remove(i);
+                }
             }
-
         }
 
         mAdapter = new User_Friends_Adapter(listFriends, getContext(), auth.getCurrentUser().getUid(), ACTION_FRIENDS_LIST);

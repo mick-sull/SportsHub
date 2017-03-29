@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="top"
             android:textColor="@color/secondary_text"
-            android:textSize="18sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:layout_marginLeft="5px"/>
 
@@ -27,7 +27,7 @@
             android:id="@+id/profileEventLocation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            android:textSize="12sp"
             android:textColor="@color/ProfileSecondary"
             android:layout_marginLeft="5px"/>
 
@@ -35,7 +35,7 @@
             android:id="@+id/profileEventDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            android:textSize="12sp"
             android:textColor="@color/ProfileSecondary"
             android:layout_marginLeft="5px"/>
 
@@ -43,7 +43,7 @@
             android:id="@+id/eventTime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            android:textSize="12sp"
             android:textColor="@color/ProfileSecondary"
             android:layout_marginLeft="5px"/>
 
