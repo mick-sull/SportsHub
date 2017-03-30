@@ -1,5 +1,6 @@
 package com.cit.michael.sportshub.activities;
 
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,12 +21,17 @@ import com.cit.michael.sportshub.adapter.Profile_Events_Attended_Adapter;
 import com.cit.michael.sportshub.adapter.RecyclerItemClickListener;
 import com.cit.michael.sportshub.model.Event;
 import com.cit.michael.sportshub.model.Location;
+import com.cit.michael.sportshub.model.Sport;
+import com.cit.michael.sportshub.model.Subscription;
 import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
 import com.cit.michael.sportshub.rest.model.RestProfile;
+import com.cit.michael.sportshub.rest.model.RestSport;
+import com.cit.michael.sportshub.rest.model.RestSubscription;
 import com.cit.michael.sportshub.rest.model.RestUsers;
 import com.cit.michael.sportshub.ui.CircleTransform;
+import com.cit.michael.sportshub.ui.SettingFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
@@ -36,9 +42,13 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -63,6 +73,7 @@ public class Fragment_Profile extends Fragment {
     @BindView(R.id.txtReliability) TextView txtReliability;
     @BindView(R.id.txtUsernameProfile) TextView txtUsernameProfile;
     @BindView(R.id.lblPerviousEvents) TextView lblPerviousEvents;
+    @BindView(R.id.imgBtnSetting) ImageView imgSettigns;
 
     //Context ctx;
     NetworkService service;
@@ -71,7 +82,9 @@ public class Fragment_Profile extends Fragment {
     List<User>  user;
     private FirebaseAuth auth;
     FirebaseInstanceId mFirebaseInstanceId;
-
+    List<Sport> listOfALlSport;
+    List<Subscription> listOfSubs;
+    SettingFragment editNameDialogFragment;
     // TODO: Rename and change types of parameters
     private String userID;
     private String mParam2;
@@ -115,11 +128,15 @@ public class Fragment_Profile extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         auth = FirebaseAuth.getInstance();
         mFirebaseInstanceId = FirebaseInstanceId.getInstance();
-
+        imgSettigns.setVisibility(View.VISIBLE);
         listLocaton = new ArrayList<Location>();
         user = new ArrayList<User>();
+        listOfALlSport = new ArrayList<Sport>();
+        listOfSubs = new ArrayList<Subscription>();
+
         recyclerView = (RecyclerView) view.findViewById(R.id.profile_recycler_view);
         recyclerView.setNestedScrollingEnabled(false);
+
 
 
 
@@ -154,7 +171,7 @@ public class Fragment_Profile extends Fragment {
 
             }
         });
-
+        loadData();
         recyclerView.addOnItemTouchListener( new RecyclerItemClickListener(getContext(), new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
                         Intent intent = new Intent(getContext(),Activity_Event_Details.class);
@@ -167,7 +184,50 @@ public class Fragment_Profile extends Fragment {
                 })
         );
     }
+    private void loadData() {
+        service.getSubscribedSport(auth.getCurrentUser().getUid())
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<RestSubscription>() {
+                    @Override
+                    public void onCompleted() {
 
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(RestSubscription restSub) {
+                        listOfSubs = restSub.getSubscription();
+                    }
+
+                });
+
+        service.getSport()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<RestSport>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(RestSport restSport) {
+                        listOfALlSport = restSport.getSport();
+                    }
+
+                });
+
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -176,6 +236,17 @@ public class Fragment_Profile extends Fragment {
 
         ButterKnife.bind(this, rootView);
         return rootView;
+    }
+
+    @OnClick(R.id.imgBtnSetting)
+    public void settings(View rootView) {
+        // TODO submit data to server...
+        FragmentManager fm = getActivity().getFragmentManager();
+        Log.d("SettingFragment", "Fragment_Profile listOfALlSport.size(): " + listOfALlSport.size());
+        Log.d("SettingFragment", "Fragment_Profile listOfSubs.size(): " + listOfSubs.size());
+        editNameDialogFragment = new SettingFragment(getContext(),listOfALlSport,listOfSubs);
+        editNameDialogFragment.show(fm, "test");
+
     }
 
     private void displayUserInfo() {

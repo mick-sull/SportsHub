@@ -4,15 +4,9 @@ import android.util.Log;
 
 import com.cit.michael.sportshub.model.Sport;
 import com.cit.michael.sportshub.rest.NetworkService;
-import com.cit.michael.sportshub.rest.RestClient;
-import com.cit.michael.sportshub.rest.model.RestSport;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * Created by micha on 17/01/2017.
@@ -33,9 +27,9 @@ public class SportService {
     public List<Sport> listOfSports;
 */
 
-    public List<Sport> getSport(){
+   /* public List<Sport> getSport(){
 
-        Log.d("SportService", "" + "reached");
+     *//*   Log.d("SportService", "" + "reached");
         sports = new ArrayList<Sport>();
         service = RestClient.getSportsHubApiClient();
         service.getSport().enqueue(new Callback<RestSport>() {
@@ -61,9 +55,9 @@ public class SportService {
         });
         Log.d("SportService", " return size: " + sports.size());
         return sports;
-
+*//*
         //return null;
-    }
+    }*/
 
 }
 

@@ -61,7 +61,10 @@ import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import rx.Observer;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class Activity_Organize_Event extends AppCompatActivity  implements Validator.ValidationListener {
 
@@ -428,7 +431,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     }
 
     private void getSportData() {
-        service.getSport().enqueue(new Callback<RestSport>() {
+/*        service.getSport().enqueue(new Callback<RestSport>() {
             @Override
             public void onResponse(Call<RestSport> call, Response<RestSport> response) {
                 if(response.body().getError()){
@@ -450,7 +453,27 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
                 Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
 
             }
-        });
+        });*/
+        service.getSport()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<RestSport>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(RestSport restSport) {
+                        listOfSports = restSport.getSport();
+                    }
+
+                });
 
     }
 

@@ -43,6 +43,9 @@ import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class Activity_Search_Events extends AppCompatActivity {
 
@@ -208,22 +211,26 @@ public class Activity_Search_Events extends AppCompatActivity {
     }
 
     private void getSportData() {
-        service.getSport().enqueue(new Callback<RestSport>() {
-            @Override
-            public void onResponse(Call<RestSport> call, Response<RestSport> response) {
-                if(response.body().getError()){
-                    Toast.makeText(Activity_Search_Events.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
-                }
-                else{
-                    listOfSports = response.body().getSport();
-                }
-            }
-            @Override
-            public void onFailure(Call<RestSport> call, Throwable t) {
-                Toast.makeText(Activity_Search_Events.this, "Error: Couldnt  retrieve data...", Toast.LENGTH_SHORT).show();
-                Log.d("ThrowableT ", "" + t.toString());
-            }
-        });
+        service.getSport()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<RestSport>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(RestSport restSport) {
+                        listOfSports = restSport.getSport();
+                    }
+
+                });
     }
 
     public void btnDate(View v) {

@@ -52,6 +52,7 @@ public class Activity_Profile extends AppCompatActivity {
     @BindView(R.id.lblPerviousEvents) TextView lblPerviousEvents;
 
 
+
     Context ctx;
     NetworkService service;
     List<Event> listEvents;

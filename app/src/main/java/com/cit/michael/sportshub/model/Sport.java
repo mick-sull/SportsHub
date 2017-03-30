@@ -1,6 +1,8 @@
 
 package com.cit.michael.sportshub.model;
 
+import android.support.annotation.Nullable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -15,6 +17,12 @@ public class Sport {
     @SerializedName("user_id")
     @Expose
     private String userId;
+
+
+    @SerializedName("status")
+    @Expose
+    @Nullable
+    private int status;
 
     public Sport(Integer sportId,String sportName,String userId ){
         this.sportId = sportId;
@@ -45,6 +53,15 @@ public class Sport {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    @Nullable
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(@Nullable int status) {
+        this.status = status;
     }
 
 }

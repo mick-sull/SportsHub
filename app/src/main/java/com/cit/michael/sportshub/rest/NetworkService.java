@@ -8,6 +8,7 @@ import com.cit.michael.sportshub.model.Group;
 import com.cit.michael.sportshub.model.Location;
 import com.cit.michael.sportshub.model.Search;
 import com.cit.michael.sportshub.model.Sport;
+import com.cit.michael.sportshub.model.Subscription;
 import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.model.RestAttendee;
 import com.cit.michael.sportshub.rest.model.RestBase;
@@ -19,6 +20,7 @@ import com.cit.michael.sportshub.rest.model.RestLocation;
 import com.cit.michael.sportshub.rest.model.RestProfile;
 import com.cit.michael.sportshub.rest.model.RestRelationship;
 import com.cit.michael.sportshub.rest.model.RestSport;
+import com.cit.michael.sportshub.rest.model.RestSubscription;
 import com.cit.michael.sportshub.rest.model.RestUsers;
 
 import java.util.List;
@@ -40,8 +42,12 @@ import rx.Observable;
 public interface NetworkService {
 
     //Sport
+/*    @GET("sport/")
+    Call<RestSport> getSport();*/
+
     @GET("sport/")
-    Call<RestSport> getSport();
+    Observable<RestSport> getSport();
+
 /*    @GET("sport/")
     Observable<RestSport> getSport();*/
 
@@ -142,10 +148,14 @@ public interface NetworkService {
     @GET("group/getMemebers/")
     Observable<RestUsers> getGroupMembers(@Query("group_id") String groupID,
                                             @Query("user_id") String userID);
-
-
     @POST("group/removeMembers/")
     Call<RestGroup> removeUser(@Body Group group);
+
+    @GET("subscriptions/getSubscription/")
+    Observable<RestSubscription> getSubscribedSport(@Query("user_id") String userID);
+
+    @GET("subscriptions/updateSubscription/")
+    Call<RestSubscription> updateSubscription(@Body List<Subscription> subscription);
 
 
 
