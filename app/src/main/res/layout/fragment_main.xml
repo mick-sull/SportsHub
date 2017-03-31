@@ -1,8 +1,9 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingBottom="0dp"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
@@ -11,44 +12,60 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="373dp"
+        android:weightSum="1"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true">
 
-        <Button
-            android:text="Nearby"
+        <com.google.android.gms.maps.MapView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/btnNearby"
-            android:layout_below="@+id/btnOrganizeEvent"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="19dp"
-            android:layout_alignEnd="@+id/btnOrganizeEvent" />
-
-        <Button
-            android:text="Organize Event"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/btnOrganizeEvent" />
-
-        <Button
-            android:text="My Events"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/btnMyEvents"
-             />
-        <Button
-            android:text="Messages"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/btnChat" />
-
-       <Button
-            android:text="Recent Events"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/btnRecentEvents" />
-
+            android:layout_height="match_parent"
+            android:id="@+id/mapView" />
     </LinearLayout>
 
-</RelativeLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:weightSum="1"
+        android:layout_alignParentStart="true">
+
+        <android.support.design.widget.FloatingActionButton
+            android:layout_width="62dp"
+            android:layout_height="86dp"
+            android:clickable="true"
+            app:fabSize="mini"
+            app:srcCompat="@drawable/ic_search_black_24dp"
+            android:id="@+id/floatSearchEvent"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="left|bottom"
+            android:layout_marginBottom="15dp"
+            android:layout_marginLeft="15dp"
+            app:elevation="10dp"
+            app:pressedTranslationZ="24dp"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            />
+
+        <android.support.design.widget.FloatingActionButton
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:layout_marginRight="15dp"
+            android:clickable="true"
+            app:fabSize="mini"
+            app:srcCompat="@drawable/ic_add_black_24dp"
+            android:id="@+id/floatAddEvent"
+            app:borderWidth="0dp"
+            app:elevation="10dp"
+            app:pressedTranslationZ="24dp"
+            android:layout_gravity="right|bottom"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="15dp" />
+    </LinearLayout>
+
+
+</FrameLayout>

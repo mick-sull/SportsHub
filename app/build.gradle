@@ -65,6 +65,7 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.5'
 
+    compile 'com.google.android.gms:play-services-maps:10.0.1'
 }
 
 

@@ -1,10 +1,14 @@
 package com.cit.michael.sportshub.activities;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -16,16 +20,22 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import com.cit.michael.sportshub.R;
-import com.cit.michael.sportshub.chat.ui.Activity_Chat;
 import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
 import com.cit.michael.sportshub.rest.model.RestUsers;
 import com.facebook.FacebookSdk;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,13 +49,17 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class Activity_Main extends AppCompatActivity implements Fragment_Profile.OnFragmentInteractionListener, Frag_Group.OnFragmentInteractionListener, Fragment_Friends_List.OnFragmentInteractionListener,
-        Fragment_Chat_List.OnFragmentInteractionListener{
+        Fragment_Chat_List.OnFragmentInteractionListener, OnMapReadyCallback {
 
-    @BindView(com.cit.michael.sportshub.R.id.btnOrganizeEvent) Button btnOrganizeEvent;
-    @BindView(R.id.btnNearby) Button btnNearby;
-    @BindView(R.id.btnMyEvents) Button btnMyEvents;
-    @BindView(R.id.btnRecentEvents) Button btnRecentEvents;
-    @BindView(R.id.btnChat) Button btnChat;
+    /*    @BindView(com.cit.michael.sportshub.R.id.btnOrganizeEvent) Button btnOrganizeEvent;
+        @BindView(R.id.btnNearby) Button btnNearby;
+        @BindView(R.id.btnMyEvents) Button btnMyEvents;
+        @BindView(R.id.btnRecentEvents) Button btnRecentEvents;
+        @BindView(R.id.btnChat) Button btnChat;*/
+    @BindView(R.id.floatAddEvent)
+    FloatingActionButton floatAddEvent;
+    @BindView(R.id.floatSearchEvent)
+    FloatingActionButton floatSearchEvent;
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -66,6 +80,8 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
     FirebaseInstanceId mFirebaseInstanceId;
     User user;
     public static boolean chat_active = false;
+    MapView mMapView;
+    private GoogleMap googleMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +93,46 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
 /*        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);*/
         mFirebaseInstanceId = FirebaseInstanceId.getInstance();
+        mMapView = (MapView) findViewById(R.id.mapView);
+        mMapView.onCreate(savedInstanceState);
+        mMapView.onResume();
+
+        try {
+            MapsInitializer.initialize(getApplicationContext());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        mMapView.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap mMap) {
+                googleMap = mMap;
+
+                // For showing a move to my location button
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                googleMap.setMyLocationEnabled(true);
+
+                // For dropping a marker at a point on the Map
+                LatLng sydney = new LatLng(-34, 151);
+                googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker Title").snippet("Marker Description"));
+
+                // For zooming automatically to the location of the marker
+                CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(12).build();
+                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            }
+        });
+
+
 
         String newUser = getIntent().getStringExtra("user");
 
@@ -98,11 +154,6 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        Log.d("Name ", "" + auth.getCurrentUser().getDisplayName());
-        Log.d("Name PHOTO ", "" + auth.getCurrentUser().getPhotoUrl());
-        Log.d("Name getEmail", "" + auth.getCurrentUser().getEmail());
-        Log.d("User token: ", "" +   mFirebaseInstanceId.getToken().toString() );
-        Log.d("User token: ", "" +   auth.getCurrentUser().getUid());
 
 
     }
@@ -164,6 +215,13 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
 
     }
 
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        googleMap.addMarker(new MarkerOptions()
+                .position(new LatLng(0, 0))
+                .title("Marker"));
+    }
+
     /**
      * A placeholder fragment containing a simple view.
      */
@@ -198,33 +256,25 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
 
 
 
-/*            Button btnOrganizeEvent = (Button) rootView.findViewById(R.id.btnOrganizeEvent);
-            Button btnNearby = (Button) rootView.findViewById(R.id.btnNearby);
-            Button btnMyEvents = (Button) rootView.findViewById(R.id.btnMyEvents);
-            Button btnRecentEvents = (Button) rootView.findViewById(R.id.btnRecentEvents);*/
 
             return rootView;
         }
-        @OnClick(R.id.btnOrganizeEvent)
+        //@OnClick(R.id.btnOrganizeEvent)
+        @OnClick(R.id.floatAddEvent)
         public void submit(View rootView) {
             // TODO submit data to server...
             Intent intent = new Intent(rootView.getContext(),Activity_Organize_Event.class);
             startActivity(intent);
         }
 
-        @OnClick(R.id.btnNearby)
+        //@OnClick(R.id.btnNearby)
+        @OnClick(R.id.floatSearchEvent)
         public void search(View rootView) {
             // TODO submit data to server...
             Intent intent = new Intent(rootView.getContext(),Activity_Search_Events.class);
             startActivity(intent);
         }
 
-        @OnClick(R.id.btnChat)
-        public void chat(View rootView) {
-            // TODO submit data to server...
-            Intent intent = new Intent(rootView.getContext(),Activity_Chat.class);
-            startActivity(intent);
-        }
     }
 
     /**
