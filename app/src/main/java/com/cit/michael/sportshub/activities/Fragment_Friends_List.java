@@ -94,7 +94,8 @@ public class Fragment_Friends_List extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_fragement__friends__list, container, false);
 
         listFriendsRequests = new ArrayList<User>();
-
+        listFriends = new ArrayList<User>();
+        listFriends = null;
         recyclerView = (RecyclerView) rootView.findViewById(R.id.friends_list_recycler_view);
         ButterKnife.bind(this, rootView);
 
@@ -106,7 +107,7 @@ public class Fragment_Friends_List extends Fragment {
                 Log.d("FRIENDS LIST", "Result: " + response.message().toString());
                 //Log.d("ABC", "Request data " + new Gson().toJson(response));
                 //if(!response.body().getUserDetails().isEmpty()){
-                listFriends = new ArrayList<User>();
+
                     listFriends = response.body().getUser();
 //                    Log.d("ABC", "getAction_user " + listFriends.get(0).getAction_user());
                     displayFriends();

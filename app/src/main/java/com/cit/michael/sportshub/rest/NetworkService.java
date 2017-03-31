@@ -8,7 +8,7 @@ import com.cit.michael.sportshub.model.Group;
 import com.cit.michael.sportshub.model.Location;
 import com.cit.michael.sportshub.model.Search;
 import com.cit.michael.sportshub.model.Sport;
-import com.cit.michael.sportshub.model.Subscription;
+import com.cit.michael.sportshub.model.SubscriptionsForUpdate;
 import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.model.RestAttendee;
 import com.cit.michael.sportshub.rest.model.RestBase;
@@ -154,8 +154,8 @@ public interface NetworkService {
     @GET("subscriptions/getSubscription/")
     Observable<RestSubscription> getSubscribedSport(@Query("user_id") String userID);
 
-    @GET("subscriptions/updateSubscription/")
-    Call<RestSubscription> updateSubscription(@Body List<Subscription> subscription);
+    @POST("subscriptions/updateSubscription/")
+    Call<RestSubscription> updateSubscription(@Body SubscriptionsForUpdate subscriptions);
 
 
 

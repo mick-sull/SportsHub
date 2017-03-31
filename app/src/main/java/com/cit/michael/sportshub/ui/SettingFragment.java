@@ -1,12 +1,11 @@
 package com.cit.michael.sportshub.ui;
 
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,14 +13,18 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.cit.michael.sportshub.R;
+import com.cit.michael.sportshub.activities.Fragment_Profile;
 import com.cit.michael.sportshub.adapter.RecyclerItemClickListener;
 import com.cit.michael.sportshub.adapter.Setting_Adapter;
 import com.cit.michael.sportshub.model.Sport;
 import com.cit.michael.sportshub.model.Subscription;
+import com.cit.michael.sportshub.model.SubscriptionsForUpdate;
 import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
+import com.cit.michael.sportshub.rest.model.RestSubscription;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
@@ -29,6 +32,9 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.cit.michael.sportshub.Constants.SUBSCRIPTION_NOT_SELECTED;
 import static com.cit.michael.sportshub.Constants.SUBSCRIPTION_SELECTED;
@@ -47,11 +53,13 @@ public class SettingFragment extends DialogFragment {
     private RecyclerView recyclerView;
     private Setting_Adapter mAdapter;
     List<Sport> subscribedSports;
+    MyDialogListener mListener;
 
-    public SettingFragment(Context ctx,List<Sport> listOfAllSport, List<Subscription> listOfSubs ){
+    public SettingFragment(Context ctx, List<Sport> listOfAllSport, List<Subscription> listOfSubs, Fragment_Profile listener  ){
         this.ctx = ctx;
         this.listOfAllSport = listOfAllSport;
         this.listOfSubs = listOfSubs;
+        mListener = listener;
     }
 
 
@@ -69,7 +77,7 @@ public class SettingFragment extends DialogFragment {
             boolean found = false;
             for(int j = 0; j< listOfSubs.size(); j++){
                 Log.d("SettingFragment", "FOUND:  " + listOfAllSport.get(i).getSportId() + " - " + listOfSubs.get(j).getSportID());
-                if(listOfAllSport.get(i).getSportId().equals(listOfSubs.get(j).getSportID())){
+                if(listOfAllSport.get(i).getSportId().equals(listOfSubs.get(j).getSportID()) && listOfSubs.get(j).getActive() == SUBSCRIPTION_SELECTED){
                     found = true;
                     Log.d("SettingFragment", "FOUND:  " + listOfAllSport.get(i).getSportName());
                 }
@@ -117,6 +125,7 @@ public class SettingFragment extends DialogFragment {
 
         );
         Log.d("SettingFragment", "listOfAllSport.size(): " + listOfAllSport.size());
+        Log.d("SettingFragment", "listOfSubs.size(): " + listOfSubs.size());
         mAdapter = new Setting_Adapter(listOfAllSport, ctx);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(ctx);
         recyclerView.setLayoutManager(mLayoutManager);
@@ -176,33 +185,41 @@ public class SettingFragment extends DialogFragment {
     @OnClick(R.id.txtListUserDone)
     public void doneText(){
         int sizeOfOriginalSubs = listOfSubs.size();//Still will stop the second for going over sports that have just been added.
+
         for(int i = 0; i < listOfAllSport.size(); i++){
-            if(listOfAllSport.get(i).getStatus() == SUBSCRIPTION_SELECTED) {
+            //if(listOfAllSport.get(i).getStatus() == SUBSCRIPTION_SELECTED) {
                 boolean found = false;
                 for (int j = 0; j < sizeOfOriginalSubs; j++) {
-                    if (listOfAllSport.get(i).getSportId().equals(listOfSubs.get(j).getSportID())) { //if it already exists.
-                        listOfAllSport.get(j).setStatus(SUBSCRIPTION_SELECTED);
+                    if (listOfAllSport.get(i).getSportId().equals(listOfSubs.get(j).getSportID()) && listOfAllSport.get(i).getStatus() == SUBSCRIPTION_SELECTED ) { //if it already exists.
+                        listOfAllSport.get(i).setStatus(SUBSCRIPTION_SELECTED);
+                        listOfSubs.get(j).setActive(SUBSCRIPTION_SELECTED);
                         found= true;
                     }
+                    else if(listOfAllSport.get(i).getSportId().equals(listOfSubs.get(j).getSportID()) && listOfAllSport.get(i).getStatus() == SUBSCRIPTION_NOT_SELECTED){
+                        listOfSubs.get(j).setActive(SUBSCRIPTION_NOT_SELECTED);
+                        //found= true;
+                    }
                 }
-                if(!found){
-                    Subscription newSub = new Subscription(null, auth.getCurrentUser().getUid(),listOfAllSport.get(i).getSportId(), SUBSCRIPTION_SELECTED);
+                if(!found && listOfAllSport.get(i).getStatus() == SUBSCRIPTION_SELECTED){
+                    Subscription newSub = new Subscription("null", auth.getCurrentUser().getUid(),listOfAllSport.get(i).getSportId(), SUBSCRIPTION_SELECTED);
                     listOfSubs.add(newSub);
                 }
             }
-        }
+        //}
         Log.d("SettingFragment", "new list of subs size: " + listOfSubs.size());
-       /* service.updateSubscription(listOfSubs).enqueue(new Callback<RestSubscription>() {
+        SubscriptionsForUpdate newList = new SubscriptionsForUpdate(listOfSubs);
+        service.updateSubscription(newList).enqueue(new Callback<RestSubscription>() {
             @Override
             public void onResponse(Call<RestSubscription> call, Response<RestSubscription> response) {
-
+                Toast.makeText(ctx, response.body().getMessage() + "", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailure(Call<RestSubscription> call, Throwable t) {
 
             }
-        });*/
+        });
+        mListener.OnCloseDialog();
         dialog.dismiss();
     }
 
@@ -210,14 +227,21 @@ public class SettingFragment extends DialogFragment {
     public void cancelRequest(){
         Log.d("UserListFragment", "@OnClick(R.id.txtListUserCancel)");
         dialog.dismiss();
+        dialog.cancel();
+
+    }
+
+    public interface MyDialogListener {
+        void OnCloseDialog();
     }
 
 
+/*
     public void onDismiss(DialogInterface dialogInterface)
     {
         //Toast.makeText(ctx, "ON_Dismiss", Toast.LENGTH_SHORT).show();
 
-    }
+    }*/
 
 
 

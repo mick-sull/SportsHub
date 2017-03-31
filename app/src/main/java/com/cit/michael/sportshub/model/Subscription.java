@@ -14,7 +14,7 @@ public class Subscription {
     @Nullable
     @SerializedName("subscriptionID")
     @Expose
-    private Integer subscriptionID;
+    private String subscriptionID;
     @SerializedName("userID")
     @Expose
     private String userID;
@@ -25,18 +25,18 @@ public class Subscription {
     @Expose
     private Integer active;
 
-    public Subscription(Integer subscriptionID, String userID, Integer sportID, Integer active) {
+    public Subscription(String subscriptionID, String userID, Integer sportID, Integer active) {
         this.subscriptionID = subscriptionID;
         this.userID = userID;
         this.sportID = sportID;
         this.active = active;
     }
 
-    public Integer getSubscriptionID() {
+    public String getSubscriptionID() {
         return subscriptionID;
     }
 
-    public void setSubscriptionID(Integer subscriptionID) {
+    public void setSubscriptionID(String subscriptionID) {
         this.subscriptionID = subscriptionID;
     }
 

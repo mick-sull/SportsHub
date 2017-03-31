@@ -1,10 +1,11 @@
 package com.cit.michael.sportshub.activities;
 
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -34,7 +35,6 @@ import com.cit.michael.sportshub.ui.CircleTransform;
 import com.cit.michael.sportshub.ui.SettingFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -58,7 +58,7 @@ import rx.schedulers.Schedulers;
  * Use the {@link Fragment_Profile#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Fragment_Profile extends Fragment {
+public class Fragment_Profile extends Fragment implements SettingFragment.MyDialogListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String USER_ID = "userID";
@@ -73,7 +73,7 @@ public class Fragment_Profile extends Fragment {
     @BindView(R.id.txtReliability) TextView txtReliability;
     @BindView(R.id.txtUsernameProfile) TextView txtUsernameProfile;
     @BindView(R.id.lblPerviousEvents) TextView lblPerviousEvents;
-    @BindView(R.id.imgBtnSetting) ImageView imgSettigns;
+    //@BindView(R.id.imgBtnSetting) ImageView imgSettigns;
 
     //Context ctx;
     NetworkService service;
@@ -85,9 +85,11 @@ public class Fragment_Profile extends Fragment {
     List<Sport> listOfALlSport;
     List<Subscription> listOfSubs;
     SettingFragment editNameDialogFragment;
+    //ProfileViewFragment editNameDialogFragment;
     // TODO: Rename and change types of parameters
     private String userID;
     private String mParam2;
+    private ImageView imgSettings;
 
     private OnFragmentInteractionListener mListener;
 
@@ -128,7 +130,8 @@ public class Fragment_Profile extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         auth = FirebaseAuth.getInstance();
         mFirebaseInstanceId = FirebaseInstanceId.getInstance();
-        imgSettigns.setVisibility(View.VISIBLE);
+        imgSettings = (ImageView) view.findViewById(R.id.imgBtnSetting);
+        imgSettings.setVisibility(View.VISIBLE);
         listLocaton = new ArrayList<Location>();
         user = new ArrayList<User>();
         listOfALlSport = new ArrayList<Sport>();
@@ -136,6 +139,13 @@ public class Fragment_Profile extends Fragment {
 
         recyclerView = (RecyclerView) view.findViewById(R.id.profile_recycler_view);
         recyclerView.setNestedScrollingEnabled(false);
+
+/*        imgSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });*/
 
 
 
@@ -146,7 +156,7 @@ public class Fragment_Profile extends Fragment {
             public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
                 //Log.d("TEST123", "JSON: " + new Gson().toJson(response));
                 if (!response.body().getError()) {
-                    Log.d("ABC1", "Request data " + new Gson().toJson(response));
+
                     listEvents = response.body().getEvent();
                     listLocaton = response.body().getLocation();
                     user = response.body().getUser();
@@ -241,11 +251,17 @@ public class Fragment_Profile extends Fragment {
     @OnClick(R.id.imgBtnSetting)
     public void settings(View rootView) {
         // TODO submit data to server...
-        FragmentManager fm = getActivity().getFragmentManager();
-        Log.d("SettingFragment", "Fragment_Profile listOfALlSport.size(): " + listOfALlSport.size());
-        Log.d("SettingFragment", "Fragment_Profile listOfSubs.size(): " + listOfSubs.size());
-        editNameDialogFragment = new SettingFragment(getContext(),listOfALlSport,listOfSubs);
+        //FragmentManager fm = getActivity().getFragmentManager();
+
+
+        FragmentTransaction fm = ((FragmentActivity) getActivity()).getSupportFragmentManager().beginTransaction();
+        //ProfileViewFragment editNameDialogFragment = new ProfileViewFragment(listUserAttending.get(position).getUserProfileUrl(), listUserAttending.get(position).getUserId());
+        editNameDialogFragment = new SettingFragment(getContext(),listOfALlSport,listOfSubs,  this);
         editNameDialogFragment.show(fm, "test");
+        Log.d("ABC1", "FragmentTransaction Called ");
+
+
+
 
     }
 
@@ -328,6 +344,13 @@ public class Fragment_Profile extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
+    @Override
+    public void OnCloseDialog() {
+        Log.d("SettingFragment", "OnCloseDialog Called in profile");
+        loadData();
+    }
+
 
     /**
      * This interface must be implemented by activities that contain this

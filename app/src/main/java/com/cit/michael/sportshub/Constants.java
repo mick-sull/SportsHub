@@ -34,8 +34,8 @@ public class Constants {
     public final static int ACTION_GROUP_SELECTED = 1;
 
     //USER_SETTINGS_SUBSCRIPTION
-    public final static int SUBSCRIPTION_NOT_SELECTED = 0;
-    public final static int SUBSCRIPTION_SELECTED = 1;
+    public final static int SUBSCRIPTION_NOT_SELECTED = 1;
+    public final static int SUBSCRIPTION_SELECTED = 0;
 
     //Check if chat activity is opened.
     public final static String CHAT_ACTIVITY_OPEN = "chatActivityActive";
