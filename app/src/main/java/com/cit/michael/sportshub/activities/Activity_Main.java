@@ -1,14 +1,11 @@
 package com.cit.michael.sportshub.activities;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -22,24 +19,24 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.cit.michael.sportshub.R;
+import com.cit.michael.sportshub.model.Event;
+import com.cit.michael.sportshub.model.Subscription;
 import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
+import com.cit.michael.sportshub.rest.model.RestEvent;
+import com.cit.michael.sportshub.rest.model.RestSubscription;
 import com.cit.michael.sportshub.rest.model.RestUsers;
 import com.facebook.FacebookSdk;
 import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.iid.FirebaseInstanceId;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -49,7 +46,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class Activity_Main extends AppCompatActivity implements Fragment_Profile.OnFragmentInteractionListener, Frag_Group.OnFragmentInteractionListener, Fragment_Friends_List.OnFragmentInteractionListener,
-        Fragment_Chat_List.OnFragmentInteractionListener, OnMapReadyCallback {
+        Fragment_Chat_List.OnFragmentInteractionListener {
 
     /*    @BindView(com.cit.michael.sportshub.R.id.btnOrganizeEvent) Button btnOrganizeEvent;
         @BindView(R.id.btnNearby) Button btnNearby;
@@ -80,57 +77,20 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
     FirebaseInstanceId mFirebaseInstanceId;
     User user;
     public static boolean chat_active = false;
-    MapView mMapView;
-    private GoogleMap googleMap;
+    private GoogleMap mMap;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //setContentView(R.layout.fragment_main);
         auth = FirebaseAuth.getInstance();
         service = RestClient.getSportsHubApiClient();
         FacebookSdk.sdkInitialize(getApplicationContext());
 /*        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);*/
         mFirebaseInstanceId = FirebaseInstanceId.getInstance();
-        mMapView = (MapView) findViewById(R.id.mapView);
-        mMapView.onCreate(savedInstanceState);
-        mMapView.onResume();
-
-        try {
-            MapsInitializer.initialize(getApplicationContext());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-        mMapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(GoogleMap mMap) {
-                googleMap = mMap;
-
-                // For showing a move to my location button
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
-                }
-                googleMap.setMyLocationEnabled(true);
-
-                // For dropping a marker at a point on the Map
-                LatLng sydney = new LatLng(-34, 151);
-                googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker Title").snippet("Marker Description"));
-
-                // For zooming automatically to the location of the marker
-                CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(12).build();
-                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-            }
-        });
 
 
 
@@ -153,10 +113,8 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
-
-
     }
+
 
     private void addUserToDatabase() {
         User newUser = new User(auth.getCurrentUser().getUid(),auth.getCurrentUser().getDisplayName(), auth.getCurrentUser().getPhotoUrl().toString(), null, null, mFirebaseInstanceId.getToken().toString());
@@ -215,12 +173,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
 
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(0, 0))
-                .title("Marker"));
-    }
+
 
     /**
      * A placeholder fragment containing a simple view.
@@ -230,7 +183,14 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
          * The fragment argument representing the section number for this
          * fragment.
          */
+        private GoogleMap mMap;
+        NetworkService service;
+        private FirebaseAuth auth;
+        List<Subscription> listOfSubs;
+        List<Event> latestEvents;
+
         private static final String ARG_SECTION_NUMBER = "section_number";
+
 
         public PlaceholderFragment() {
         }
@@ -251,15 +211,51 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
+            auth = FirebaseAuth.getInstance();
+            service = RestClient.getSportsHubApiClient();
+            listOfSubs = new ArrayList<Subscription>();
+            latestEvents = new ArrayList<Event>();
             ButterKnife.bind(this, rootView);
+/*            SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager()
+                    .findFragmentById(R.id.mMap);
+            mapFragment.getMapAsync(this);
+            mapFragment.onCreate(savedInstanceState);
 
+            mapFragment.onResume();*/
+/*            try {
+                // Loading map
+                initilizeMap();
 
+            } catch (Exception e) {
+                e.printStackTrace();
+            }*/
+            loadSubData();
+            Log.d("AUTH123", "  loadSubData();" );
 
 
             return rootView;
         }
-        //@OnClick(R.id.btnOrganizeEvent)
+
+/*        private void initilizeMap() {
+            if (mMap == null) {
+                SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager()
+                        .findFragmentById(R.id.googleMap);
+                mapFragment.getMapAsync(this);
+
+                // check if map is created successfully or not
+                if (mMap == null) {
+                    Toast.makeText(getContext(),
+                            "Sorry! unable to create maps", Toast.LENGTH_SHORT)
+                            .show();
+                }
+            }
+        }
+        @Override
+        public void onResume() {
+            super.onResume();
+            //initilizeMap();
+        }*/
+
         @OnClick(R.id.floatAddEvent)
         public void submit(View rootView) {
             // TODO submit data to server...
@@ -273,8 +269,59 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
             // TODO submit data to server...
             Intent intent = new Intent(rootView.getContext(),Activity_Search_Events.class);
             startActivity(intent);
+
+        }
+    public void loadSubData() {
+       service.getSubscribedSports(auth.getCurrentUser().getUid()).enqueue(new Callback<RestSubscription>() {
+           @Override
+           public void onResponse(Call<RestSubscription> call, Response<RestSubscription> response) {
+               listOfSubs = response.body().getSubscription();
+               getLatestEvents();
+           }
+
+           @Override
+           public void onFailure(Call<RestSubscription> call, Throwable t) {
+
+           }
+       });
+}
+
+        private void getLatestEvents() {
+            ArrayList<String> subIDs = new ArrayList<String>();
+            for(int i = 0; i < listOfSubs.size(); i++){
+                subIDs.add(listOfSubs.get(i).getSportID().toString());
+            }
+            Subscription sub = new Subscription();
+            sub.setListOfSubID(listOfSubs);
+            service.getLatestEvents(sub).enqueue(new Callback<RestEvent>() {
+                @Override
+                public void onResponse(Call<RestEvent> call, Response<RestEvent> response) {
+                    latestEvents = response.body().getEvent();
+                    Log.d("AUTH123", "latestEvents size: " + latestEvents.size());
+                    displayLatestEvents();
+                }
+
+                @Override
+                public void onFailure(Call<RestEvent> call, Throwable t) {
+
+                }
+            });
         }
 
+        private void displayLatestEvents() {
+
+        }
+
+
+
+/*        @Override
+        public void onMapReady(GoogleMap googleMap) {
+            mMap = googleMap;
+            LatLng sydney = new LatLng(-34, 151);
+            googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+            Log.v("MAP", "Added Sydney");
+        }*/
     }
 
     /**
@@ -333,5 +380,6 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
             return null;
         }
     }
+
 
 }

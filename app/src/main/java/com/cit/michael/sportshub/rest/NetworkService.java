@@ -8,6 +8,7 @@ import com.cit.michael.sportshub.model.Group;
 import com.cit.michael.sportshub.model.Location;
 import com.cit.michael.sportshub.model.Search;
 import com.cit.michael.sportshub.model.Sport;
+import com.cit.michael.sportshub.model.Subscription;
 import com.cit.michael.sportshub.model.SubscriptionsForUpdate;
 import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.model.RestAttendee;
@@ -157,6 +158,11 @@ public interface NetworkService {
     @POST("subscriptions/updateSubscription/")
     Call<RestSubscription> updateSubscription(@Body SubscriptionsForUpdate subscriptions);
 
+    @GET("events/getLatest/")
+    Call<RestEvent> getLatestEvents(@Body Subscription subscription);
+
+    @GET("subscriptions/getSubscription/")
+    Call<RestSubscription> getSubscribedSports(@Query("user_id") String userID);
 
 
 

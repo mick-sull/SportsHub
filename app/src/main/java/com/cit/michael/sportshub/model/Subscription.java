@@ -5,6 +5,8 @@ import android.support.annotation.Nullable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 /**
  * Created by micha on 30/03/2017.
  */
@@ -24,6 +26,17 @@ public class Subscription {
     @SerializedName("active")
     @Expose
     private Integer active;
+
+
+
+    @SerializedName("listOfSubID")
+    @Expose
+    @Nullable
+    private List<Subscription> listOfSubID;
+
+    public Subscription(){
+
+    }
 
     public Subscription(String subscriptionID, String userID, Integer sportID, Integer active) {
         this.subscriptionID = subscriptionID;
@@ -62,5 +75,14 @@ public class Subscription {
 
     public void setActive(Integer active) {
         this.active = active;
+    }
+
+    public void setListOfSubID(@Nullable List<Subscription> listOfSubID) {
+        this.listOfSubID = listOfSubID;
+    }
+
+    @Nullable
+    public List<Subscription> getListOfSubID() {
+        return listOfSubID;
     }
 }

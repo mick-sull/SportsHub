@@ -186,7 +186,7 @@ public class Frag_Group extends Fragment {
                                         try {
 
                                             Group_Chat model = dataSnapshot.getValue(Group_Chat.class);
-                                           // Log.d("FRAGCHAT ", "displayGroups getMessage" + model.getMessage());
+                                            // Log.d("FRAGCHAT ", "displayGroups getMessage" + model.getMessage());
                                             Log.d("FRAG_GROUP12", "onChildAdded ChatList chat NAME: " + model.getChatName());
 
                                             onGetMessagesSuccess(model);
@@ -244,16 +244,13 @@ public class Frag_Group extends Fragment {
             for (int i = 0; i < listOfGroups.size(); i++) {
                 Query getLastMessages = databaseReference.child(ARG_CHAT_ROOMS).child(listOfGroups.get(i).getGroupId().toString())
                         .limitToLast(1);
-
                 getLastMessages.addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                         if (dataSnapshot != null && dataSnapshot.getValue() != null) {
                             try {
-
                                 Group_Chat model = dataSnapshot.getValue(Group_Chat.class);
                                 Log.d("FRAGCHAT ", "displayGroups getMessage" + model.getMessage());
-
                                 onGetMessagesSuccess(model);
                                 listOfChats.add(model);
                             } catch (Exception ex) {
@@ -261,35 +258,23 @@ public class Frag_Group extends Fragment {
                             }
                         }
                     }
-
                     @Override
                     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                         Group_Chat model = dataSnapshot.getValue(Group_Chat.class);
                         // Log.d("FRAGCHAT ", "onChildChanged ID:" + cID.getChatId() + "  message: " + model.getMessage());
                         Log.d("FRAGCHAT ", "onChildChanged sender name: " + model.getSender() + "  recevier name: " + model.getReceiver());
-
                     }
-
                     @Override
                     public void onChildRemoved(DataSnapshot dataSnapshot) {
-
                     }
-
                     @Override
                     public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
                     }
-
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-
                     }
-
                 });
-
-
             }
-
         }
     }
 */
@@ -337,7 +322,7 @@ public class Frag_Group extends Fragment {
             if(!data.getExtras().getString("group_id").equals("null") )
                 chatListAdapter.removeGroup(data.getExtras().getString("group_id"));
 
-            }
+        }
     }
 
     @Override
