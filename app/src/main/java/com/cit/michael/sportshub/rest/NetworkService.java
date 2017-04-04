@@ -8,9 +8,9 @@ import com.cit.michael.sportshub.model.Group;
 import com.cit.michael.sportshub.model.Location;
 import com.cit.michael.sportshub.model.Search;
 import com.cit.michael.sportshub.model.Sport;
-import com.cit.michael.sportshub.model.Subscription;
 import com.cit.michael.sportshub.model.SubscriptionsForUpdate;
 import com.cit.michael.sportshub.model.User;
+import com.cit.michael.sportshub.rest.model.RestArrayList;
 import com.cit.michael.sportshub.rest.model.RestAttendee;
 import com.cit.michael.sportshub.rest.model.RestBase;
 import com.cit.michael.sportshub.rest.model.RestConversations;
@@ -93,6 +93,9 @@ public interface NetworkService {
     @GET("location/")
     Call<RestLocation> getLocation();
 
+    @GET("location/id/")
+    Call<RestLocation> getLocationByID(@Query("location_id") String location_id);
+
     @POST("location/new")
     Call<RestLocation> createLocation(@Body Location location);
 
@@ -158,8 +161,12 @@ public interface NetworkService {
     @POST("subscriptions/updateSubscription/")
     Call<RestSubscription> updateSubscription(@Body SubscriptionsForUpdate subscriptions);
 
-    @GET("events/getLatest/")
-    Call<RestEvent> getLatestEvents(@Body Subscription subscription);
+    @POST("events/getLatest/byCreated")
+    Call<RestEvent> getLatestEventsByCreated(@Body RestArrayList subscription);
+
+    @POST("events/getLatest/bySoon")
+    Call<RestEvent> getLatestEventsBySoon(@Body RestArrayList subscription);
+
 
     @GET("subscriptions/getSubscription/")
     Call<RestSubscription> getSubscribedSports(@Query("user_id") String userID);

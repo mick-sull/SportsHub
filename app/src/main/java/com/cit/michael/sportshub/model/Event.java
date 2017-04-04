@@ -3,6 +3,7 @@ package com.cit.michael.sportshub.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 import com.google.gson.annotations.Expose;
@@ -71,6 +72,11 @@ public class Event implements Parcelable {
     @Expose
     @Nullable
     private ArrayList<String> friends_tokens;
+
+    @SerializedName("location_name")
+    @Expose
+    @Nullable
+    private String location_name;
 
     /**
      * No args constructor for use in serialization
@@ -251,7 +257,14 @@ public class Event implements Parcelable {
         this.appearance = appearance;
     }
 
+    @Nullable
+    public String getLocation_name() {
+        return location_name;
+    }
 
+    public void setLocation_name(@Nullable String location_name) {
+        this.location_name = location_name;
+    }
 
     @Override
     public int describeContents() {
@@ -290,6 +303,10 @@ public class Event implements Parcelable {
     public long  getTimeInMilliSeconds() throws ParseException {
         Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(eventDate);
         return date.getTime();
+    }
+
+    public CharSequence converteTimestamp() throws ParseException {
+        return DateUtils.getRelativeTimeSpanString(Long.parseLong(String.valueOf(getTimeInMilliSeconds())), System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
     }
 
 }

@@ -1,32 +1,45 @@
 package com.cit.michael.sportshub.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 
 import com.cit.michael.sportshub.R;
+import com.cit.michael.sportshub.adapter.Latest_Events_Adapter;
+import com.cit.michael.sportshub.adapter.RecyclerItemClickListener;
 import com.cit.michael.sportshub.model.Event;
 import com.cit.michael.sportshub.model.Subscription;
 import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
+import com.cit.michael.sportshub.rest.model.RestArrayList;
 import com.cit.michael.sportshub.rest.model.RestEvent;
 import com.cit.michael.sportshub.rest.model.RestSubscription;
 import com.cit.michael.sportshub.rest.model.RestUsers;
+import com.cit.michael.sportshub.ui.EventOptionsFragment;
 import com.facebook.FacebookSdk;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.maps.GoogleMap;
@@ -188,6 +201,11 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         private FirebaseAuth auth;
         List<Subscription> listOfSubs;
         List<Event> latestEvents;
+        private RecyclerView recyclerView;
+        private Latest_Events_Adapter mAdapter;
+        private SwitchCompat switchCompat;
+        SharedPreferences prefs;
+        Boolean scChecked;
 
         private static final String ARG_SECTION_NUMBER = "section_number";
 
@@ -215,46 +233,43 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
             service = RestClient.getSportsHubApiClient();
             listOfSubs = new ArrayList<Subscription>();
             latestEvents = new ArrayList<Event>();
+            switchCompat = (SwitchCompat) rootView.findViewById(R.id.scSortEvents);
+            prefs = getActivity().getSharedPreferences("MainActSettings", Context.MODE_PRIVATE);
+            scChecked = prefs.getBoolean("switchCompact",false);
+
+            switchCompat.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putBoolean("switchCompact", isChecked);
+                    editor.commit();
+                    scChecked = isChecked;
+                    loadSubData();
+                }
+            });
+
             ButterKnife.bind(this, rootView);
-/*            SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager()
-                    .findFragmentById(R.id.mMap);
-            mapFragment.getMapAsync(this);
-            mapFragment.onCreate(savedInstanceState);
-
-            mapFragment.onResume();*/
-/*            try {
-                // Loading map
-                initilizeMap();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }*/
             loadSubData();
             Log.d("AUTH123", "  loadSubData();" );
+
+            recyclerView = (RecyclerView) rootView.findViewById(R.id.rvLatestEvents);
+            recyclerView.addOnItemTouchListener( new RecyclerItemClickListener(getContext(), new RecyclerItemClickListener.OnItemClickListener() {
+                        @Override public void onItemClick(View view, int position) {
+                            //FragmentManager fm = getFragmentManager();
+                            FragmentTransaction fm = ((FragmentActivity) getActivity()).getSupportFragmentManager().beginTransaction();
+                            EventOptionsFragment editNameDialogFragment = new EventOptionsFragment(latestEvents.get(position), getContext());
+                            editNameDialogFragment.show(fm,"aaa");
+
+                        }
+
+
+                    })
+            );
 
 
             return rootView;
         }
 
-/*        private void initilizeMap() {
-            if (mMap == null) {
-                SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager()
-                        .findFragmentById(R.id.googleMap);
-                mapFragment.getMapAsync(this);
-
-                // check if map is created successfully or not
-                if (mMap == null) {
-                    Toast.makeText(getContext(),
-                            "Sorry! unable to create maps", Toast.LENGTH_SHORT)
-                            .show();
-                }
-            }
-        }
-        @Override
-        public void onResume() {
-            super.onResume();
-            //initilizeMap();
-        }*/
 
         @OnClick(R.id.floatAddEvent)
         public void submit(View rootView) {
@@ -272,6 +287,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
 
         }
     public void loadSubData() {
+
        service.getSubscribedSports(auth.getCurrentUser().getUid()).enqueue(new Callback<RestSubscription>() {
            @Override
            public void onResponse(Call<RestSubscription> call, Response<RestSubscription> response) {
@@ -288,28 +304,52 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
 
         private void getLatestEvents() {
             ArrayList<String> subIDs = new ArrayList<String>();
-            for(int i = 0; i < listOfSubs.size(); i++){
+            for (int i = 0; i < listOfSubs.size(); i++) {
                 subIDs.add(listOfSubs.get(i).getSportID().toString());
             }
-            Subscription sub = new Subscription();
-            sub.setListOfSubID(listOfSubs);
-            service.getLatestEvents(sub).enqueue(new Callback<RestEvent>() {
-                @Override
-                public void onResponse(Call<RestEvent> call, Response<RestEvent> response) {
-                    latestEvents = response.body().getEvent();
-                    Log.d("AUTH123", "latestEvents size: " + latestEvents.size());
-                    displayLatestEvents();
-                }
+/*            Subscription sub = new Subscription();
+            sub.setListOfSubID(listOfSubs);*/
+            RestArrayList list = new RestArrayList(subIDs);
 
-                @Override
-                public void onFailure(Call<RestEvent> call, Throwable t) {
+            if(!scChecked) {
+                service.getLatestEventsByCreated(list).enqueue(new Callback<RestEvent>() {
+                    @Override
+                    public void onResponse(Call<RestEvent> call, Response<RestEvent> response) {
 
-                }
-            });
+                        latestEvents = response.body().getEvent();
+                        Log.d("AUTH123", "latestEvents size: " + latestEvents.size());
+                        displayLatestEvents();
+                    }
+
+                    @Override
+                    public void onFailure(Call<RestEvent> call, Throwable t) {
+
+                    }
+                });
+            }
+            else{
+                service.getLatestEventsBySoon(list).enqueue(new Callback<RestEvent>() {
+                    @Override
+                    public void onResponse(Call<RestEvent> call, Response<RestEvent> response) {
+                        latestEvents = response.body().getEvent();
+                        Log.d("AUTH123", "latestEvents size: " + latestEvents.size());
+                        displayLatestEvents();
+                    }
+
+                    @Override
+                    public void onFailure(Call<RestEvent> call, Throwable t) {
+
+                    }
+                });
+            }
         }
 
         private void displayLatestEvents() {
-
+            mAdapter = new Latest_Events_Adapter(latestEvents);
+            RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
+            recyclerView.setLayoutManager(mLayoutManager);
+            recyclerView.setItemAnimator(new DefaultItemAnimator());
+            recyclerView.setAdapter(mAdapter);
         }
 
 

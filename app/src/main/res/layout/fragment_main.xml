@@ -35,21 +35,70 @@
     </LinearLayout>
 
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#fff"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/lblLatestEventsCreated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="MOST RECENT"
+            android:textSize="13dp"
+            android:layout_weight=".333"
+            android:textAlignment="textStart" />
+
+        <android.support.v7.widget.SwitchCompat
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:layout_weight=".333"
+            app:switchMinWidth="70dp"
+            android:theme="@style/MySwitch"
+            android:id="@+id/scSortEvents"/>
+        <TextView
+            android:id="@+id/lblLatestEventsByTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="STARTING SOON"
+            android:textSize="13dp"
+            android:layout_weight=".333"
+
+            android:textAlignment="textEnd" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#fff"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/colordevider" />
+
+        </LinearLayout>
+
+    <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:weightSum=".4"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
-        android:layout_height="wrap_content"
+        android:layout_height="328dp"
         android:paddingBottom="20dp">
 
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rvLatestEvents"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:background="#f2f2f2"
-            android:layout_weight="5.96">
+            android:layout_weight="3.99">
         </android.support.v7.widget.RecyclerView>
     </LinearLayout>
 

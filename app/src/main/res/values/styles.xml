@@ -30,5 +30,16 @@
     </style>
 
 
+    <style name="MySwitch" parent="Theme.AppCompat.Light">
+
+        <item name="colorControlActivated">@color/colorAccent</item>
+
+        <item name="colorSwitchThumbNormal">@color/colorAccent</item>
+
+        <item name="android:colorForeground">@color/ProfilePrimary</item>
+    </style>
+
+
+
 
 </resources>
