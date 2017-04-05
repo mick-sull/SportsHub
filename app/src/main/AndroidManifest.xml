@@ -71,6 +71,7 @@
         <activity android:name=".activities.Activity_Organize_Event" />
         <activity android:name=".activities.Activity_Search_Events" />
         <activity android:name=".activities.Activity_Search_Results" />
+
         <!--
  ATTENTION: This was auto-generated to add Google Play services to your project for
      App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.

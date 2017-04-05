@@ -7,6 +7,7 @@ import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -20,11 +21,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -268,6 +271,13 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     }
 
     private void dialogChooseLocation() {
+
+        InputMethodManager imm;// = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getWindow().getDecorView()
+                .getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_item);
 //        Log.d("ERR", "List of location size: " + listOfLocations.size());
         if(listOfLocations.isEmpty()){
@@ -293,8 +303,8 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
                         editNameDialogFragment.show(fm, "abc");
                     }
                     else{
-                        txtDisplayLocation.setText(listOfLocations.get(item).getLocationName());
-                        selectedLocationId = listOfLocations.get(item).getLocationId();
+                        txtDisplayLocation.setText(listOfLocations.get(item-1).getLocationName());
+                        selectedLocationId = listOfLocations.get(item-1).getLocationId();
                     }
 
                 }
@@ -559,6 +569,8 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     @Override
     public void dialogListener(Location location) {
         listOfLocations.add(location);
+        LinearLayout myLayout = (LinearLayout)findViewById(R.id.layout_OrganizeSport);
+        myLayout.requestFocus();
         dialogChooseLocation();
     }
 

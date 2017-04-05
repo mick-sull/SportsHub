@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -81,12 +82,15 @@ public class AddLocationFragment extends DialogFragment implements Validator.Val
         dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN);
         dialog.setContentView(R.layout.fragment_add_location);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         ButterKnife.bind(this, dialog);
         return dialog;
     }
 
     @OnClick(R.id.txtGetCoordinates)
     public void getCoordinates() {
+
+        hideSoftKeyboard();
         Geocoder geocoder = new Geocoder(ctx);
         List<Address> addresses= null;
         String addEntered = txtLocationName.getText() + ", " +  txtAddress1.getText() + ", " + txtAddress2.getText() + ", " + txtAddress3.getText();
@@ -129,15 +133,16 @@ public class AddLocationFragment extends DialogFragment implements Validator.Val
 
     @Override
     public void onValidationSucceeded() {
-
+        hideSoftKeyboard();
         final Location newLocation = new Location(null,txtLocationName.getText().toString(),longitude,latitude,txtAddress1.getText().toString(),txtAddress2.getText().toString(),txtAddress3.getText().toString(),auth.getCurrentUser().getUid());
         service.createLocation(newLocation).enqueue(new Callback<RestLocation>() {
             @Override
             public void onResponse(Call<RestLocation> call, Response<RestLocation> response) {
                     if(!response.body().getMessage().isEmpty()){
                         newLocation.setLocationId(Integer.parseInt(response.body().getMessage()));
-                        dismiss();
+
                         mListener.dialogListener(newLocation);
+                        dismiss();
                     }
             }
             @Override
@@ -166,4 +171,16 @@ public class AddLocationFragment extends DialogFragment implements Validator.Val
         void dialogListener(Location location);
     }
 
+/*    public void onDismiss(DialogInterface dialogInterface)
+    {
+        //Toast.makeText(ctx, "ON_Dismiss", Toast.LENGTH_SHORT).show();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+    }*/
+
+    protected void hideSoftKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm.isActive()) {
+            imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+    }
 }

@@ -53,6 +53,11 @@ public class Latest_Events_Adapter extends   RecyclerView.Adapter<Latest_Events_
         holder.eventName.setText(eventsList.get(position).getEventName());
         Log.d("EVENT ADAPTER", "" + eventsList.get(position).getEventName());
         holder.eventTime.setText(eventsList.get(position).getEventTime());
+        try {
+            holder.eventTime.setText(eventsList.get(position).getFormattedDate() + " | " +eventsList.get(position).getFormattedTime()  );
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         holder.eventSpaces.setText("Space remaining: " + eventsList.get(position).getSpaceLeft());
         holder.eventCost.setText(eventsList.get(position).getFormattedCost());
         holder.eventLocation.setText(eventsList.get(position).getLocation_name());
