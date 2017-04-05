@@ -10,8 +10,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import rx.schedulers.Schedulers;
 
 public class RestClient {
-    private static final String BASE_URL = "http://192.168.1.7:3000/api/";
-    //private static final String BASE_URL = "http://192.168.43.189:3000/api/"; //phone hotspot
+    //private static final String BASE_URL = "http://192.168.1.7:3000/api/";
+    private static final String BASE_URL = "http://192.168.43.189:3000/api/"; //phone hotspot
     //private static final String BASE_URL = "http://sportshub-env.eu-west-1.elasticbeanstalk.com:3000/api/"; //AWS
 
     private static NetworkService sNetworkService;

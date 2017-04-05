@@ -306,7 +306,7 @@ public class Frag_Group extends Fragment {
         recyclerView.smoothScrollToPosition(chatListAdapter.getItemCount() - 1);
     }
 
-    @OnClick(R.id.btnCreateGroup)
+    @OnClick(R.id.floatCreateGroup)
     public void createNewGroup(View rootView) {
         // TODO submit data to server...
         createNewGroup();

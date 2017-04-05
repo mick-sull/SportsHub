@@ -69,7 +69,6 @@ public class Profile_Events_Attended_Adapter extends RecyclerView.Adapter<Profil
                holder.eventLocation.setText(locationList.get(i).getLocationName() + ", " + locationList.get(i).getAddress1()   + ", " + locationList.get(i).getAddress2());
             }
         }
-
     }
 
 

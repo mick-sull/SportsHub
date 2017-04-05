@@ -3,8 +3,10 @@ package com.cit.michael.sportshub.activities;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.TextView;
@@ -51,6 +53,7 @@ public class Activity_Event_Details extends AppCompatActivity  {
     private ProfileListView profileListView;
     private Boolean userAttending;
     ProgressDialog loading = null;
+    ActionBar ab;
 
 
 
@@ -81,10 +84,23 @@ public class Activity_Event_Details extends AppCompatActivity  {
         organizer = new ArrayList<User>();
         load_event_data(selectedEventID);
         userAttending = false;
+        ab = getSupportActionBar();
+        ab.setDisplayHomeAsUpEnabled(true);
         ButterKnife.bind(this);
 
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // app icon in action bar clicked; goto parent activity.
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @OnClick(R.id.btnJoinLeave)
     public void submit(){
@@ -203,8 +219,6 @@ public class Activity_Event_Details extends AppCompatActivity  {
 
                     }
                 }
-                Log.d("CHATISSUE2", "Organizer Size: " + organizer.size());
-                Log.d("CHATISSUE2", "Attendee: " + listUserAttending.size());
                 try {
                     displayInfo();
                 } catch (ParseException e) {
@@ -223,7 +237,7 @@ public class Activity_Event_Details extends AppCompatActivity  {
 
     //Display event information
     private void displayInfo() throws ParseException {
-
+        ab.setTitle(event.getEventName());
         txtEventName.setText(event.getEventName());
         txtDisplayCost.setText(event.getFormattedCost());
         txtDisplayFreeSpace.setText(event.getSpaceLeft() + " spaces");

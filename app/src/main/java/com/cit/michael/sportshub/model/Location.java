@@ -19,16 +19,19 @@ public class Location {
     private String locationName;
     @SerializedName("longitude")
     @Expose
-    private Integer longitude;
+    private double longitude;
     @SerializedName("latitude")
     @Expose
-    private Integer latitude;
+    private double latitude;
     @SerializedName("address1")
     @Expose
     private String address1;
     @SerializedName("address2")
     @Expose
     private String address2;
+    @SerializedName("address3")
+    @Expose
+    private String address3;
     @SerializedName("user_id")
     @Expose
     private String userId;
@@ -50,7 +53,7 @@ public class Location {
      * @param latitude
      * @param locationName
      */
-    public Location(Integer locationId, String locationName, Integer longitude, Integer latitude, String address1, String address2, String userId) {
+    public Location(Integer locationId, String locationName, double longitude, double latitude, String address1, String address2, String address3,  String userId) {
         super();
         this.locationId = locationId;
         this.locationName = locationName;
@@ -58,6 +61,7 @@ public class Location {
         this.latitude = latitude;
         this.address1 = address1;
         this.address2 = address2;
+        this.address3 = address3;
         this.userId = userId;
     }
 
@@ -77,19 +81,19 @@ public class Location {
         this.locationName = locationName;
     }
 
-    public Integer getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(Integer longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 
-    public Integer getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(Integer latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
@@ -103,6 +107,14 @@ public class Location {
 
     public String getAddress2() {
         return address2;
+    }
+
+    public String getAddress3() {
+        return address3;
+    }
+
+    public void setAddress3(String address3) {
+        this.address3 = address3;
     }
 
     public void setAddress2(String address2) {

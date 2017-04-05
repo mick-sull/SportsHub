@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
@@ -41,6 +42,7 @@ import com.cit.michael.sportshub.rest.model.RestEvent;
 import com.cit.michael.sportshub.rest.model.RestLocation;
 import com.cit.michael.sportshub.rest.model.RestSport;
 import com.cit.michael.sportshub.rest.model.RestUsers;
+import com.cit.michael.sportshub.ui.AddLocationFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
@@ -66,7 +68,7 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class Activity_Organize_Event extends AppCompatActivity  implements Validator.ValidationListener {
+public class Activity_Organize_Event extends AppCompatActivity  implements Validator.ValidationListener, AddLocationFragment.AddLocationtDialogListener {
 
     private static TextView set_date, set_time;// selectSport, addNewSport;
     NetworkService service;
@@ -161,6 +163,11 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     public void selectSport(View view) {
         // TODO submit data to server...
         displayDialogBox();
+    }
+    @OnClick(R.id.imageView4)
+    public void selectTime(View view) {
+        // TODO submit data to server...
+        btnTime(view);
     }
 
     @OnClick(R.id.btnAddSport)
@@ -268,16 +275,28 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
             getLocationData();
         }
         else {
+            adapter.add("Add New Location");
             for (int i = 0; i < listOfLocations.size(); i++) {
                 adapter.add(listOfLocations.get(i).getLocationName());
             }
+
+
+
 
             AlertDialog.Builder builder = new AlertDialog.Builder( new ContextThemeWrapper(this, android.R.style.Theme_Holo_Light));
             builder.setTitle("Locations");
             builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int item) {
-                    txtDisplayLocation.setText(listOfLocations.get(item).getLocationName());
-                    selectedLocationId = listOfLocations.get(item).getLocationId();
+                    if(item ==0){
+                        FragmentManager fm = getFragmentManager();
+                        AddLocationFragment editNameDialogFragment = new AddLocationFragment(getApplicationContext());
+                        editNameDialogFragment.show(fm, "abc");
+                    }
+                    else{
+                        txtDisplayLocation.setText(listOfLocations.get(item).getLocationName());
+                        selectedLocationId = listOfLocations.get(item).getLocationId();
+                    }
+
                 }
             });
             builder.show();
@@ -535,6 +554,12 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
                 Toast.makeText(this, message, Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    @Override
+    public void dialogListener(Location location) {
+        listOfLocations.add(location);
+        dialogChooseLocation();
     }
 
 

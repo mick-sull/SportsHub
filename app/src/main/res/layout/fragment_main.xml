@@ -13,28 +13,75 @@
         android:layout_height="match_parent"
         android:background="#fff"
         android:orientation="vertical">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#fff"
-        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/lblLatestEvents"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:text="LATEST EVENTS"
-            android:textSize="13dp" />
-
-        <View
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/colordevider" />
+            android:layout_height="wrap_content"
+            android:background="#fff"
+            android:orientation="horizontal">
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/lblLatestEvents"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:padding="16dp"
+                android:text="LATEST EVENTS"
+                android:textSize="13dp"
+                android:gravity="center" />
 
-    <LinearLayout
+            <android.support.design.widget.FloatingActionButton
+                android:layout_width="wrap_content"
+                android:layout_height="56dp"
+                android:clickable="true"
+                app:fabSize="mini"
+                app:srcCompat="@drawable/ic_search_black_24dp"
+                android:id="@+id/floatSearchEvent"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="left|bottom"
+                android:layout_marginBottom="15dp"
+                android:layout_marginLeft="15dp"
+                app:elevation="10dp"
+                app:pressedTranslationZ="24dp"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                />
+
+            <android.support.design.widget.FloatingActionButton
+                android:layout_width="wrap_content"
+                android:layout_height="56dp"
+                android:layout_marginRight="15dp"
+                android:clickable="true"
+                app:fabSize="mini"
+                app:srcCompat="@drawable/ic_add_black_24dp"
+                android:id="@+id/floatAddEvent"
+                app:borderWidth="0dp"
+                app:elevation="10dp"
+                app:pressedTranslationZ="24dp"
+                android:layout_gravity="right|bottom"
+                android:layout_alignParentRight="true"
+                android:layout_marginBottom="15dp"
+                android:layout_marginTop="10dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#fff"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/colordevider" />
+
+        </LinearLayout>
+
+        <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#fff"
@@ -57,7 +104,7 @@
             android:layout_weight=".333"
             app:switchMinWidth="70dp"
             android:theme="@style/MySwitch"
-            android:id="@+id/scSortEvents"/>
+            android:id="@+id/scSortEvents" />
         <TextView
             android:id="@+id/lblLatestEventsByTime"
             android:layout_width="wrap_content"
@@ -89,62 +136,17 @@
         android:weightSum=".4"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
-        android:layout_height="328dp"
-        android:paddingBottom="20dp">
+        android:layout_height="match_parent"
+        android:paddingBottom="0dp">
 
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rvLatestEvents"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#f2f2f2"
-            android:layout_weight="3.99">
+            android:background="#f2f2f2">
         </android.support.v7.widget.RecyclerView>
     </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:weightSum="1"
-        android:layout_alignParentStart="true">
-
-        <android.support.design.widget.FloatingActionButton
-            android:layout_width="62dp"
-            android:layout_height="86dp"
-            android:clickable="true"
-            app:fabSize="mini"
-            app:srcCompat="@drawable/ic_search_black_24dp"
-            android:id="@+id/floatSearchEvent"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_gravity="left|bottom"
-            android:layout_marginBottom="15dp"
-            android:layout_marginLeft="15dp"
-            app:elevation="10dp"
-            app:pressedTranslationZ="24dp"/>
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            />
-
-        <android.support.design.widget.FloatingActionButton
-            android:layout_width="match_parent"
-            android:layout_height="65dp"
-            android:layout_marginRight="15dp"
-            android:clickable="true"
-            app:fabSize="mini"
-            app:srcCompat="@drawable/ic_add_black_24dp"
-            android:id="@+id/floatAddEvent"
-            app:borderWidth="0dp"
-            app:elevation="10dp"
-            app:pressedTranslationZ="24dp"
-            android:layout_gravity="right|bottom"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="15dp" />
-    </LinearLayout>-->
-</LinearLayout>
+    </LinearLayout>
 
 </FrameLayout>

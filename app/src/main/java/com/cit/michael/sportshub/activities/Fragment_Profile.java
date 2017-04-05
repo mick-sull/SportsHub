@@ -3,6 +3,7 @@ package com.cit.michael.sportshub.activities;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -89,7 +90,7 @@ public class Fragment_Profile extends Fragment implements SettingFragment.MyDial
     // TODO: Rename and change types of parameters
     private String userID;
     private String mParam2;
-    private ImageView imgSettings;
+    private FloatingActionButton fbSettings;
 
     private OnFragmentInteractionListener mListener;
 
@@ -130,8 +131,8 @@ public class Fragment_Profile extends Fragment implements SettingFragment.MyDial
     public void onViewCreated(View view, Bundle savedInstanceState) {
         auth = FirebaseAuth.getInstance();
         mFirebaseInstanceId = FirebaseInstanceId.getInstance();
-        imgSettings = (ImageView) view.findViewById(R.id.imgBtnSetting);
-        imgSettings.setVisibility(View.VISIBLE);
+        fbSettings = (FloatingActionButton) view.findViewById(R.id.floatSettings);
+        fbSettings.setVisibility(View.VISIBLE);
         listLocaton = new ArrayList<Location>();
         user = new ArrayList<User>();
         listOfALlSport = new ArrayList<Sport>();
@@ -140,7 +141,7 @@ public class Fragment_Profile extends Fragment implements SettingFragment.MyDial
         recyclerView = (RecyclerView) view.findViewById(R.id.profile_recycler_view);
         recyclerView.setNestedScrollingEnabled(false);
 
-/*        imgSettings.setOnClickListener(new View.OnClickListener() {
+/*        fbSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -248,7 +249,7 @@ public class Fragment_Profile extends Fragment implements SettingFragment.MyDial
         return rootView;
     }
 
-    @OnClick(R.id.imgBtnSetting)
+    @OnClick(R.id.floatSettings)
     public void settings(View rootView) {
         // TODO submit data to server...
         //FragmentManager fm = getActivity().getFragmentManager();
