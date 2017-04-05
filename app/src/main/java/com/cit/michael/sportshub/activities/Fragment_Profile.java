@@ -1,6 +1,7 @@
 package com.cit.michael.sportshub.activities;
 
-import android.content.Intent;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -10,11 +11,14 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +37,7 @@ import com.cit.michael.sportshub.rest.model.RestSport;
 import com.cit.michael.sportshub.rest.model.RestSubscription;
 import com.cit.michael.sportshub.rest.model.RestUsers;
 import com.cit.michael.sportshub.ui.CircleTransform;
+import com.cit.michael.sportshub.ui.EventOptionsFragment;
 import com.cit.michael.sportshub.ui.SettingFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -78,8 +83,10 @@ public class Fragment_Profile extends Fragment implements SettingFragment.MyDial
 
     //Context ctx;
     NetworkService service;
-    private List<Event> listEvents;
-    List<Location> listLocaton;
+    private List<Event> listEventsOrganized;
+    private List<Event> listEventsParticipated;
+    List<Location> listLocatonParticipated;
+    List<Location> listLocatonOrganized;
     List<User>  user;
     private FirebaseAuth auth;
     FirebaseInstanceId mFirebaseInstanceId;
@@ -91,6 +98,10 @@ public class Fragment_Profile extends Fragment implements SettingFragment.MyDial
     private String userID;
     private String mParam2;
     private FloatingActionButton fbSettings;
+    LinearLayout lSwitchCompat;
+    private SwitchCompat switchCompat;
+    SharedPreferences prefs;
+    Boolean scChecked;
 
     private OnFragmentInteractionListener mListener;
 
@@ -123,79 +134,128 @@ public class Fragment_Profile extends Fragment implements SettingFragment.MyDial
             userID = getArguments().getString(USER_ID);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        listEvents = new ArrayList<Event>();
+        listEventsParticipated = new ArrayList<Event>();
+        listEventsOrganized = new ArrayList<Event>();
 
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         auth = FirebaseAuth.getInstance();
+        service = RestClient.getSportsHubApiClient();
         mFirebaseInstanceId = FirebaseInstanceId.getInstance();
         fbSettings = (FloatingActionButton) view.findViewById(R.id.floatSettings);
+        lSwitchCompat = (LinearLayout) view.findViewById(R.id.lSwitchCompat);
+        lSwitchCompat.setVisibility(View.VISIBLE);
+        switchCompat = (SwitchCompat) view.findViewById(R.id.scSortProfileEvents);
         fbSettings.setVisibility(View.VISIBLE);
-        listLocaton = new ArrayList<Location>();
+        listLocatonParticipated = new ArrayList<Location>();
+        listLocatonOrganized = new ArrayList<Location>();
         user = new ArrayList<User>();
         listOfALlSport = new ArrayList<Sport>();
         listOfSubs = new ArrayList<Subscription>();
+        prefs = getActivity().getSharedPreferences("settings", Context.MODE_PRIVATE);
+        scChecked = prefs.getBoolean("scProfile",false);
+        switchCompat.setChecked(scChecked);
+        loadEventData();
+        loadSubData();
 
-        recyclerView = (RecyclerView) view.findViewById(R.id.profile_recycler_view);
-        recyclerView.setNestedScrollingEnabled(false);
-
-/*        fbSettings.setOnClickListener(new View.OnClickListener() {
+        switchCompat.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-
-            }
-        });*/
-
-
-
-
-        service = RestClient.getSportsHubApiClient();
-        service.getUserDetails(auth.getCurrentUser().getUid()).enqueue(new Callback<RestProfile>() {
-            @Override
-            public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
-                //Log.d("TEST123", "JSON: " + new Gson().toJson(response));
-                if (!response.body().getError()) {
-
-                    listEvents = response.body().getEvent();
-                    listLocaton = response.body().getLocation();
-                    user = response.body().getUser();
-                    if (listEvents.isEmpty()) {
-                        //Toast.makeText(getContext(), "No Previous Events...", Toast.LENGTH_SHORT).show();
-                        lblPerviousEvents.setText("NO PREVIOUS EVENTS");
-                    } else {
-                        displayEvents();
-                    }
-                    checkToken();
-                    displayUserInfo();
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putBoolean("scProfile", isChecked);
+                editor.commit();
+                scChecked = isChecked;
+                if(scChecked){
+                    displayEvents(listEventsOrganized, listLocatonOrganized);
                 }
                 else{
-                    Toast.makeText(getContext(), response.message(), Toast.LENGTH_SHORT).show();
+                    displayEvents(listEventsParticipated, listLocatonParticipated);
                 }
-
-            }
-
-
-            @Override
-            public void onFailure(Call<RestProfile> call, Throwable t) {
-
             }
         });
-        loadData();
+        recyclerView = (RecyclerView) view.findViewById(R.id.profile_recycler_view);
+        recyclerView.setNestedScrollingEnabled(false);
+        recyclerView.setNestedScrollingEnabled(false);
+        recyclerView.setHasFixedSize(false);
         recyclerView.addOnItemTouchListener( new RecyclerItemClickListener(getContext(), new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
-                        Intent intent = new Intent(getContext(),Activity_Event_Details.class);
-                        //Intent intent = new Intent(Activity_Search_Results.this,MapsActivity.class);
-                        intent.putExtra("eventSelected", listEvents.get(position).getEventId());
-                        startActivity(intent);
+                        FragmentTransaction fm = ((FragmentActivity) getActivity()).getSupportFragmentManager().beginTransaction();
+                        EventOptionsFragment editNameDialogFragment = new EventOptionsFragment(latestEvents.get(position), getContext());
+                        editNameDialogFragment.show(fm,"aaa");
                     }
 
 
                 })
         );
     }
-    private void loadData() {
+
+    private void loadEventData() {
+        service.getUserDetails(auth.getCurrentUser().getUid()).enqueue(new Callback<RestProfile>() {
+            @Override
+            public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
+                if (!response.body().getError()) {
+
+                    listEventsParticipated = response.body().getEvent();
+                    listLocatonParticipated = response.body().getLocation();
+                    user = response.body().getUser();
+                    if(!scChecked) {
+                        if (listEventsParticipated.isEmpty()) {
+                            lblPerviousEvents.setText("NO PREVIOUS EVENTS");
+                            }
+                        else {
+                            displayEvents(listEventsParticipated, listLocatonParticipated);
+                            }
+                        }
+                        else{
+                            getOrganizedEvents();
+                        }
+
+                    if(user.isEmpty()){
+                        //getUser();//This will be called if the user hasnt attended an event.
+                        Toast.makeText(getContext(), "Cant load profile....", Toast.LENGTH_SHORT).show();
+                    }else{
+                        checkToken();
+                        displayUserInfo();
+                    }
+
+                }
+                else{
+                    Toast.makeText(getContext(), response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RestProfile> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void getOrganizedEvents() {
+        service.getOrganizedEvents(auth.getCurrentUser().getUid()).enqueue(new Callback<RestProfile>() {
+            @Override
+            public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
+                if(response.body().getEvent().isEmpty()){
+                    lblPerviousEvents.setText("NO PREVIOUS EVENTS ORGANIZED");
+                }
+                else {
+                    listEventsOrganized = response.body().getEvent();
+                    listLocatonOrganized = response.body().getLocation();
+                    displayEvents(listEventsOrganized, listLocatonOrganized);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RestProfile> call, Throwable t) {
+
+            }
+        });
+    }
+
+
+    private void loadSubData() {
         service.getSubscribedSport(auth.getCurrentUser().getUid())
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -288,32 +348,33 @@ public class Fragment_Profile extends Fragment implements SettingFragment.MyDial
     public void checkToken() {
         //Toast.makeText(getContext(), "Checking Token...", Toast.LENGTH_SHORT).show();
         //Log.d("ACTPROF: user DB:", user.get(0).getUserToken().toString() + " - mFirebaseInstanceId" + mFirebaseInstanceId.getToken().toString() );
-        if(!user.get(0).getUserToken().toString().equals( mFirebaseInstanceId.getToken().toString())){
-            User user = new User();
-            user.setUserId(auth.getCurrentUser().getUid());
-            user.setUserToken(mFirebaseInstanceId.getToken().toString());
-            service.updateUserToken(user).enqueue(new Callback<RestUsers>() {
-                @Override
-                public void onResponse(Call<RestUsers> call, Response<RestUsers> response) {
-                    Log.d("Token Update:",  "Token updated" );
+        if (!user.isEmpty()) {
+            if (!user.get(0).getUserToken().toString().equals(mFirebaseInstanceId.getToken().toString())) {
+                User user = new User();
+                user.setUserId(auth.getCurrentUser().getUid());
+                user.setUserToken(mFirebaseInstanceId.getToken().toString());
+                service.updateUserToken(user).enqueue(new Callback<RestUsers>() {
+                    @Override
+                    public void onResponse(Call<RestUsers> call, Response<RestUsers> response) {
+                        Log.d("Token Update:", "Token updated");
 
-                }
+                    }
 
-                @Override
-                public void onFailure(Call<RestUsers> call, Throwable t) {
-                    Log.d("Token Update Fail: ", t.toString());
+                    @Override
+                    public void onFailure(Call<RestUsers> call, Throwable t) {
+                        Log.d("Token Update Fail: ", t.toString());
 
-                }
-            });
-        }
-        else{
-            Log.d("ACTPROF: user DB:", user.get(0).getUserToken().toString() + " - mFirebaseInstanceId" + mFirebaseInstanceId.getToken().toString() );
+                    }
+                });
+            } else {
+                Log.d("ACTPROF: user DB:", user.get(0).getUserToken().toString() + " - mFirebaseInstanceId" + mFirebaseInstanceId.getToken().toString());
+            }
         }
     }
 
-    private void displayEvents() {
-
-        mAdapter = new Profile_Events_Attended_Adapter(listEvents, listLocaton);
+    private void displayEvents(List<Event> events, List<Location> locations) {
+        Log.d("ABC1", "CHECKED: " + scChecked + "eventsize: " + events.size() + "locationssize: " + locations.size());
+        mAdapter = new Profile_Events_Attended_Adapter(events, locations);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -329,16 +390,6 @@ public class Fragment_Profile extends Fragment implements SettingFragment.MyDial
         }
     }
 
-/*    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }*/
 
     @Override
     public void onDetach() {
@@ -349,20 +400,10 @@ public class Fragment_Profile extends Fragment implements SettingFragment.MyDial
     @Override
     public void OnCloseDialog() {
         Log.d("SettingFragment", "OnCloseDialog Called in profile");
-        loadData();
+        loadSubData();
     }
 
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);

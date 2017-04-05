@@ -295,19 +295,20 @@ public class Event implements Parcelable {
     }
 
     public String getFormattedDate() throws ParseException {
-        Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(eventDate);
+        Date date = new SimpleDateFormat("yyyy-MM-dd").parse(eventDate);
         String formattedDate = new SimpleDateFormat("dd/MM/yyyy").format(date);
             return formattedDate.toString();
     }
 
     public String getFormattedTime()throws ParseException{
-        Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(eventDate);
+        //Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(eventDate);
+        Date date = new SimpleDateFormat("HH:mm").parse(eventTime);
         String formattedDate = new  SimpleDateFormat("HH:mm").format(date);
         return formattedDate.toString();
     }
 
     public long  getTimeInMilliSeconds() throws ParseException {
-        Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(eventDate);
+        Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm").parse(eventDate + " " + eventTime);
         return date.getTime();
     }
 

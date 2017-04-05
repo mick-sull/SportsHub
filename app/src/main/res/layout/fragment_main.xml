@@ -113,7 +113,6 @@
             android:text="STARTING SOON"
             android:textSize="13dp"
             android:layout_weight=".333"
-
             android:textAlignment="textEnd" />
         </LinearLayout>
 

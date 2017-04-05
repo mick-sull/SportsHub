@@ -47,6 +47,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -234,14 +235,15 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
             listOfSubs = new ArrayList<Subscription>();
             latestEvents = new ArrayList<Event>();
             switchCompat = (SwitchCompat) rootView.findViewById(R.id.scSortEvents);
-            prefs = getActivity().getSharedPreferences("MainActSettings", Context.MODE_PRIVATE);
-            scChecked = prefs.getBoolean("switchCompact",false);
+            prefs = getActivity().getSharedPreferences("settings", Context.MODE_PRIVATE);
+            scChecked = prefs.getBoolean("scMain",false);
+            switchCompat.setChecked(scChecked);
 
             switchCompat.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     SharedPreferences.Editor editor = prefs.edit();
-                    editor.putBoolean("switchCompact", isChecked);
+                    editor.putBoolean("scMain", isChecked);
                     editor.commit();
                     scChecked = isChecked;
                     loadSubData();
@@ -307,15 +309,14 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
             for (int i = 0; i < listOfSubs.size(); i++) {
                 subIDs.add(listOfSubs.get(i).getSportID().toString());
             }
-/*            Subscription sub = new Subscription();
-            sub.setListOfSubID(listOfSubs);*/
+
             RestArrayList list = new RestArrayList(subIDs);
 
             if(!scChecked) {
                 service.getLatestEventsByCreated(list).enqueue(new Callback<RestEvent>() {
                     @Override
                     public void onResponse(Call<RestEvent> call, Response<RestEvent> response) {
-
+                        Log.w("TESTEVENT", "JSON: " + new Gson().toJson(response));
                         latestEvents = response.body().getEvent();
                         Log.d("AUTH123", "latestEvents size: " + latestEvents.size());
                         displayLatestEvents();
@@ -353,15 +354,6 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         }
 
 
-
-/*        @Override
-        public void onMapReady(GoogleMap googleMap) {
-            mMap = googleMap;
-            LatLng sydney = new LatLng(-34, 151);
-            googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-            Log.v("MAP", "Added Sydney");
-        }*/
     }
 
     /**

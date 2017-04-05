@@ -67,6 +67,9 @@ public interface NetworkService {
     @GET("user/{user_id}")
     Call<RestProfile> getUser(@Query("user_id") String userID);
 
+    @GET("user/individual/")
+    Call<RestProfile> getIndividualUser(@Query("user_id") String userID);
+
     @GET("user/details/{user_id}")
     Call<RestProfile> getUserDetails(@Query("user_id") String userID);
 
@@ -118,6 +121,8 @@ public interface NetworkService {
     @POST("event/addAttendee")
     Call<RestAttendee> addAttendee(@Body Attendee attendee);
 
+    @GET("event/getOrganizedEvents")
+    Call<RestProfile> getOrganizedEvents(@Query("user_id") String userID);
 
     //Notifications
     @POST("notification/chat_notification")

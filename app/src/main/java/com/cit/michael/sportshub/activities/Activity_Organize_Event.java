@@ -109,6 +109,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     public static int sYear;
     public static int sMonth;
     public static int sDay;
+    public static String dbDate;
     private Subscription subscription_sports;
     public List<Sport> listOfSports;
     public List<Location> listOfLocations;
@@ -532,7 +533,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
             }
         }
 
-        Event newEvent = new Event(null,selectedLocationId,auth.getCurrentUser().getUid(),set_date.getText().toString(),set_time.getText().toString(), selectedSportId,
+        Event newEvent = new Event(null,selectedLocationId,auth.getCurrentUser().getUid(),dbDate,set_time.getText().toString(), selectedSportId,
                 Integer.parseInt(txtNumSpaces.getText().toString()),
                 Integer.parseInt(txtNumSpaces.getText().toString()), Integer.parseInt(txtEventDuration.getText().toString()), eventGender, Double.parseDouble(txtEventCost.getText().toString()) ,publicGame, txtEventName.getText().toString(), userTokens);
 
@@ -592,7 +593,24 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
 
         @Override
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-            set_date.setText(year + "-" + (monthOfYear + 1) + "-" + dayOfMonth);
+            String displayDate;
+            if(monthOfYear<9){
+                if(dayOfMonth<10){
+                    //set_date.setText(year + "-" + "0" +(monthOfYear + 1) + "-" +  "0" + dayOfMonth);
+                    dbDate = year + "-" + "0" +(monthOfYear + 1) + "-" +  "0" + dayOfMonth;
+                    displayDate = "0" + dayOfMonth + "-" + "0" +(monthOfYear + 1) + "-" + year;
+                }
+                else {
+                    //set_date.setText(year + "-" + "0" + (monthOfYear + 1) + "-" + dayOfMonth);
+                    dbDate =year + "-" + "0" + (monthOfYear + 1) + "-" + dayOfMonth;
+                    displayDate = dayOfMonth + "-" + "0" + (monthOfYear + 1) + "-" + year;
+                }
+            }else{
+                //set_date.setText(year + "-" + (monthOfYear + 1) + "-" + dayOfMonth);
+                dbDate =year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
+                displayDate = dayOfMonth + "-" + (monthOfYear + 1) + "-" +year;
+            }
+            set_date.setText(displayDate);
             //set_date.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
             sYear = year;
             sMonth = monthOfYear;

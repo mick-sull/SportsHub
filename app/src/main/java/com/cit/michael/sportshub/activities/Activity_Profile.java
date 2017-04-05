@@ -29,6 +29,7 @@ import com.cit.michael.sportshub.rest.model.RestProfile;
 import com.cit.michael.sportshub.ui.CircleTransform;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -85,7 +86,7 @@ public class Activity_Profile extends AppCompatActivity {
         service.getUserDetails(user_id).enqueue(new Callback<RestProfile>() {
             @Override
             public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
-                //Log.w("TEST123", "JSON: " + new Gson().toJson(response));
+                Log.w("TEST123 ACTIVITY", "JSON: " + new Gson().toJson(response));
                 
                 listEvents = response.body().getEvent();
                 listLocaton = response.body().getLocation();
