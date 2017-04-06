@@ -58,11 +58,13 @@
             android:orientation="horizontal"
             >
 
-            <com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar
+            <com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar
                 android:id="@+id/rsDistance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:right_thumb_color="#0099ff"/>
+                app:left_thumb_color="#0099ff"
+                app:min_value="0"
+                app:max_value="161"/>
 
             <View
                 android:layout_marginTop="16dp"

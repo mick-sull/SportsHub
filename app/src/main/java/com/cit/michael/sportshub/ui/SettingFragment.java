@@ -26,9 +26,9 @@ import com.cit.michael.sportshub.model.SubscriptionsForUpdate;
 import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
 import com.cit.michael.sportshub.rest.model.RestSubscription;
-import com.crystal.crystalrangeseekbar.interfaces.OnRangeSeekbarChangeListener;
-import com.crystal.crystalrangeseekbar.interfaces.OnRangeSeekbarFinalValueListener;
-import com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar;
+import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarChangeListener;
+import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarFinalValueListener;
+import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
@@ -103,26 +103,27 @@ public class SettingFragment extends DialogFragment {
         dialog.setContentView(R.layout.list_settings);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        final CrystalRangeSeekbar rangeSeekbar = (CrystalRangeSeekbar) dialog.findViewById(R.id.rsDistance);
+        final CrystalSeekbar seekbar = (CrystalSeekbar ) dialog.findViewById(R.id.rsDistance);
+        //final CrystalRangeSeekbar rangeSeekbar = (SeekBar) dialog.findViewById(R.id.rsDistance);
         lblSettingDistanceSelected = (TextView) dialog.findViewById(R.id.lblSettingDistanceSelected);
-        rangeSeekbar.setMinValue(0);
-        rangeSeekbar.setMaxValue(160);
 
-        rangeSeekbar.setOnRangeSeekbarChangeListener(new OnRangeSeekbarChangeListener() {
+
+        // set listener
+        seekbar.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
             @Override
-            public void valueChanged(Number minValue, Number maxValue) {
-                lblSettingDistanceSelected.setText(String.valueOf(minValue) + " KM");
-                lblSettingDistanceSelected.setText(String.valueOf(maxValue) + "s KM");
+            public void valueChanged(Number minValue) {
+                lblSettingDistanceSelected.setText(String.valueOf(minValue) + "km.");
             }
         });
 
-        rangeSeekbar.setOnRangeSeekbarFinalValueListener(new OnRangeSeekbarFinalValueListener() {
+// set final value listener
+        seekbar.setOnSeekbarFinalValueListener(new OnSeekbarFinalValueListener() {
             @Override
-            public void finalValue(Number minValue, Number maxValue) {
-                lblSettingDistanceSelected.setText(String.valueOf(minValue) + " KM");
-                lblSettingDistanceSelected.setText(String.valueOf(maxValue) + " KM");
+            public void finalValue(Number value) {
+                Log.d("CRS=>", String.valueOf(value));
             }
         });
+
 
 
         recyclerView = (RecyclerView) dialog.findViewById(R.id.rvSettings);
