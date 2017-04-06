@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cit.michael.sportshub.R;
@@ -25,6 +26,9 @@ import com.cit.michael.sportshub.model.SubscriptionsForUpdate;
 import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
 import com.cit.michael.sportshub.rest.model.RestSubscription;
+import com.crystal.crystalrangeseekbar.interfaces.OnRangeSeekbarChangeListener;
+import com.crystal.crystalrangeseekbar.interfaces.OnRangeSeekbarFinalValueListener;
+import com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
@@ -54,6 +58,7 @@ public class SettingFragment extends DialogFragment {
     private Setting_Adapter mAdapter;
     List<Sport> subscribedSports;
     MyDialogListener mListener;
+    TextView lblSettingDistanceSelected;
 
     public SettingFragment(Context ctx, List<Sport> listOfAllSport, List<Subscription> listOfSubs, Fragment_Profile listener  ){
         this.ctx = ctx;
@@ -70,6 +75,7 @@ public class SettingFragment extends DialogFragment {
         //listOfAllSport = new ArrayList<Sport>();
         subscribedSports = new ArrayList<Sport>();
         //listOfSubs = new ArrayList<Subscription>();
+
 
         //loadData();
 
@@ -94,10 +100,32 @@ public class SettingFragment extends DialogFragment {
         dialog = new Dialog(getActivity());
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN);
-        dialog.setContentView(R.layout.list_users);
+        dialog.setContentView(R.layout.list_settings);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        recyclerView = (RecyclerView) dialog.findViewById(R.id.rvDialogUserView);
+        final CrystalRangeSeekbar rangeSeekbar = (CrystalRangeSeekbar) dialog.findViewById(R.id.rsDistance);
+        lblSettingDistanceSelected = (TextView) dialog.findViewById(R.id.lblSettingDistanceSelected);
+        rangeSeekbar.setMinValue(0);
+        rangeSeekbar.setMaxValue(160);
+
+        rangeSeekbar.setOnRangeSeekbarChangeListener(new OnRangeSeekbarChangeListener() {
+            @Override
+            public void valueChanged(Number minValue, Number maxValue) {
+                lblSettingDistanceSelected.setText(String.valueOf(minValue) + " KM");
+                lblSettingDistanceSelected.setText(String.valueOf(maxValue) + "s KM");
+            }
+        });
+
+        rangeSeekbar.setOnRangeSeekbarFinalValueListener(new OnRangeSeekbarFinalValueListener() {
+            @Override
+            public void finalValue(Number minValue, Number maxValue) {
+                lblSettingDistanceSelected.setText(String.valueOf(minValue) + " KM");
+                lblSettingDistanceSelected.setText(String.valueOf(maxValue) + " KM");
+            }
+        });
+
+
+        recyclerView = (RecyclerView) dialog.findViewById(R.id.rvSettings);
 
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(ctx, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
@@ -182,7 +210,7 @@ public class SettingFragment extends DialogFragment {
 
     }
 
-    @OnClick(R.id.txtListUserDone)
+    @OnClick(R.id.txtSettingsDone)
     public void doneText(){
         int sizeOfOriginalSubs = listOfSubs.size();//Still will stop the second for going over sports that have just been added.
 
@@ -223,7 +251,7 @@ public class SettingFragment extends DialogFragment {
         dialog.dismiss();
     }
 
-    @OnClick(R.id.txtListUserCancel)
+    @OnClick(R.id.txtSettingsCancel)
     public void cancelRequest(){
         Log.d("UserListFragment", "@OnClick(R.id.txtListUserCancel)");
         dialog.dismiss();

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:textAlignment="center">
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:background="@drawable/chamfer_corners"
+        android:weightSum="1"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_weight="0.75"
+        android:layout_height="wrap_content"
+        >
+        <LinearLayout
+
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <com.cit.michael.sportshub.ui.MyTextView
+                android:id="@+id/lblSettingDistance"
+                android:layout_width="114dp"
+                android:layout_height="wrap_content"
+                android:text="Search Distance"
+                android:textColor="@color/colorSub"
+                />
+
+            <com.cit.michael.sportshub.ui.MyTextView
+                android:id="@+id/lblSettingDistanceSelected"
+                android:layout_width="114dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grey_900"
+                android:textAlignment="textEnd"
+                android:layout_weight="0.74"
+                tools:textStyle="bold" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+
+            <com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar
+                android:id="@+id/rsDistance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:right_thumb_color="#0099ff"/>
+
+            <View
+                android:layout_marginTop="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/colordevider"
+                android:padding="16dp"
+                />
+        </LinearLayout>
+
+        <View
+            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colordevider"
+            android:padding="16dp"
+            />
+        <LinearLayout
+
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <com.cit.michael.sportshub.ui.MyTextView
+                android:id="@+id/lblheadingSub"
+                android:layout_width="114dp"
+                android:layout_height="wrap_content"
+                android:text="Subscriptions"
+                android:textColor="@color/colorSub"
+                />
+            </LinearLayout>
+        <View
+            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colordevider"
+            android:padding="16dp"
+            />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:weightSum="1"
+            android:layout_weight="1"
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/rvSettings"
+                android:layout_weight="50"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:text="CANCEL"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/txtSettingsCancel"
+                    android:layout_weight="1"
+                    android:textAlignment="center"
+                    android:textSize="10sp"
+                    android:cursorVisible="false"
+                    android:background="@drawable/chamfer_corners_light" />
+
+                <TextView
+                    android:text="DONE"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/txtSettingsDone"
+                    android:layout_weight="1"
+                    android:textAlignment="center"
+                    android:textSize="10sp"
+                    android:cursorVisible="false"
+                    android:background="@drawable/chamfer_corners_light"
+                    android:paddingBottom="10dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+</LinearLayout>
+

@@ -571,6 +571,48 @@
                     />
             </LinearLayout>
 
+            <View
+                android:layout_marginTop="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/colordevider"
+                android:padding="16dp"
+                />
+
+            <LinearLayout
+
+                android:layout_marginTop="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+
+                <com.cit.michael.sportshub.ui.MyTextView
+                    android:id="@+id/lblInviteGroup"
+                    android:layout_width="114dp"
+                    android:layout_height="wrap_content"
+                    android:text="Invite Group"
+                    android:textColor="@color/colorSub"
+
+                    />
+
+                <com.cit.michael.sportshub.ui.My_TextView
+                    android:id="@+id/txtInviteGroup"
+                    android:layout_width="190dp"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorTex" />
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/ic_group_add_black_24dp"
+                    android:id="@+id/ivInviteGroups"
+                    android:layout_weight="0.20"
+                    />
+            </LinearLayout>
+
         </LinearLayout>
             <com.cit.michael.sportshub.ui.MyTextView
                 android:id="@+id/btnCreate"

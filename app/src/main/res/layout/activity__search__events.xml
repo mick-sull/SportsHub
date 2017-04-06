@@ -150,20 +150,6 @@
                 android:hint="ie. soccer"
                 />
 
- <!--           <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@android:drawable/ic_menu_info_details"
-                android:id="@+id/btnAddSport"
-                android:layout_weight="0.20"
-                android:onClick="btnTime"/>-->
-
-            <!--                <com.cit.michael.sportshub.ui.MyTextView
-                                android:text="New Sport"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:id="@+id/btnAddSport"
-                                />-->
         </LinearLayout>
 
 

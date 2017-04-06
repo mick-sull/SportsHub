@@ -48,7 +48,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class Activity_Search_Events extends AppCompatActivity {
-
     @BindView(R.id.txtEventSearchStart) TextView txtEventSearchStart;
     @BindView(R.id.txtEventSearchFinish) TextView txtEventSearchFinish;
     @BindView(R.id.txtSearchLocationSE) ImageView txtSearchLocationSE;

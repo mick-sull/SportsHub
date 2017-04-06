@@ -10,6 +10,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -36,12 +37,14 @@ import android.widget.Toast;
 import com.cit.michael.sportshub.NetworkConnectionUtil;
 import com.cit.michael.sportshub.R;
 import com.cit.michael.sportshub.model.Event;
+import com.cit.michael.sportshub.model.Group;
 import com.cit.michael.sportshub.model.Location;
 import com.cit.michael.sportshub.model.Sport;
 import com.cit.michael.sportshub.model.User;
 import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
 import com.cit.michael.sportshub.rest.model.RestEvent;
+import com.cit.michael.sportshub.rest.model.RestGroup;
 import com.cit.michael.sportshub.rest.model.RestLocation;
 import com.cit.michael.sportshub.rest.model.RestSport;
 import com.cit.michael.sportshub.rest.model.RestUsers;
@@ -75,6 +78,7 @@ import static com.cit.michael.sportshub.Constants.ACTION_EDIT_EVENT;
 
 public class Activity_Organize_Event extends AppCompatActivity  implements Validator.ValidationListener, AddLocationFragment.AddLocationtDialogListener {
 
+    @Nullable
     private static TextView set_date, set_time;// selectSport, addNewSport;
     NetworkService service;
 
@@ -108,6 +112,9 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     @BindView(R.id.txtInviteFriends) TextView txtInviteFriends;
     @BindView(R.id.ivInviteFriends) ImageView ivInviteFriends;
 
+    @BindView(R.id.txtInviteGroup) TextView txtInviteGroup;
+    @BindView(R.id.ivInviteGroups) ImageView ivInviteGroups;
+
 
     //Dates selected
     public static int sYear;
@@ -128,8 +135,10 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     public int finishDownloading;
     ProgressDialog progress;
     private ArrayList<User> selectedUsers;
+    private ArrayList<Group> selectedGroup;
     String ACTION;
     Event event;
+    private List<Group> listOfGroups;
 
 /*    @BindView(R.id.txtEventDate) TextView set_date;
     @BindView(R.id.txtEventTime) TextView set_time;*/
@@ -141,9 +150,11 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
         service = RestClient.getSportsHubApiClient();
         listOfLocations = new ArrayList<Location>();
         listOfSports = new ArrayList<Sport>();
+        listOfGroups = new ArrayList<Group>();
         listOfFriends = new ArrayList<User>();
         listOfNames = new ArrayList<CharSequence>();
         selectedUsers = new ArrayList<User>();
+        selectedGroup = new ArrayList<Group>();
         setContentView(R.layout.activity_organize_event);
         set_date = (TextView) findViewById(R.id.txtEventDate);
         set_time = (TextView) findViewById(R.id.txtEventTime);
@@ -161,8 +172,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
         progress.dismiss();
         finishDownloading = 2;
         getData();
- /*       getLocationData();
-        getFriendsListData();*/
+        getGroups();
 
         if( getIntent().getExtras() != null)
         {
@@ -220,16 +230,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
             for (int i = 0; i < rgEventGender.getChildCount(); i++) {
                 rgEventGender.getChildAt(i).setEnabled(false);
             }
-            /*btnCreate.setText("UPDATE");
-            txtEventCost.setClickable(false);
-            txtInviteFriends.setClickable(false);
-            txtNumSpaces.setClickable(false);
-            txtEventDuration.setClickable(false);
-            txtDisplayLocation.setClickable(false);
-            txtEventName.setClickable(false);
-            selectLocation.setClickable(false);
-            addNewSport.setClickable(false);
-            selectSport.setClickable(false);*/
+
         }
 
 
@@ -241,10 +242,16 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
         // TODO submit data to server...
         displayDialogBox();
     }
-    @OnClick(R.id.imageView4)
+    @OnClick({R.id.imgTime, R.id.txtEventTime})
     public void selectTime(View view) {
         // TODO submit data to server...
         btnTime(view);
+    }
+
+    @OnClick({R.id.imgDate, R.id.txtEventDate})
+    public void selectDate(View view) {
+        // TODO submit data to server...
+        btnDate(view);
     }
 
     @OnClick(R.id.btnAddSport)
@@ -265,9 +272,60 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     }
 
     @OnClick({R.id.ivInviteFriends, R.id.txtInviteFriends})
-    public void inviiteFriends(View view) {
+    public void inviteFriends(View view) {
         // TODO submit data to server...
         displayFriendsList(listOfFriends);
+    }
+
+    @OnClick({R.id.ivInviteGroups, R.id.txtInviteGroup})
+    public void inviteGroup(View view) {
+        // TODO submit data to server...
+        displayGroupList(listOfGroups);
+    }
+
+    private void displayGroupList(final List<Group> listOfGroups) {
+        AlertDialog.Builder alerBuilder = new AlertDialog.Builder(this);
+        //final DBHelper dbHelper = new DBHelper(this);
+        String[] userFullNames = new String[listOfGroups.size()];
+        final boolean[] selectedItems = new boolean[listOfGroups.size()];
+        for(int i = 0 ; i < userFullNames.length ; i++){
+            userFullNames[i] = listOfGroups.get(i).getGroupName();
+            selectedItems[i] = false;
+            for(int j = 0 ; j < selectedGroup.size() ; j++){
+                if(selectedGroup.get(j).getGroupId() == listOfGroups.get(i).getGroupId()){
+                    selectedItems[i] = true;
+                    break;
+                }
+            }
+        }
+        alerBuilder.setMultiChoiceItems(userFullNames,selectedItems,new DialogInterface.OnMultiChoiceClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+                Log.e("CheckStatus",String.valueOf(b));
+                //selectedUsers.add(listOfFriends.get(i).getUserToken().toString());
+                selectedGroup.add(listOfGroups.get(i));
+            }
+        }).setPositiveButton("OK",new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int ii) {
+                selectedGroup.clear();
+                for(int i = 0 ; i < selectedItems.length ; i++) {
+                    if(selectedItems[i]) {
+                        selectedGroup.add(listOfGroups.get(i));
+                    }
+                }
+                if(selectedGroup.size() >1){
+                    txtInviteGroup.setText(selectedGroup.get(0).getGroupName() + " and " + (selectedGroup.size() -1) + " others");
+                }
+                else if(selectedGroup.size()==1){
+                    txtInviteGroup.setText(selectedGroup.get(0).getGroupName());
+                }
+                else{
+                    //do nothing
+                    //txtInviteFriends.setText(selectedUsers.get(0).getUserFullName());
+                }
+            }
+        }).setCancelable(false).setTitle("Select Groups").create().show();
     }
 
     private void displayFriendsList(final List<User> listOfNames) {
@@ -482,32 +540,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
 
     }
 
-    private void getLocationData() {
-/*        service.getLocation().enqueue(new Callback<RestLocation>() {
-            @Override
-            public void onResponse(Call<RestLocation> call, Response<RestLocation> response) {
-                if(response.body().getLocation().isEmpty()){
-                    Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
-                }
-                else{
-                    listOfLocations = response.body().getLocation();
-                }
 
-                if(finishDownloading !=0){
-                    finishDownloading--;
-                }
-                else {
-                    progress.dismiss();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<RestLocation> call, Throwable t) {
-                Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
-
-            }
-        });*/
-    }
 
     private void getData() {
         service.getSport()
@@ -592,14 +625,47 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
                         listOfFriends = restUsers.getUser();
                     }
                 });
+
+
     }
 
+    public void getGroups(){
+        service.getGroups(auth.getCurrentUser().getUid()).enqueue(new Callback<RestGroup>() {
+            @Override
+            public void onResponse(Call<RestGroup> call, Response<RestGroup> response) {
+                listOfGroups = response.body().getGroup();
+            }
+
+            @Override
+            public void onFailure(Call<RestGroup> call, Throwable t) {
+
+            }
+        });
+    }
     @Override
     public void onValidationSucceeded() {
+
         int publicGame = 0;
         if(cbPublicGame.isChecked()){
             publicGame = 1;
         }
+
+        if(ACTION.equals(ACTION_EDIT_EVENT)){
+            event.setPublicGame(publicGame);
+            service.updateEvent(event).enqueue(new Callback<RestEvent>() {
+                @Override
+                public void onResponse(Call<RestEvent> call, Response<RestEvent> response) {
+                    Toast.makeText(Activity_Organize_Event.this, "" + response.body().getMessage() , Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFailure(Call<RestEvent> call, Throwable t) {
+
+                }
+            });
+        }
+        else{
+
         String eventGender = "";
         switch(rgEventGender.getCheckedRadioButtonId()){
             case R.id.rbMale:
@@ -636,6 +702,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
 
             }
         });
+        }
 
     }
 

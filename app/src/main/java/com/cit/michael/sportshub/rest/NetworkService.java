@@ -109,6 +109,9 @@ public interface NetworkService {
     @POST("event/new")
     Call<RestEvent> createEvent(@Body Event event);
 
+    @POST("event/update")
+    Call<RestEvent> updateEvent(@Body Event event);
+
     @POST("event/search")
     Call<RestEvent> searchEvent(@Body Search search);
 
