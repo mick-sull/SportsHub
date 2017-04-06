@@ -171,7 +171,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:srcCompat="@mipmap/date_icon"
-                        android:id="@+id/imageView3"
+                        android:id="@+id/imgDate"
                         android:layout_weight="0.20"
                         android:onClick="btnDate"/>
                 </LinearLayout>
@@ -213,7 +213,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:srcCompat="@mipmap/time_icon"
-                        android:id="@+id/imageView4"
+                        android:id="@+id/imgTime"
                         android:layout_weight="0.20"
                         />
                 </LinearLayout>

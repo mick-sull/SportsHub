@@ -74,7 +74,7 @@ public interface NetworkService {
     Call<RestProfile> getUserDetails(@Query("user_id") String userID);
 
     @GET("user/friends/{user_id}")
-    Call<RestUsers> getUserFriends(@Query("user_id") String userID);
+    Observable<RestUsers> getUserFriends(@Query("user_id") String userID);
 
     @POST("user/friends/request")
     Call<RestRelationship> sendFriendRequest (@Body Friendship friendship);
@@ -94,7 +94,7 @@ public interface NetworkService {
 
     //Location
     @GET("location/")
-    Call<RestLocation> getLocation();
+    Observable<RestLocation> getLocation();
 
     @GET("location/id/")
     Call<RestLocation> getLocationByID(@Query("location_id") String location_id);

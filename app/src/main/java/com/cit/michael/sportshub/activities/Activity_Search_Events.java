@@ -74,8 +74,7 @@ public class Activity_Search_Events extends AppCompatActivity {
 
         service = RestClient.getSportsHubApiClient();
         searchDate = (TextView) findViewById(R.id.txtSearchEventDate);
-        getSportData();
-        getLocationData();
+        getData();
 
         final CrystalRangeSeekbar rangeSeekbar = (CrystalRangeSeekbar) findViewById(R.id.rangeSeekbar1);
         rangeSeekbar.setMinValue(6);
@@ -97,6 +96,53 @@ public class Activity_Search_Events extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void getData() {
+        service.getSport()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<RestSport>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(RestSport restSport) {
+                        listOfSports = restSport.getSport();
+                    }
+
+                });
+
+        service.getLocation()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<RestLocation>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(RestLocation restLocation) {
+                        if (restLocation.getLocation().isEmpty()) {
+                            Toast.makeText(getApplicationContext(), "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
+                        } else {
+                            listOfLocations = restLocation.getLocation();
+                        }
+                    }
+                });
     }
 
     @OnClick(R.id.txtSearchLocationSE)
@@ -191,23 +237,31 @@ public class Activity_Search_Events extends AppCompatActivity {
         }
     }
     private void getLocationData() {
-        service.getLocation().enqueue(new Callback<RestLocation>() {
-            @Override
-            public void onResponse(Call<RestLocation> call, Response<RestLocation> response) {
-                if(response.body().getLocation().isEmpty()){
-                    Toast.makeText(Activity_Search_Events.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
-                }
-                else{
-                    listOfLocations = response.body().getLocation();
-                }
-            }
 
-            @Override
-            public void onFailure(Call<RestLocation> call, Throwable t) {
-                Toast.makeText(Activity_Search_Events.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
-                Log.d("ThrowableT", "" + t.toString());
-            }
-        });
+        service.getLocation()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<RestLocation>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(RestLocation restLocation) {
+                        if (restLocation.getLocation().isEmpty()) {
+                            Toast.makeText(getApplicationContext(), "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
+                        } else {
+                            listOfLocations = restLocation.getLocation();
+                        }
+                    }
+                });
+
     }
 
     private void getSportData() {

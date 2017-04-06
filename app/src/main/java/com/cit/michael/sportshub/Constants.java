@@ -33,8 +33,18 @@ public class Constants {
     public final static int ACTION_GROUP_NOT_SELECTED = 0;
     public final static int ACTION_GROUP_SELECTED = 1;
 
+    //EventOptionsFragments
+    public final static String ACTION_FRAG_PROFILE = "frag_profile";
+    public final static String ACTION_FRAG_MAIN = "removeGroupMemeber";
+
+    //Activity_Organize_Event_Actions
+    public final static String ACTION_EDIT_EVENT = "editEvent";
+    public final static String ACTION_RECREATE = "recreateEvent";
+
     //USER_SETTINGS_SUBSCRIPTION
     public final static int SUBSCRIPTION_NOT_SELECTED = 1;
+
+    //USER
     public final static int SUBSCRIPTION_SELECTED = 0;
 
     //Check if chat activity is opened.

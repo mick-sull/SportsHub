@@ -71,6 +71,8 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
+import static com.cit.michael.sportshub.Constants.ACTION_EDIT_EVENT;
+
 public class Activity_Organize_Event extends AppCompatActivity  implements Validator.ValidationListener, AddLocationFragment.AddLocationtDialogListener {
 
     private static TextView set_date, set_time;// selectSport, addNewSport;
@@ -82,6 +84,8 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     @NotEmpty
     @BindView(R.id.txtDisplayLocation) TextView txtDisplayLocation;
     @BindView(R.id.txtSearchLocation) ImageView selectLocation;
+    @BindView(R.id.imgDate) ImageView imgDate;
+    @BindView(R.id.imgTime) ImageView imgTime;
     @NotEmpty
     @BindView(R.id.txtEventName) TextView txtEventName;
 
@@ -124,6 +128,8 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     public int finishDownloading;
     ProgressDialog progress;
     private ArrayList<User> selectedUsers;
+    String ACTION;
+    Event event;
 
 /*    @BindView(R.id.txtEventDate) TextView set_date;
     @BindView(R.id.txtEventTime) TextView set_time;*/
@@ -154,13 +160,80 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
 // To dismiss the dialog
         progress.dismiss();
         finishDownloading = 2;
-        getSportData();
-        getLocationData();
-        getFriendsListData();
+        getData();
+ /*       getLocationData();
+        getFriendsListData();*/
+
+        if( getIntent().getExtras() != null)
+        {
+            event = getIntent().getParcelableExtra("event");
+            ACTION = getIntent().getStringExtra("action");
+            handleIntent();
+        }
 
 
     }
 
+    private void handleIntent() {
+        txtEventName.setText(event.getEventName());
+
+        txtEventDuration.setText(event.getDuration().toString());
+        if(event.getGender().equals("Male")){
+            rgEventGender.check(R.id.rbMale);
+        }
+        else if(event.getGender().equals("Female")){
+            rgEventGender.check(R.id.rbFemale);
+        }
+        else if(event.getGender().equals("Mixed")){
+            rgEventGender.check(R.id.rbMixed);
+        }
+
+        set_date.setText(event.getEventDate());
+        set_time.setText(event.getEventTime());
+
+
+        txtNumSpaces.setText(event.getNoSpace().toString());
+        txtEventCost.setText(event.getCost().toString());
+        if(event.getPublicGame() == 1){
+            cbPublicGame.setChecked(true);
+        }
+        else{
+            cbPublicGame.setChecked(false);
+        }
+
+        if(ACTION.equals(ACTION_EDIT_EVENT)){
+            btnCreate.setText("UPDATE");
+            txtEventCost.setFocusable(false);
+            txtInviteFriends.setFocusable(false);
+            txtNumSpaces.setFocusable(false);
+            txtEventDuration.setFocusable(false);
+            txtDisplayLocation.setClickable(false);
+            txtEventName.setFocusable(false);
+            selectLocation.setClickable(false);
+            set_date.setClickable(false);
+            set_time.setClickable(false);
+            addNewSport.setClickable(false);
+            selectSport.setClickable(false);
+            selectSport.setClickable(false);
+            imgTime.setClickable(false);
+            imgDate.setClickable(false);
+            for (int i = 0; i < rgEventGender.getChildCount(); i++) {
+                rgEventGender.getChildAt(i).setEnabled(false);
+            }
+            /*btnCreate.setText("UPDATE");
+            txtEventCost.setClickable(false);
+            txtInviteFriends.setClickable(false);
+            txtNumSpaces.setClickable(false);
+            txtEventDuration.setClickable(false);
+            txtDisplayLocation.setClickable(false);
+            txtEventName.setClickable(false);
+            selectLocation.setClickable(false);
+            addNewSport.setClickable(false);
+            selectSport.setClickable(false);*/
+        }
+
+
+    }
 
 
     @OnClick(R.id.txtSelectSport)
@@ -246,30 +319,6 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
 
 
 
-    private void getFriendsListData() {
-
-        service.getUserFriends(auth.getCurrentUser().getUid()).enqueue(new Callback<RestUsers>() {
-            @Override
-            public void onResponse(Call<RestUsers> call, Response<RestUsers> response) {
-                listOfFriends = response.body().getUser();
-/*                for(int i = 0; i< listOfFriends.size(); i++){
-                    listOfNames.add(listOfFriends.get(i).getUserFullName());
-                }*/
-
-                if(finishDownloading !=0){
-                    finishDownloading--;
-                }
-                else {
-                    progress.dismiss();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<RestUsers> call, Throwable t) {
-
-            }
-        });
-    }
 
     private void dialogChooseLocation() {
 
@@ -283,7 +332,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
 //        Log.d("ERR", "List of location size: " + listOfLocations.size());
         if(listOfLocations.isEmpty()){
             //Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt not retrieve data...", Toast.LENGTH_SHORT).show();
-            getLocationData();
+            getData();
         }
         else {
             adapter.add("Add New Location");
@@ -374,7 +423,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_item);
         if(listOfSports.isEmpty()){
             //Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt not retrieve data...", Toast.LENGTH_SHORT).show();
-            getSportData();
+            getData();
         }
         else{
             for(int i = 0; i< listOfSports.size(); i++){
@@ -434,7 +483,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
     }
 
     private void getLocationData() {
-        service.getLocation().enqueue(new Callback<RestLocation>() {
+/*        service.getLocation().enqueue(new Callback<RestLocation>() {
             @Override
             public void onResponse(Call<RestLocation> call, Response<RestLocation> response) {
                 if(response.body().getLocation().isEmpty()){
@@ -457,33 +506,10 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
                 Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
 
             }
-        });
+        });*/
     }
 
-    private void getSportData() {
-/*        service.getSport().enqueue(new Callback<RestSport>() {
-            @Override
-            public void onResponse(Call<RestSport> call, Response<RestSport> response) {
-                if(response.body().getError()){
-                    Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
-                    if(finishDownloading !=0){
-                        finishDownloading--;
-                    }
-                    else {
-                        progress.dismiss();
-                    }
-
-                }
-                else{
-                    listOfSports = response.body().getSport();
-                }
-            }
-            @Override
-            public void onFailure(Call<RestSport> call, Throwable t) {
-                Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
-
-            }
-        });*/
+    private void getData() {
         service.getSport()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -500,11 +526,72 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
 
                     @Override
                     public void onNext(RestSport restSport) {
+
                         listOfSports = restSport.getSport();
+                        if( getIntent().getExtras() != null)
+                        {
+                            for(int i = 0; i < listOfSports.size(); i++){
+                                if(listOfSports.get(i).getSportId().equals(event.getSportId())){
+                                    selectSport.setText(listOfSports.get(i).getSportName());
+                                    selectedSportId = listOfSports.get(i).getSportId();
+                                }
+                            }
+                        }
                     }
 
                 });
 
+        service.getLocation()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<RestLocation>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(RestLocation restLocation) {
+                        if (restLocation.getLocation().isEmpty()) {
+                            Toast.makeText(Activity_Organize_Event.this, "Error: Couldnt retrieve data...", Toast.LENGTH_SHORT).show();
+                        } else {
+                            listOfLocations = restLocation.getLocation();
+                            for(int i = 0; i < listOfLocations.size();i++){
+                                if(listOfLocations.get(i).getLocationId().equals(event.getLocationId())){
+                                    txtDisplayLocation.setText(listOfLocations.get(i).getLocationName());
+                                    selectedLocationId = listOfLocations.get(i).getLocationId();
+                                }
+                            }
+                        }
+                    }
+                });
+
+        service.getUserFriends(auth.getCurrentUser().getUid())
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<RestUsers>() {
+
+
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(RestUsers restUsers) {
+                        listOfFriends = restUsers.getUser();
+                    }
+                });
     }
 
     @Override
@@ -596,22 +683,19 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
             String displayDate;
             if(monthOfYear<9){
                 if(dayOfMonth<10){
-                    //set_date.setText(year + "-" + "0" +(monthOfYear + 1) + "-" +  "0" + dayOfMonth);
                     dbDate = year + "-" + "0" +(monthOfYear + 1) + "-" +  "0" + dayOfMonth;
                     displayDate = "0" + dayOfMonth + "-" + "0" +(monthOfYear + 1) + "-" + year;
                 }
                 else {
-                    //set_date.setText(year + "-" + "0" + (monthOfYear + 1) + "-" + dayOfMonth);
                     dbDate =year + "-" + "0" + (monthOfYear + 1) + "-" + dayOfMonth;
                     displayDate = dayOfMonth + "-" + "0" + (monthOfYear + 1) + "-" + year;
                 }
             }else{
-                //set_date.setText(year + "-" + (monthOfYear + 1) + "-" + dayOfMonth);
+
                 dbDate =year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
                 displayDate = dayOfMonth + "-" + (monthOfYear + 1) + "-" +year;
             }
             set_date.setText(displayDate);
-            //set_date.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
             sYear = year;
             sMonth = monthOfYear;
             sDay = dayOfMonth;

@@ -1,6 +1,7 @@
 package com.cit.michael.sportshub.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -43,7 +44,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.picasso.Picasso;
 
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import butterknife.BindView;
@@ -55,6 +58,8 @@ import retrofit2.Response;
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+
+import static com.cit.michael.sportshub.Constants.ACTION_FRAG_PROFILE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -102,6 +107,7 @@ public class Fragment_Profile extends Fragment implements SettingFragment.MyDial
     private SwitchCompat switchCompat;
     SharedPreferences prefs;
     Boolean scChecked;
+    List<String> options;
 
     private OnFragmentInteractionListener mListener;
 
@@ -181,9 +187,33 @@ public class Fragment_Profile extends Fragment implements SettingFragment.MyDial
         recyclerView.setHasFixedSize(false);
         recyclerView.addOnItemTouchListener( new RecyclerItemClickListener(getContext(), new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
+
+                        options = new ArrayList<>();
+                        //options.add("Join Event");
+                        options.add("View Event");
+                        options.add("Recreate");
+
                         FragmentTransaction fm = ((FragmentActivity) getActivity()).getSupportFragmentManager().beginTransaction();
-                        EventOptionsFragment editNameDialogFragment = new EventOptionsFragment(latestEvents.get(position), getContext());
-                        editNameDialogFragment.show(fm,"aaa");
+                        EventOptionsFragment editNameDialogFragment;
+                        if(scChecked) {
+                            try {
+                                if(listEventsOrganized.get(position).getTimeInMilliSeconds() > Calendar.getInstance().getTime().getTime()) {
+                                    options.add("Edit Event");
+                                }
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            editNameDialogFragment = new EventOptionsFragment(listEventsOrganized.get(position), getContext(),options, ACTION_FRAG_PROFILE );
+                            editNameDialogFragment.show(fm,"aaa");
+                        }
+                        else{
+                            Intent intent;
+                            intent = new Intent(getContext(),Activity_Event_Details.class);
+                            //Intent intent = new Intent(Activity_Search_Results.this,MapsActivity.class);
+                            intent.putExtra("eventSelected", listEventsParticipated.get(position).getEventId());
+                            startActivity(intent);
+                        }
+
                     }
 
 

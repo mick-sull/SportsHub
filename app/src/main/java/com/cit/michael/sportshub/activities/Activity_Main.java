@@ -59,6 +59,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.cit.michael.sportshub.Constants.ACTION_FRAG_MAIN;
+
 public class Activity_Main extends AppCompatActivity implements Fragment_Profile.OnFragmentInteractionListener, Frag_Group.OnFragmentInteractionListener, Fragment_Friends_List.OnFragmentInteractionListener,
         Fragment_Chat_List.OnFragmentInteractionListener {
 
@@ -207,6 +209,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         private SwitchCompat switchCompat;
         SharedPreferences prefs;
         Boolean scChecked;
+        List<String> options;
 
         private static final String ARG_SECTION_NUMBER = "section_number";
 
@@ -258,8 +261,13 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
             recyclerView.addOnItemTouchListener( new RecyclerItemClickListener(getContext(), new RecyclerItemClickListener.OnItemClickListener() {
                         @Override public void onItemClick(View view, int position) {
                             //FragmentManager fm = getFragmentManager();
+
+                            options = new ArrayList<>();
+                            //options.add("Join Event");
+                            options.add("View Event");
+                            options.add("View Map");
                             FragmentTransaction fm = ((FragmentActivity) getActivity()).getSupportFragmentManager().beginTransaction();
-                            EventOptionsFragment editNameDialogFragment = new EventOptionsFragment(latestEvents.get(position), getContext());
+                            EventOptionsFragment editNameDialogFragment = new EventOptionsFragment(latestEvents.get(position), getContext(), options, ACTION_FRAG_MAIN);
                             editNameDialogFragment.show(fm,"aaa");
 
                         }

@@ -39,6 +39,9 @@ import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 import static com.cit.michael.sportshub.Constants.ACCEPTED;
 import static com.cit.michael.sportshub.Constants.ACTION_FRIENDS_LIST;
@@ -101,24 +104,30 @@ public class Fragment_Friends_List extends Fragment {
 
         auth = FirebaseAuth.getInstance();
         service = RestClient.getSportsHubApiClient();
-        service.getUserFriends(auth.getCurrentUser().getUid()).enqueue(new Callback<RestUsers>() {
-            @Override
-            public void onResponse(Call<RestUsers> call, Response<RestUsers> response) {
-                Log.d("FRIENDS LIST", "Result: " + response.message().toString());
-                //Log.d("ABC", "Request data " + new Gson().toJson(response));
-                //if(!response.body().getUserDetails().isEmpty()){
 
-                    listFriends = response.body().getUser();
+        service.getUserFriends(auth.getCurrentUser().getUid())
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<RestUsers>() {
+
+
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(RestUsers restUsers) {
+                        listFriends = restUsers.getUser();
 //                    Log.d("ABC", "getAction_user " + listFriends.get(0).getAction_user());
-                    displayFriends();
-             //   }
-            }
-
-            @Override
-            public void onFailure(Call<RestUsers> call, Throwable t) {
-
-            }
-        });
+                        displayFriends();
+                    }
+                });
 
 
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getContext(), new RecyclerItemClickListener.OnItemClickListener() {
