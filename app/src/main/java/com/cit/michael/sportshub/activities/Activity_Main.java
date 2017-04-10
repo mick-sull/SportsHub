@@ -1,13 +1,18 @@
 package com.cit.michael.sportshub.activities;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -37,11 +42,16 @@ import com.cit.michael.sportshub.rest.NetworkService;
 import com.cit.michael.sportshub.rest.RestClient;
 import com.cit.michael.sportshub.rest.model.RestArrayList;
 import com.cit.michael.sportshub.rest.model.RestEvent;
+import com.cit.michael.sportshub.rest.model.RestLocation;
 import com.cit.michael.sportshub.rest.model.RestSubscription;
 import com.cit.michael.sportshub.rest.model.RestUsers;
 import com.cit.michael.sportshub.ui.EventOptionsFragment;
 import com.facebook.FacebookSdk;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -58,8 +68,16 @@ import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 import static com.cit.michael.sportshub.Constants.ACTION_FRAG_MAIN;
+
+/*import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;*/
 
 public class Activity_Main extends AppCompatActivity implements Fragment_Profile.OnFragmentInteractionListener, Frag_Group.OnFragmentInteractionListener, Fragment_Friends_List.OnFragmentInteractionListener,
         Fragment_Chat_List.OnFragmentInteractionListener {
@@ -109,10 +127,9 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         mFirebaseInstanceId = FirebaseInstanceId.getInstance();
 
 
-
         String newUser = getIntent().getStringExtra("user");
 
-        if(newUser.equals("new")){
+        if (newUser.equals("new")) {
             addUserToDatabase();
         }
 
@@ -125,7 +142,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-        mViewPager.setCurrentItem(1,false);
+        mViewPager.setCurrentItem(1, false);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
@@ -133,7 +150,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
 
 
     private void addUserToDatabase() {
-        User newUser = new User(auth.getCurrentUser().getUid(),auth.getCurrentUser().getDisplayName(), auth.getCurrentUser().getPhotoUrl().toString(), null, null, mFirebaseInstanceId.getToken().toString());
+        User newUser = new User(auth.getCurrentUser().getUid(), auth.getCurrentUser().getDisplayName(), auth.getCurrentUser().getPhotoUrl().toString(), null, null, mFirebaseInstanceId.getToken().toString());
 
         service.addUser(newUser).enqueue(new Callback<RestUsers>() {
             @Override
@@ -190,11 +207,13 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
     }
 
 
-
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class PlaceholderFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
+            //GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener
+
+    {
         /**
          * The fragment argument representing the section number for this
          * fragment.
@@ -203,6 +222,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         NetworkService service;
         private FirebaseAuth auth;
         List<Subscription> listOfSubs;
+        public List<com.cit.michael.sportshub.model.Location> listOfLocations;
         List<Event> latestEvents;
         private RecyclerView recyclerView;
         private Latest_Events_Adapter mAdapter;
@@ -210,6 +230,12 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         SharedPreferences prefs;
         Boolean scChecked;
         List<String> options;
+        LocationRequest mLocationRequest;
+        GoogleApiClient mGoogleApiClient;
+        Location mCurrentLocation;
+        private static final long INTERVAL = 1000 * 10;
+        private static final long FATEST_INTERVAL = 1000 * 5;
+        private static final String TAG = "MainActivityFrag";
 
         private static final String ARG_SECTION_NUMBER = "section_number";
 
@@ -232,14 +258,41 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
+
+
+            createLocationRequest();
+            if (mGoogleApiClient == null) {
+                mGoogleApiClient = new GoogleApiClient.Builder(getContext())
+                        .addApi(LocationServices.API)
+                        .addConnectionCallbacks(this)
+                        .addOnConnectionFailedListener(this)
+                        .enableAutoManage(getActivity(), 0 /* clientId */, this)
+                        .build();
+            }
+
+
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return null;
+            }
+            mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             auth = FirebaseAuth.getInstance();
             service = RestClient.getSportsHubApiClient();
             listOfSubs = new ArrayList<Subscription>();
             latestEvents = new ArrayList<Event>();
+            listOfLocations = new ArrayList<com.cit.michael.sportshub.model.Location>();
             switchCompat = (SwitchCompat) rootView.findViewById(R.id.scSortEvents);
             prefs = getActivity().getSharedPreferences("settings", Context.MODE_PRIVATE);
-            scChecked = prefs.getBoolean("scMain",false);
+            scChecked = prefs.getBoolean("scMain", false);
             switchCompat.setChecked(scChecked);
 
             switchCompat.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -249,17 +302,20 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
                     editor.putBoolean("scMain", isChecked);
                     editor.commit();
                     scChecked = isChecked;
-                    loadSubData();
+                    getLatestEvents();
                 }
             });
 
             ButterKnife.bind(this, rootView);
             loadSubData();
-            Log.d("AUTH123", "  loadSubData();" );
+            getLatestEvents();
+
+            Log.d("AUTH123", "  loadSubData();");
 
             recyclerView = (RecyclerView) rootView.findViewById(R.id.rvLatestEvents);
-            recyclerView.addOnItemTouchListener( new RecyclerItemClickListener(getContext(), new RecyclerItemClickListener.OnItemClickListener() {
-                        @Override public void onItemClick(View view, int position) {
+            recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getContext(), new RecyclerItemClickListener.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(View view, int position) {
                             //FragmentManager fm = getFragmentManager();
 
                             options = new ArrayList<>();
@@ -268,7 +324,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
                             options.add("View Map");
                             FragmentTransaction fm = ((FragmentActivity) getActivity()).getSupportFragmentManager().beginTransaction();
                             EventOptionsFragment editNameDialogFragment = new EventOptionsFragment(latestEvents.get(position), getContext(), options, ACTION_FRAG_MAIN);
-                            editNameDialogFragment.show(fm,"aaa");
+                            editNameDialogFragment.show(fm, "aaa");
 
                         }
 
@@ -280,11 +336,18 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
             return rootView;
         }
 
+        private void createLocationRequest() {
+            mLocationRequest = new LocationRequest();
+            mLocationRequest.setInterval(INTERVAL);
+            mLocationRequest.setFastestInterval(FATEST_INTERVAL);
+            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        }
+
 
         @OnClick(R.id.floatAddEvent)
         public void submit(View rootView) {
             // TODO submit data to server...
-            Intent intent = new Intent(rootView.getContext(),Activity_Organize_Event.class);
+            Intent intent = new Intent(rootView.getContext(), Activity_Organize_Event.class);
             startActivity(intent);
         }
 
@@ -292,25 +355,54 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         @OnClick(R.id.floatSearchEvent)
         public void search(View rootView) {
             // TODO submit data to server...
-            Intent intent = new Intent(rootView.getContext(),Activity_Search_Events.class);
+            Intent intent = new Intent(rootView.getContext(), Activity_Search_Events.class);
             startActivity(intent);
 
         }
-    public void loadSubData() {
 
-       service.getSubscribedSports(auth.getCurrentUser().getUid()).enqueue(new Callback<RestSubscription>() {
-           @Override
-           public void onResponse(Call<RestSubscription> call, Response<RestSubscription> response) {
-               listOfSubs = response.body().getSubscription();
-               getLatestEvents();
-           }
+        public void loadSubData() {
 
-           @Override
-           public void onFailure(Call<RestSubscription> call, Throwable t) {
+            service.getSubscribedSport(auth.getCurrentUser().getUid())
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<RestSubscription>() {
+                        @Override
+                        public void onCompleted() {
 
-           }
-       });
-}
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onNext(RestSubscription restSub) {
+                            listOfSubs = restSub.getSubscription();
+                        }
+
+                    });
+
+            service.getLocation()
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<RestLocation>() {
+                        @Override
+                        public void onCompleted() {
+
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onNext(RestLocation restLocation) {
+                            listOfLocations = restLocation.getLocation();
+                        }
+                    });
+        }
 
         private void getLatestEvents() {
             ArrayList<String> subIDs = new ArrayList<String>();
@@ -320,7 +412,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
 
             RestArrayList list = new RestArrayList(subIDs);
 
-            if(!scChecked) {
+            if (!scChecked) {
                 service.getLatestEventsByCreated(list).enqueue(new Callback<RestEvent>() {
                     @Override
                     public void onResponse(Call<RestEvent> call, Response<RestEvent> response) {
@@ -335,8 +427,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
 
                     }
                 });
-            }
-            else{
+            } else {
                 service.getLatestEventsBySoon(list).enqueue(new Callback<RestEvent>() {
                     @Override
                     public void onResponse(Call<RestEvent> call, Response<RestEvent> response) {
@@ -354,6 +445,28 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         }
 
         private void displayLatestEvents() {
+            Location locationA = new Location("current location");
+            Location locationB = new Location("event location");
+            if (mCurrentLocation != null) {
+                Log.e(TAG, "onConnected - NOT NULL ...............: ");
+                locationA.setLatitude(mCurrentLocation.getLatitude());
+                locationA.setLongitude(mCurrentLocation.getLongitude());
+                if (!listOfLocations.isEmpty()) {
+                    for (int i = 0; i < listOfLocations.size(); i++) {
+                        for (int j = 0; j < latestEvents.size(); j++) {
+                            if (latestEvents.get(j).getLocationId().equals(listOfLocations.get(i).getLocationId())) {
+                                locationB.setLatitude(listOfLocations.get(i).getLatitude());
+                                locationB.setLongitude(listOfLocations.get(i).getLongitude());
+                                latestEvents.get(j).setDistance_to(Float.toString(locationA.distanceTo(locationB) / 1000));
+                                Log.e(TAG, "onConnected - FOUND ...............: " + locationA.distanceTo(locationB) / 1000 + "KM");
+                            }
+                        }
+                    }
+                }
+            } else {
+                Log.e(TAG, "onConnected - NULL ...............: ");
+            }
+
             mAdapter = new Latest_Events_Adapter(latestEvents);
             RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
             recyclerView.setLayoutManager(mLayoutManager);
@@ -362,8 +475,45 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         }
 
 
-    }
+        @Override
+        public void onConnected(@Nullable Bundle bundle) {
+            Log.e(TAG, "onConnected - isConnected ...............: " + mGoogleApiClient.isConnected());
+            //displayLatestEvents();
+        }
 
+        @Override
+        public void onConnectionSuspended(int i) {
+
+        }
+
+        @Override
+        public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+            Log.e(TAG, "Connection failed: " + connectionResult.toString());
+        }
+
+/*        @Override
+        public void onLocationChanged(Location location) {
+
+            mCurrentLocation = location;
+            Toast.makeText(getContext(), "Location Change....", Toast.LENGTH_SHORT).show();
+            displayLatestEvents();
+            Log.e(TAG, "Location: " + "long: " + mCurrentLocation.getLongitude() + " lat: " + mCurrentLocation.getLatitude());
+
+
+        }*/
+
+
+
+        public void onStart() {
+            mGoogleApiClient.connect();
+            super.onStart();
+        }
+
+        public void onStop() {
+            mGoogleApiClient.disconnect();
+            super.onStop();
+        }
+    }
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.

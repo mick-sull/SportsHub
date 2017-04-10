@@ -177,7 +177,7 @@ public interface NetworkService {
 
 
     @GET("subscriptions/getSubscription/")
-    Call<RestSubscription> getSubscribedSports(@Query("user_id") String userID);
+    Observable<RestSubscription> getSubscribedSports(@Query("user_id") String userID);
 
 
 

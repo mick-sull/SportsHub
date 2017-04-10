@@ -124,10 +124,7 @@ public class SettingFragment extends DialogFragment {
             }
         });
 
-
-
         recyclerView = (RecyclerView) dialog.findViewById(R.id.rvSettings);
-
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(ctx, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {

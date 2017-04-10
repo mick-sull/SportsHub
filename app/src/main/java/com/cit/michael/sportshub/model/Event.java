@@ -78,6 +78,13 @@ public class Event implements Parcelable {
     @Nullable
     private String location_name;
 
+
+    @SerializedName("distance_to")
+    @Expose
+    @Nullable
+    private String distance_to;
+
+
     /**
      * No args constructor for use in serialization
      */
@@ -264,6 +271,15 @@ public class Event implements Parcelable {
 
     public void setLocation_name(@Nullable String location_name) {
         this.location_name = location_name;
+    }
+
+    @Nullable
+    public String getDistance_to() {
+        return distance_to;
+    }
+
+    public void setDistance_to(@Nullable String distance_to) {
+        this.distance_to = distance_to;
     }
 
     @Override
