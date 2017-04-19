@@ -52,4 +52,8 @@ public class Constants {
 
     //Shared Pref
     public final static String APP_INFO = "appInfo";
+    public final static String SP_SETTINGS = "settings";
+    public final static String SP_NOTIFICATIONS = "notifications";
+    public final static String SP_DISTANCE = "distance";
+
 }

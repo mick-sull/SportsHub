@@ -59,6 +59,7 @@ public class AppLocationManager implements
 
     public void startLocation(){
         // this.locationReceiver = locationReceiver;
+        Log.d("GPS ", "startLocation called");
         locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationRequest.setInterval(INTERVAL);

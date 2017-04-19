@@ -11,7 +11,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
@@ -173,7 +172,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
         finishDownloading = 2;
         getData();
         getGroups();
-
+        ACTION = "";
         if( getIntent().getExtras() != null)
         {
             event = getIntent().getParcelableExtra("event");
@@ -504,7 +503,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
         getMenuInflater().inflate(R.menu.menu_save, menu);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        setTitle("New Event");
+        setTitle("Event");
         return true;
     }
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -514,14 +513,10 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
         int id = item.getItemId();
 
         if (id == R.id.home) {
-            NavUtils.navigateUpFromSameTask(this);
+            //NavUtils.navigateUpFromSameTask(this);
+            finish();
         }
 
-        if (id == R.id.save) {
-            //Toast.makeText(this, "Event Created", Toast.LENGTH_SHORT).show();
-            validator.validate();
-
-        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -656,6 +651,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
                 @Override
                 public void onResponse(Call<RestEvent> call, Response<RestEvent> response) {
                     Toast.makeText(Activity_Organize_Event.this, "" + response.body().getMessage() , Toast.LENGTH_SHORT).show();
+                    finish();
                 }
 
                 @Override
@@ -694,7 +690,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
             @Override
             public void onResponse(Call<RestEvent> call, Response<RestEvent> response) {
                 Toast.makeText(Activity_Organize_Event.this, "" + response.body().getMessage() , Toast.LENGTH_SHORT).show();
-                //finish();
+                finish();
             }
 
             @Override

@@ -2,9 +2,12 @@ package com.cit.michael.sportshub.ui;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,10 +16,13 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cit.michael.sportshub.R;
+import com.cit.michael.sportshub.activities.Activity_Login;
 import com.cit.michael.sportshub.activities.Fragment_Profile;
 import com.cit.michael.sportshub.adapter.RecyclerItemClickListener;
 import com.cit.michael.sportshub.adapter.Setting_Adapter;
@@ -29,6 +35,9 @@ import com.cit.michael.sportshub.rest.model.RestSubscription;
 import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarChangeListener;
 import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarFinalValueListener;
 import com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar;
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
@@ -40,6 +49,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.cit.michael.sportshub.Constants.SP_DISTANCE;
+import static com.cit.michael.sportshub.Constants.SP_NOTIFICATIONS;
+import static com.cit.michael.sportshub.Constants.SP_SETTINGS;
 import static com.cit.michael.sportshub.Constants.SUBSCRIPTION_NOT_SELECTED;
 import static com.cit.michael.sportshub.Constants.SUBSCRIPTION_SELECTED;
 
@@ -59,6 +71,8 @@ public class SettingFragment extends DialogFragment {
     List<Sport> subscribedSports;
     MyDialogListener mListener;
     TextView lblSettingDistanceSelected;
+    CheckBox cbNotification;
+    SharedPreferences prefs;
 
     public SettingFragment(Context ctx, List<Sport> listOfAllSport, List<Subscription> listOfSubs, Fragment_Profile listener  ){
         this.ctx = ctx;
@@ -106,7 +120,22 @@ public class SettingFragment extends DialogFragment {
         final CrystalSeekbar seekbar = (CrystalSeekbar ) dialog.findViewById(R.id.rsDistance);
         //final CrystalRangeSeekbar rangeSeekbar = (SeekBar) dialog.findViewById(R.id.rsDistance);
         lblSettingDistanceSelected = (TextView) dialog.findViewById(R.id.lblSettingDistanceSelected);
+        cbNotification = (CheckBox) dialog.findViewById(R.id.cbReceiveNotifiactions);
+        prefs = getActivity().getSharedPreferences(SP_SETTINGS, Context.MODE_PRIVATE);
+        cbNotification.setChecked(prefs.getBoolean(SP_NOTIFICATIONS, false));
+        cbNotification.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putBoolean(SP_NOTIFICATIONS, isChecked);
+                editor.commit();
+            }
+        });
 
+
+        //seekbar.setPosition(prefs.getInt("distance", 50));
+        seekbar.setMinStartValue(prefs.getInt(SP_DISTANCE, 50)).apply();
+        lblSettingDistanceSelected.setText(prefs.getInt("distance", 50) + "km.");
 
         // set listener
         seekbar.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
@@ -121,6 +150,9 @@ public class SettingFragment extends DialogFragment {
             @Override
             public void finalValue(Number value) {
                 Log.d("CRS=>", String.valueOf(value));
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putInt(SP_DISTANCE, value.intValue());
+                editor.commit();
             }
         });
 
@@ -237,7 +269,7 @@ public class SettingFragment extends DialogFragment {
         service.updateSubscription(newList).enqueue(new Callback<RestSubscription>() {
             @Override
             public void onResponse(Call<RestSubscription> call, Response<RestSubscription> response) {
-                Toast.makeText(ctx, response.body().getMessage() + "", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ctx,  "Settings updated....", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -257,11 +289,36 @@ public class SettingFragment extends DialogFragment {
 
     }
 
+    @OnClick(R.id.txtLogout)
+    public void txtLogout(){
+        Log.d("UserListFragment", "@OnClick(R.id.txtListUserCancel)");
+        dialog.dismiss();
+        dialog.cancel();
+        logout();
+
+    }
+
+
+
     public interface MyDialogListener {
         void OnCloseDialog();
     }
 
+    private void logout() {
+        AuthUI.getInstance().signOut(getActivity())
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        //user logged out
+                        Log.d("AUTH", "User Logged Out");
+                        Intent intent = new Intent(ctx, Activity_Login.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        ctx.startActivity(intent);
 
+
+                    }
+                });
+    }
 /*
     public void onDismiss(DialogInterface dialogInterface)
     {

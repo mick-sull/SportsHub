@@ -4,6 +4,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
@@ -34,12 +35,15 @@ import static com.cit.michael.sportshub.Constants.NOTIFCATION_GROUP_ID;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_GROUP_REQUEST;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_TYPE;
 import static com.cit.michael.sportshub.Constants.NOTIFCATION_USER_ID;
+import static com.cit.michael.sportshub.Constants.SP_NOTIFICATIONS;
+import static com.cit.michael.sportshub.Constants.SP_SETTINGS;
 import static com.cit.michael.sportshub.activities.Activity_Main.chat_active;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
     NetworkService service;
+    SharedPreferences prefs;
     //SharedPreferences sp = getSharedPreferences(APP_INFO, MODE_PRIVATE);
    /* SharedPreferences sharedPreferences =this.getSharedPreferences(APP_INFO, Context.MODE_PRIVATE);
     Boolean isChatActivityOpen = sharedPreferences.getBoolean(CHAT_ACTIVITY_OPEN, false);*/
@@ -60,41 +64,39 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // and data payloads are treated as notification messages. The Firebase console always sends notification
         // messages. For more see: https://firebase.google.com/docs/cloud-messaging/concept-options
         // [END_EXCLUDE]
-
-        service = RestClient.getSportsHubApiClient();
-        Log.d("CHATISSUE", "NOTIFCATION_ACTIVITY1"  + remoteMessage.getData().get(NOTIFCATION_ACTIVITY + "is equal to " + NOTIFCATION_CHAT));
-       // if(remoteMessage.getData().get(NOTIFCATION_ACTIVITY).equals(NOTIFCATION_CHAT) && !chat_active){
-        if(remoteMessage.getData().get(NOTIFCATION_TYPE).equals(NOTIFCATION_CHAT) && !chat_active){
-            sendChatNotification(remoteMessage);
-        }
-        else if(remoteMessage.getData().get(NOTIFCATION_TYPE).equals(NOTIFCATION_FRIEND_REQUEST)){
-            sendFriendRequestNotifcations(remoteMessage);
-        }
-        else if(remoteMessage.getData().get(NOTIFCATION_TYPE).equals(NOTIFCATION_EVENT_REQUEST)){
-            Log.d("CHATISSUE", "Event ID: " + remoteMessage.getData().get(NOTIFCATION_EVENT_ID));
-            sendEventNotifcation(remoteMessage);
-        }
-        else if(remoteMessage.getData().get(NOTIFCATION_TYPE).equals(NOTIFCATION_GROUP_REQUEST)){
-            Log.d("CHATISSUE", "Event ID: " + remoteMessage.getData().get(NOTIFCATION_EVENT_ID));
-            sendGroupInvite(remoteMessage);
-        }
-        else{
-            Log.d(TAG, "Activity: " + remoteMessage.getData().get(NOTIFCATION_ACTIVITY) + " is not equal to " + NOTIFCATION_CHAT);
-        }
+        prefs = getSharedPreferences(SP_SETTINGS, Context.MODE_PRIVATE);
+        if(prefs.getBoolean(SP_NOTIFICATIONS, true)) {
+            service = RestClient.getSportsHubApiClient();
+            Log.d("CHATISSUE", "NOTIFCATION_ACTIVITY1" + remoteMessage.getData().get(NOTIFCATION_ACTIVITY + "is equal to " + NOTIFCATION_CHAT));
+            // if(remoteMessage.getData().get(NOTIFCATION_ACTIVITY).equals(NOTIFCATION_CHAT) && !chat_active){
+            if (remoteMessage.getData().get(NOTIFCATION_TYPE).equals(NOTIFCATION_CHAT) && !chat_active) {
+                sendChatNotification(remoteMessage);
+            } else if (remoteMessage.getData().get(NOTIFCATION_TYPE).equals(NOTIFCATION_FRIEND_REQUEST)) {
+                sendFriendRequestNotifcations(remoteMessage);
+            } else if (remoteMessage.getData().get(NOTIFCATION_TYPE).equals(NOTIFCATION_EVENT_REQUEST)) {
+                Log.d("CHATISSUE", "Event ID: " + remoteMessage.getData().get(NOTIFCATION_EVENT_ID));
+                sendEventNotifcation(remoteMessage);
+            } else if (remoteMessage.getData().get(NOTIFCATION_TYPE).equals(NOTIFCATION_GROUP_REQUEST)) {
+                Log.d("CHATISSUE", "Event ID: " + remoteMessage.getData().get(NOTIFCATION_EVENT_ID));
+                sendGroupInvite(remoteMessage);
+            } else {
+                Log.d(TAG, "Activity: " + remoteMessage.getData().get(NOTIFCATION_ACTIVITY) + " is not equal to " + NOTIFCATION_CHAT);
+            }
 
 
-        // TODO(developer): Handle FCM messages here.
-        // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
-        Log.d(TAG, "From: " + remoteMessage.getFrom());
+            // TODO(developer): Handle FCM messages here.
+            // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
+            Log.d(TAG, "From: " + remoteMessage.getFrom());
 
-        // Check if message contains a data payload.
-        if (remoteMessage.getData().size() > 0) {
-            Log.d(TAG, "Message data payload: " + remoteMessage.getData());
-        }
+            // Check if message contains a data payload.
+            if (remoteMessage.getData().size() > 0) {
+                Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+            }
 
-        // Check if message contains a notification payload.
-        if (remoteMessage.getNotification() != null) {
-            Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
+            // Check if message contains a notification payload.
+            if (remoteMessage.getNotification() != null) {
+                Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
+            }
         }
 
         // Also if you intend on generating your own notifications as a result of a received FCM
