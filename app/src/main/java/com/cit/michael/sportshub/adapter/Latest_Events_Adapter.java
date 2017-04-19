@@ -60,7 +60,13 @@ public class Latest_Events_Adapter extends   RecyclerView.Adapter<Latest_Events_
         }
         holder.eventSpaces.setText("Space remaining: " + eventsList.get(position).getSpaceLeft());
         holder.eventCost.setText(eventsList.get(position).getFormattedCost());
-        holder.eventLocation.setText(eventsList.get(position).getLocation_name());
+        if(eventsList.get(position).getDistance_to() !=null){
+            holder.eventLocation.setText(eventsList.get(position).getLocation_name() + " (" + String.format("%.2f", eventsList.get(position).getDistance_to()) + "KM)");
+        }
+        else {
+            holder.eventLocation.setText(eventsList.get(position).getLocation_name());
+        }
+
         try {
             holder.latest_time_remaining.setText(eventsList.get(position).converteTimestamp());
         } catch (ParseException e) {

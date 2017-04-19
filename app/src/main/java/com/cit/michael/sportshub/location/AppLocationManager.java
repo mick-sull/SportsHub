@@ -41,6 +41,7 @@ public class AppLocationManager implements
     private static final float MINIMUM_ACCURACY = 50.0f;
 
 
+
     public LocationRequest locationRequest;
     public GoogleApiClient googleApiClient;
     public FusedLocationProviderApi fusedLocationProviderApi = LocationServices.FusedLocationApi;
@@ -186,7 +187,6 @@ public class AppLocationManager implements
         // Showing Alert Message
         alertDialog.show();
     }
-
 
 
 

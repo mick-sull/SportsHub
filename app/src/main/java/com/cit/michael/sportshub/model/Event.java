@@ -82,7 +82,7 @@ public class Event implements Parcelable {
     @SerializedName("distance_to")
     @Expose
     @Nullable
-    private String distance_to;
+    private Float distance_to;
 
 
     /**
@@ -274,11 +274,11 @@ public class Event implements Parcelable {
     }
 
     @Nullable
-    public String getDistance_to() {
+    public Float getDistance_to() {
         return distance_to;
     }
 
-    public void setDistance_to(@Nullable String distance_to) {
+    public void setDistance_to(@Nullable Float distance_to) {
         this.distance_to = distance_to;
     }
 

@@ -68,6 +68,8 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 import static com.cit.michael.sportshub.Constants.ACTION_FRAG_MAIN;
+import static com.cit.michael.sportshub.Constants.SP_DISTANCE;
+import static com.cit.michael.sportshub.Constants.SP_SETTINGS;
 
 /*import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -107,7 +109,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
     User user;
     public static boolean chat_active = false;
     private GoogleMap mMap;
-
+    SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -227,7 +229,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         List<String> options;
         LocationRequest mLocationRequest;
         GoogleApiClient mGoogleApiClient;
-        Location mCurrentLocationMain;
+        Location mCurrentLocation;
         private static final long INTERVAL = 1000 * 10;
         private static final long FATEST_INTERVAL = 1000 * 5;
         private static final String TAG = "MainActivityFrag";
@@ -300,16 +302,14 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
                 //appLocationManager.showSettingsAlert();
 
             }
-            mCurrentLocationMain = appLocationManager.getLocation();
+            mCurrentLocation = appLocationManager.getLocation();
 
-            if(AppLocationManager.mCurrentLocation != null) {
-                Log.d("GPS lat2", " " + AppLocationManager.mCurrentLocation.getLatitude());
-                Log.d("GPS long2", " " + AppLocationManager.mCurrentLocation.getLongitude());
-            }
 
-            if(mCurrentLocationMain != null) {
-                Log.d("GPS mCurrentMain lat2", " " + mCurrentLocationMain.getLatitude());
-                Log.d("GPS mCurrenMain long2", " " + mCurrentLocationMain.getLongitude());
+
+
+            if(mCurrentLocation != null) {
+                Log.d("GPS mCurrentMain lat2", " " + mCurrentLocation.getLatitude());
+                Log.d("GPS mCurrenMain long2", " " + mCurrentLocation.getLongitude());
             }
 
 
@@ -465,7 +465,9 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         private void displayLatestEvents() {
             Location locationA = new Location("current location");
             Location locationB = new Location("event location");
-           /* if (mCurrentLocation != null) {
+            int maxDistance = prefs.getInt(SP_DISTANCE, 50);
+            prefs = getActivity().getSharedPreferences(SP_SETTINGS, Context.MODE_PRIVATE);
+            if (mCurrentLocation != null) {
                 Log.e(TAG, "onConnected - NOT NULL ...............: ");
                 locationA.setLatitude(mCurrentLocation.getLatitude());
                 locationA.setLongitude(mCurrentLocation.getLongitude());
@@ -475,15 +477,19 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
                             if (latestEvents.get(j).getLocationId().equals(listOfLocations.get(i).getLocationId())) {
                                 locationB.setLatitude(listOfLocations.get(i).getLatitude());
                                 locationB.setLongitude(listOfLocations.get(i).getLongitude());
-                                latestEvents.get(j).setDistance_to(Float.toString(locationA.distanceTo(locationB) / 1000));
-                                Log.e(TAG, "onConnected - FOUND ...............: " + locationA.distanceTo(locationB) / 1000 + "KM");
+                                latestEvents.get(j).setDistance_to(locationA.distanceTo(locationB) / 1000);
+                                Log.e("GPS", "onConnected - FOUND ...............: " + locationA.distanceTo(locationB) / 1000 + "KM");
+                                if(latestEvents.get(j).getDistance_to() >= maxDistance) {
+                                    latestEvents.remove(j);
+
+                                }
                             }
                         }
                     }
                 }
             } else {
                 Log.e(TAG, "onConnected - NULL ...............: ");
-            }*/
+            }
 
             mAdapter = new Latest_Events_Adapter(latestEvents);
             RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
