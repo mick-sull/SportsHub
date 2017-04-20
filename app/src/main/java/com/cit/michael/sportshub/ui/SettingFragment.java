@@ -1,7 +1,9 @@
 package com.cit.michael.sportshub.ui;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -292,9 +294,9 @@ public class SettingFragment extends DialogFragment {
     @OnClick(R.id.txtLogout)
     public void txtLogout(){
         Log.d("UserListFragment", "@OnClick(R.id.txtListUserCancel)");
-        dialog.dismiss();
-        dialog.cancel();
-        logout();
+        //dialog.dismiss();
+        //dialog.cancel();
+        logoutConfirmation();
 
     }
 
@@ -304,7 +306,31 @@ public class SettingFragment extends DialogFragment {
         void OnCloseDialog();
     }
 
-    private void logout() {
+    private void logoutConfirmation() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Logout");
+        builder.setMessage("Are you sure you want to logout?");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                //TODO
+                logout();
+
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                //TODO
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+
+    }
+
+    public void logout(){
         AuthUI.getInstance().signOut(getActivity())
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -318,6 +344,7 @@ public class SettingFragment extends DialogFragment {
 
                     }
                 });
+        dialog.dismiss();
     }
 /*
     public void onDismiss(DialogInterface dialogInterface)

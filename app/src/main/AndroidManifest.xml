@@ -59,10 +59,22 @@
         <activity
             android:name=".activities.Activity_Main"
             android:label="@string/title_activity_main"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            />
         <activity android:name=".activities.Activity_Organize_Event" />
-        <activity android:name=".activities.Activity_Search_Events" />
-        <activity android:name=".activities.Activity_Search_Results" />
+        <activity android:name=".activities.Activity_Search_Events"
+            android:launchMode="singleTop"
+            android:parentActivityName=".activities.Activity_Main" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.Activity_Main" />
+        </activity>
+        <activity android:name=".activities.Activity_Search_Results"
+            android:parentActivityName=".activities.Activity_Search_Events" >
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".activities.Activity_Search_Events" />
+        </activity>
 
         <!--
  ATTENTION: This was auto-generated to add Google Play services to your project for

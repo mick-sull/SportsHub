@@ -121,11 +121,14 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         mFirebaseInstanceId = FirebaseInstanceId.getInstance();
 
 
-        String newUser = getIntent().getStringExtra("user");
-
-        if (newUser.equals("new")) {
-            addUserToDatabase();
+        if( getIntent().getExtras() != null)
+        {
+            String newUser = getIntent().getStringExtra("user");
+            if (newUser.equals("new")) {
+                addUserToDatabase();
+            }
         }
+
 
         auth.getCurrentUser().getUid();
 
