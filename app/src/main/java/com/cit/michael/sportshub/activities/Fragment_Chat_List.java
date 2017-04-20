@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -70,6 +71,7 @@ public class Fragment_Chat_List extends Fragment {
     private List<Chat> listOfChats;
     private List<Conversation> listOfConversationIDs;
     LinearLayoutManager layoutManager;
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
     private OnFragmentInteractionListener mListener;
 
@@ -108,7 +110,7 @@ public class Fragment_Chat_List extends Fragment {
         listOfChats = new ArrayList<Chat>();
         listOfConversationIDs = new ArrayList<Conversation>();
         recyclerView = (RecyclerView) rootView.findViewById(R.id.chats_list_recycler_view);
-
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshChat);
 
         chatListAdapter = new Chat_Adapter(getContext(),new ArrayList<Chat>());
         layoutManager = new LinearLayoutManager(getActivity());
@@ -116,6 +118,15 @@ public class Fragment_Chat_List extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(chatListAdapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Refresh items
+                getData();
+            }
+        });
+
 
         recyclerView.addOnItemTouchListener( new RecyclerItemClickListener(getContext(), new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
@@ -247,6 +258,7 @@ public class Fragment_Chat_List extends Fragment {
 
             }
         });
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     private void sortChatListByDate() {

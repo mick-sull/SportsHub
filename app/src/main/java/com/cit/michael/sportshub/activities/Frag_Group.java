@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -80,6 +81,7 @@ public class Frag_Group extends Fragment {
     TextView info;
     Button createGroup;
     private DatabaseReference mFirebaseDatabaseReference;
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
     public Frag_Group() {
         // Required empty public constructor
@@ -122,6 +124,7 @@ public class Frag_Group extends Fragment {
         listOfGroups = new ArrayList<Group>();
         listOfChats = new ArrayList<Group_Chat>();
         sortedChatList = new ArrayList<Group_Chat>();
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshGroup);
         recyclerView = (RecyclerView) rootView.findViewById(R.id.group_chats_list_recycler_view);
         chatListAdapter = new Group_Chat_Adapter(getContext(), new ArrayList<Group_Chat>());
 
@@ -149,6 +152,13 @@ public class Frag_Group extends Fragment {
                     }
                 })
         );
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Refresh items
+                getGroups();
+            }
+        });
 
         ButterKnife.bind(this, rootView);
 
@@ -232,55 +242,8 @@ public class Frag_Group extends Fragment {
 
             }
         });
-
+        mSwipeRefreshLayout.setRefreshing(false);
     }
-
-/*
-    private void displayGroups() {
-        final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-        if (!listOfGroups.isEmpty()) {
-            Log.d("FRAGCHAT ", "displayGroups listOfGroups.size()" + listOfGroups.size());
-            //listOfChats.clear();
-            for (int i = 0; i < listOfGroups.size(); i++) {
-                Query getLastMessages = databaseReference.child(ARG_CHAT_ROOMS).child(listOfGroups.get(i).getGroupId().toString())
-                        .limitToLast(1);
-                getLastMessages.addChildEventListener(new ChildEventListener() {
-                    @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                        if (dataSnapshot != null && dataSnapshot.getValue() != null) {
-                            try {
-                                Group_Chat model = dataSnapshot.getValue(Group_Chat.class);
-                                Log.d("FRAGCHAT ", "displayGroups getMessage" + model.getMessage());
-                                onGetMessagesSuccess(model);
-                                listOfChats.add(model);
-                            } catch (Exception ex) {
-                                Log.e(getTag(), ex.getMessage());
-                            }
-                        }
-                    }
-                    @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                        Group_Chat model = dataSnapshot.getValue(Group_Chat.class);
-                        // Log.d("FRAGCHAT ", "onChildChanged ID:" + cID.getChatId() + "  message: " + model.getMessage());
-                        Log.d("FRAGCHAT ", "onChildChanged sender name: " + model.getSender() + "  recevier name: " + model.getReceiver());
-                    }
-                    @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) {
-                    }
-                    @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
-            }
-        }
-    }
-*/
-
-
-
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {

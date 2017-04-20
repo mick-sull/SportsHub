@@ -31,6 +31,10 @@
                 />
             </LinearLayout>
             <!--android:textColor="@color/colorSub"-->
+            <android.support.v4.widget.SwipeRefreshLayout
+                android:id="@+id/swipeRefreshFriendsList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/friends_list_recycler_view"
@@ -38,8 +42,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 />
-
+            </android.support.v4.widget.SwipeRefreshLayout>
         </LinearLayout>
+
         </ScrollView>
 
 </FrameLayout>

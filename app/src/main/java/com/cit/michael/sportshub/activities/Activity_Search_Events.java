@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -61,6 +62,7 @@ public class Activity_Search_Events extends AppCompatActivity {
     NetworkService service;
     private static TextView searchDate;
     public static String dbDate;
+    ProgressDialog dialog;
 
 
     @Override
@@ -174,30 +176,37 @@ public class Activity_Search_Events extends AppCompatActivity {
     }
 
     private void searchEvent() {
+        dialog = new ProgressDialog(this); // this = YourActivity
+        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog.setMessage("Searching...");
+        dialog.setIndeterminate(true);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
         Search nSearch = new Search(selectedLocationId,dbDate,txtEventSearchStart.getText().toString(),txtEventSearchFinish.getText().toString(), selectedSportId);
 
         service.searchEvent(nSearch).enqueue(new Callback<RestEvent>(){
             @Override
             public void onResponse(Call<RestEvent> call, Response<RestEvent> response) {
                 List<Event> result = response.body().getEvent();
-                for(int i = 0; i < result.size(); i++){
-                    Log.d("EVENT: ", "ID: " + result.get(i).getEventId());
-                }
                 if(!result.isEmpty()){
+                    dialog.dismiss();
                     Log.d("EVENT", "SEARCH RESULTS SIZE: " + result.size());
                     Intent intent = new Intent(getApplicationContext(),Activity_Search_Results.class);
                     intent.putParcelableArrayListExtra("searchResults", (ArrayList<? extends Parcelable>) result);
                     startActivity(intent);
+
                 }
                 else{
+                    dialog.dismiss();
                     Toast.makeText(Activity_Search_Events.this, "No events found!", Toast.LENGTH_SHORT).show();
+
                 }
 
             }
 
             @Override
             public void onFailure(Call<RestEvent> call, Throwable t) {
-
+                dialog.dismiss();
             }
         });
     }

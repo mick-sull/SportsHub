@@ -9,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -108,6 +109,7 @@ public class Fragment_Profile extends Fragment implements SettingFragment.MyDial
     SharedPreferences prefs;
     Boolean scChecked;
     List<String> options;
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
     private OnFragmentInteractionListener mListener;
 
@@ -153,6 +155,7 @@ public class Fragment_Profile extends Fragment implements SettingFragment.MyDial
         fbSettings = (FloatingActionButton) view.findViewById(R.id.floatSettings);
         lSwitchCompat = (LinearLayout) view.findViewById(R.id.lSwitchCompat);
         lSwitchCompat.setVisibility(View.VISIBLE);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefreshProfile);
         switchCompat = (SwitchCompat) view.findViewById(R.id.scSortProfileEvents);
         fbSettings.setVisibility(View.VISIBLE);
         listLocatonParticipated = new ArrayList<Location>();
@@ -181,6 +184,17 @@ public class Fragment_Profile extends Fragment implements SettingFragment.MyDial
                 }
             }
         });
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Refresh items
+                loadEventData();
+                loadSubData();
+            }
+        });
+
+
         recyclerView = (RecyclerView) view.findViewById(R.id.profile_recycler_view);
         recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setNestedScrollingEnabled(false);
@@ -409,7 +423,7 @@ public class Fragment_Profile extends Fragment implements SettingFragment.MyDial
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
-
+        mSwipeRefreshLayout.setRefreshing(false);
 
     }
 

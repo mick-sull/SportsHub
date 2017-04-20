@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -71,6 +72,7 @@ public class Fragment_Friends_List extends Fragment {
     private User_Friends_Adapter mAdapter;
     public Button btnFriendStatus;
     ProfileViewFragment editNameDialogFragment;
+    SwipeRefreshLayout mSwipeRefreshLayout;
     //@BindView(R.id.btnUnfriend) Button btnFriendStatus;
 
     // TODO: Rename and change types of parameters
@@ -100,34 +102,21 @@ public class Fragment_Friends_List extends Fragment {
         listFriends = new ArrayList<User>();
         listFriends = null;
         recyclerView = (RecyclerView) rootView.findViewById(R.id.friends_list_recycler_view);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshFriendsList);
         ButterKnife.bind(this, rootView);
 
         auth = FirebaseAuth.getInstance();
         service = RestClient.getSportsHubApiClient();
 
-        service.getUserFriends(auth.getCurrentUser().getUid())
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<RestUsers>() {
+        getFriendslist();
 
-
-                    @Override
-                    public void onCompleted() {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onNext(RestUsers restUsers) {
-                        listFriends = restUsers.getUser();
-//                    Log.d("ABC", "getAction_user " + listFriends.get(0).getAction_user());
-                        displayFriends();
-                    }
-                });
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Refresh items
+                getFriendslist();
+            }
+        });
 
 
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getContext(), new RecyclerItemClickListener.OnItemClickListener() {
@@ -158,7 +147,31 @@ public class Fragment_Friends_List extends Fragment {
         return rootView;
     }
 
+    private void getFriendslist() {
+        service.getUserFriends(auth.getCurrentUser().getUid())
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<RestUsers>() {
 
+
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(RestUsers restUsers) {
+                        listFriends = restUsers.getUser();
+//                    Log.d("ABC", "getAction_user " + listFriends.get(0).getAction_user());
+                        displayFriends();
+                    }
+                });
+    }
 
 
     private void displayDialog(User user, final int position, String title, String message, final int ACTION, final String toastMessage) {
@@ -239,6 +252,7 @@ public class Fragment_Friends_List extends Fragment {
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     // TODO: Rename method, update argument and hook method into UI event

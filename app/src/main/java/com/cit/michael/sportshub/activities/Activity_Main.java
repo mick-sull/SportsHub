@@ -15,6 +15,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -79,11 +80,6 @@ import com.google.android.gms.location.LocationServices;*/
 public class Activity_Main extends AppCompatActivity implements Fragment_Profile.OnFragmentInteractionListener, Frag_Group.OnFragmentInteractionListener, Fragment_Friends_List.OnFragmentInteractionListener,
         Fragment_Chat_List.OnFragmentInteractionListener {
 
-    /*    @BindView(com.cit.michael.sportshub.R.id.btnOrganizeEvent) Button btnOrganizeEvent;
-        @BindView(R.id.btnNearby) Button btnNearby;
-        @BindView(R.id.btnMyEvents) Button btnMyEvents;
-        @BindView(R.id.btnRecentEvents) Button btnRecentEvents;
-        @BindView(R.id.btnChat) Button btnChat;*/
     @BindView(R.id.floatAddEvent)
     FloatingActionButton floatAddEvent;
     @BindView(R.id.floatSearchEvent)
@@ -110,6 +106,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
     public static boolean chat_active = false;
     private GoogleMap mMap;
     SharedPreferences prefs;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -235,6 +232,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
         private static final String TAG = "MainActivityFrag";
         AppLocationManager locationManager;
         AppLocationManager appLocationManager;
+        SwipeRefreshLayout mSwipeRefreshLayout;
 
         private static final String ARG_SECTION_NUMBER = "section_number";
 
@@ -329,7 +327,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
             getLatestEvents();
 
             Log.d("AUTH123", "  loadSubData();");
-
+            mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshMain);
             recyclerView = (RecyclerView) rootView.findViewById(R.id.rvLatestEvents);
             recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getContext(), new RecyclerItemClickListener.OnItemClickListener() {
                         @Override
@@ -349,7 +347,13 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
 
                     })
             );
-
+            mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    // Refresh items
+                    getLatestEvents();
+                }
+            });
 
             return rootView;
         }
@@ -490,7 +494,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
             } else {
                 Log.e(TAG, "onConnected - NULL ...............: ");
             }
-
+            mSwipeRefreshLayout.setRefreshing(false);
             mAdapter = new Latest_Events_Adapter(latestEvents);
             RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
             recyclerView.setLayoutManager(mLayoutManager);
