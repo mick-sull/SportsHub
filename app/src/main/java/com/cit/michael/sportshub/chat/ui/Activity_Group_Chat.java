@@ -1,9 +1,11 @@
 package com.cit.michael.sportshub.chat.ui;
 
+import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -60,7 +62,7 @@ import static com.cit.michael.sportshub.activities.Activity_Main.chat_active;
 import static com.cit.michael.sportshub.chat.ui.Activity_Chat.ARG_CHAT_ROOMS;
 //UserListDialogListener
 public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener, UserListFragment.UserListDialogListener {
-//public class Activity_Group_Chat extends FragmentActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
+    //public class Activity_Group_Chat extends FragmentActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
     private FirebaseAuth auth;
     private FirebaseUser mFirebaseUser;
     private DatabaseReference mFirebaseDatabaseReference;
@@ -71,7 +73,7 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
     private RecyclerView rvListMessage;
     private LinearLayoutManager mLinearLayoutManager;
     private FirebaseInstanceId mFirebaseInstanceId;
-    private ImageView btSendMessage,btEmoji;
+    private ImageView btSendMessage, btEmoji;
     private EmojiconEditText edMessage;
     private View contentRoot;
     private EmojIconActions emojIcon;
@@ -84,6 +86,7 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
     public List<User> groupMembers;
     ArrayList<User> selectedUsersInvFriends;
     ArrayList<String> userTokens;
+    private static final int PICK_PHOTO_FOR_AVATAR = 321;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,12 +94,12 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
         setContentView(R.layout.activity__group__chat);
 
         bindViews();
-        Log.d("CHATISSUE", "CHAT ACT CREATED" );
+        Log.d("CHATISSUE", "CHAT ACT CREATED");
         auth = FirebaseAuth.getInstance();
         mFirebaseInstanceId = FirebaseInstanceId.getInstance();
         mFirebaseUser = auth.getCurrentUser();
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
-        service = service = RestClient.getSportsHubApiClient();
+        service = RestClient.getSportsHubApiClient();
 
         Intent intent = getIntent();
         //receivingUser = intent.getParcelableExtra("receivingUser");
@@ -106,7 +109,7 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
         chatName = intent.getStringExtra("group_name");
         groupID = intent.getStringExtra("group_id");
 
-        Log.d("FRAG_GROUP ", " Activity_Group_Chat CHAT NAME:  " +  chatName);
+        Log.d("FRAG_GROUP ", " Activity_Group_Chat CHAT NAME:  " + chatName);
 
         friendsNotInGroup = new ArrayList<User>();
         groupMembers = new ArrayList<User>();
@@ -119,11 +122,10 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
 //        mListener = (UserLeftGroupListner) this;
 
 
-
         loadData();
 
         Log.d("FRAG_GROUP ", "Activity_Group_Chat: getGroupID: " + groupID);
-        Log.d("FRAG_GROUP ", "Activity_Group_Chat: getChatName: " +chatName);
+        Log.d("FRAG_GROUP ", "Activity_Group_Chat: getChatName: " + chatName);
 
 /*        if (firebaseAdapter == null) {
             firebaseAdapter = new ChatFirebaseAdapter((ArrayList<Chat>) chatList);
@@ -133,6 +135,7 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
 
         getMessageFromFirebaseUser(chatName);
     }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -149,12 +152,14 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
         // Store our shared preference
         chat_active = false;
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         // Store our shared preference
         chat_active = false;
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -162,11 +167,13 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
         // Store our shared preference
         chat_active = true;
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_group_chat, menu);
         return true;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
@@ -182,12 +189,65 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
             case R.id.leaveGroup:
                 leaveGroup();
                 return true;
+            case R.id.changeImage:
+                changeImage();
+                return true;
             case android.R.id.home:
                 // app icon in action bar clicked; goto parent activity.
                 finishChat();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void changeImage() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        startActivityForResult(intent, PICK_PHOTO_FOR_AVATAR);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_PHOTO_FOR_AVATAR && resultCode == Activity.RESULT_OK) {
+            if (data == null) {
+                //Display an error
+                return;
+            }
+            /*try {
+                InputStream inputStream = getApplicationContext().getContentResolver().openInputStream(data.getData());
+
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }*/
+            //Now you can do whatever you want with your inpustream, save it as file, upload to a server, decode a bitmap...
+/*            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] dataBAOS = baos.toByteArray();
+            *//***************** UPLOADS THE PIC TO FIREBASE*****************//*
+            // Points to the root reference
+            StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl("group_avatars");
+            StorageReference imagesRef = storageRef.child("image");
+
+            UploadTask uploadTask = imagesRef.putBytes(dataBAOS);
+            uploadTask.addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Handle unsuccessful uploads
+                }
+            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+                    //Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                    @SuppressWarnings("VisibleForTests") Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                    updateProfilePhoto(auth.getCurrentUser().getDisplayName() + " has changed the groups photo", downloadUrl);
+                }
+            });*/
         }
     }
 
@@ -208,10 +268,10 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
 
         // Setting Positive "Yes" Button
         alertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog,int which) {
+            public void onClick(DialogInterface dialog, int which) {
                 ArrayList<String> user = new ArrayList<String>();
                 user.add(auth.getCurrentUser().getUid());
-                Group removeUsers = new Group(Integer.parseInt(groupID),chatName, user, auth.getCurrentUser().getDisplayName());
+                Group removeUsers = new Group(Integer.parseInt(groupID), chatName, user, auth.getCurrentUser().getDisplayName());
                 service.removeUser(removeUsers).enqueue(new Callback<RestGroup>() {
                     @Override
                     public void onResponse(Call<RestGroup> call, Response<RestGroup> response) {
@@ -251,13 +311,13 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
 
     private void displayGroupMembers() {
         FragmentManager fm = getFragmentManager();
-        UserListFragment editNameDialogFragment = new UserListFragment(getApplicationContext(), (ArrayList<User>) groupMembers, ACTION_GROUP_REMOVE_MEMBER,  groupID, chatName);
+        UserListFragment editNameDialogFragment = new UserListFragment(getApplicationContext(), (ArrayList<User>) groupMembers, ACTION_GROUP_REMOVE_MEMBER, groupID, chatName);
         editNameDialogFragment.show(fm, "abc");
     }
 
-    private void loadData(){
+    private void loadData() {
 
-      service.getNonGroupMembers(groupID.toString(), auth.getCurrentUser().getUid())
+        service.getNonGroupMembers(groupID.toString(), auth.getCurrentUser().getUid())
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<RestUsers>() {
@@ -313,13 +373,13 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
 
 
     private void sendRequestToSelectedUsers() {
-        if(!selectedUsersInvFriends.isEmpty()){
+        if (!selectedUsersInvFriends.isEmpty()) {
             userTokens = new ArrayList<String>();
-            for(int i = 0; i< selectedUsersInvFriends.size(); i++){
+            for (int i = 0; i < selectedUsersInvFriends.size(); i++) {
                 userTokens.add(selectedUsersInvFriends.get(i).getUserToken().toString());
             }
         }
-        Group requestToGroup = new Group(Integer.parseInt(groupID),chatName,userTokens, auth.getCurrentUser().getDisplayName());
+        Group requestToGroup = new Group(Integer.parseInt(groupID), chatName, userTokens, auth.getCurrentUser().getDisplayName());
         service.sendUsersGroupInvite(requestToGroup).enqueue(new Callback<RestGroup>() {
             @Override
             public void onResponse(Call<RestGroup> call, Response<RestGroup> response) {
@@ -336,7 +396,7 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
-        Util.initToast(this,"Google Play Services error.");
+        Util.initToast(this, "Google Play Services error.");
     }
 
 
@@ -345,9 +405,9 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
         sendMessageFirebase();
     }
 
-    private void sendMessageFirebase(){
+    private void sendMessageFirebase() {
 
-        chat = new Group_Chat(mFirebaseUser.getDisplayName(),mFirebaseUser.getUid(), edMessage.getText().toString(), Calendar.getInstance().getTime().getTime()+"", mFirebaseUser.getPhotoUrl().toString(), chatName, groupID);
+        chat = new Group_Chat(mFirebaseUser.getDisplayName(), mFirebaseUser.getUid(), edMessage.getText().toString(), Calendar.getInstance().getTime().getTime() + "", mFirebaseUser.getPhotoUrl().toString(), chatName, groupID);
         //final String room_type_1 = Integer.toString(groupID);
         //final String room_type_2 = receivingUser.getUserId() + "_" + auth.getCurrentUser().getUid();
         //mFirebaseDatabaseReference.child(CHAT_REFERENCE).push().setValue(model);
@@ -359,7 +419,7 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
                     Log.d("ActChat", "sendMessageToFirebaseUser: " + groupID + " exists");
                     mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(groupID).child(String.valueOf(chat.getTimestamp())).setValue(chat);
                 } else {
-                    Log.d("ActChat",  "sendMessageToFirebaseUser else: success");
+                    Log.d("ActChat", "sendMessageToFirebaseUser else: success");
                     mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(groupID).child(String.valueOf(chat.getTimestamp())).setValue(chat);
                 }
 
@@ -375,11 +435,12 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
             }
         });
     }
+
     public void getMessageFromFirebaseUser(String chat_Name) {
 
 
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-        Log.d("FRAG_GROUP", "getMessageFromFirebaseUser called" );
+        Log.d("FRAG_GROUP", "getMessageFromFirebaseUser called");
 
   /*      dialog = new ProgressDialog(this);
         dialog.setMessage("Loading....");
@@ -442,8 +503,9 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
             }
         });
     }
+
     public void onGetMessagesSuccess(Chat chat) {
-        Log.d("ActChat",  "onGetMessagesSuccess " + chat.getMessage() + " added");
+        Log.d("ActChat", "onGetMessagesSuccess " + chat.getMessage() + " added");
         if (firebaseAdapter == null) {
             firebaseAdapter = new ChatFirebaseAdapter(new ArrayList<Chat>());
             rvListMessage.setLayoutManager(mLinearLayoutManager);
@@ -452,18 +514,20 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
         firebaseAdapter.add(chat);
         rvListMessage.smoothScrollToPosition(firebaseAdapter.getItemCount() - 1);
     }
+
     public void onGetMessagesFailure(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
-    private void bindViews(){
+
+    private void bindViews() {
         contentRoot = findViewById(R.id.contentRoot);
-        edMessage = (EmojiconEditText)findViewById(R.id.editTextMessage);
-        btSendMessage = (ImageView)findViewById(R.id.buttonMessage);
+        edMessage = (EmojiconEditText) findViewById(R.id.editTextMessage);
+        btSendMessage = (ImageView) findViewById(R.id.buttonMessage);
         btSendMessage.setOnClickListener(this);
-        btEmoji = (ImageView)findViewById(R.id.buttonEmoji);
-        emojIcon = new EmojIconActions(this,contentRoot,edMessage,btEmoji);
+        btEmoji = (ImageView) findViewById(R.id.buttonEmoji);
+        emojIcon = new EmojIconActions(this, contentRoot, edMessage, btEmoji);
         emojIcon.ShowEmojIcon();
-        rvListMessage = (RecyclerView)findViewById(R.id.messageRecyclerView);
+        rvListMessage = (RecyclerView) findViewById(R.id.messageRecyclerView);
         mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setStackFromEnd(true);
     }
@@ -471,23 +535,54 @@ public class Activity_Group_Chat extends AppCompatActivity implements GoogleApiC
     @Override
     public void dialogListener(ArrayList<User> dialogListener, String action) {
         Log.d("FRAG_GROUP ", "dialogListener: arraylist size: " + dialogListener.size() + " action: " + action);
-        if(action.equals(ACTION_GROUP_ADD_MEMBER)){
+        if (action.equals(ACTION_GROUP_ADD_MEMBER)) {
             friendsNotInGroup = dialogListener;
-        }
-        else if(action.equals(ACTION_GROUP_REMOVE_MEMBER)){
-            groupMembers= dialogListener;
+        } else if (action.equals(ACTION_GROUP_REMOVE_MEMBER)) {
+            groupMembers = dialogListener;
         }
     }
+
     @Override
     public void onBackPressed() {
         finishChat();
     }
 
-    public void finishChat(){
+    public void finishChat() {
         Intent data = new Intent();
-        Log.d("FRAGCHAT",  "onActivityResult CALLED:     public void finishChat()");
+        Log.d("FRAGCHAT", "onActivityResult CALLED:     public void finishChat()");
         data.putExtra("group_id", "null");
         setResult(RESULT_OK, data);
         finish();
+    }
+
+    private void updateProfilePhoto(String message, Uri photoUrl) {
+
+        chat = new Group_Chat(mFirebaseUser.getDisplayName(), mFirebaseUser.getUid(), message, Calendar.getInstance().getTime().getTime() + "", photoUrl.toString(), chatName, groupID);
+        //final String room_type_1 = Integer.toString(groupID);
+        //final String room_type_2 = receivingUser.getUserId() + "_" + auth.getCurrentUser().getUid();
+        //mFirebaseDatabaseReference.child(CHAT_REFERENCE).push().setValue(model);
+
+        mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).getRef().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChild(groupID)) {
+                    Log.d("ActChat", "sendMessageToFirebaseUser: " + groupID + " exists");
+                    mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(groupID).child(String.valueOf(chat.getTimestamp())).setValue(chat);
+                } else {
+                    Log.d("ActChat", "sendMessageToFirebaseUser else: success");
+                    mFirebaseDatabaseReference.child(ARG_CHAT_ROOMS).child(groupID).child(String.valueOf(chat.getTimestamp())).setValue(chat);
+                }
+
+                ///sendNotification();
+
+                //edMessage.setText(null);
+                // send push notification to the receiver
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                ///mOnSendMessageListener.onSendMessageFailure("Unable to send message: " + databaseError.getMessage());
+            }
+        });
     }
 }

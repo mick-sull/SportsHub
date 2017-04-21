@@ -12,10 +12,17 @@
         android:orderInCategory="100"
         android:title="Remove Member"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/changeImage"
+        android:orderInCategory="100"
+        android:title="Change Image"
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/leaveGroup"
         android:orderInCategory="100"
         android:title="Leave Group"
         app:showAsAction="never" />
+
+
 </menu>

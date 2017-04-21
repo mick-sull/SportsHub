@@ -214,6 +214,9 @@ public class Fragment_Profile extends Fragment implements SettingFragment.MyDial
                                 if(listEventsOrganized.get(position).getTimeInMilliSeconds() > Calendar.getInstance().getTime().getTime()) {
                                     options.add("Edit Event");
                                 }
+                                else{
+                                    options.add("Review Participants");
+                                }
                             } catch (ParseException e) {
                                 e.printStackTrace();
                             }

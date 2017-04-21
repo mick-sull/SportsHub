@@ -6,6 +6,7 @@ import com.cit.michael.sportshub.model.Event;
 import com.cit.michael.sportshub.model.Friendship;
 import com.cit.michael.sportshub.model.Group;
 import com.cit.michael.sportshub.model.Location;
+import com.cit.michael.sportshub.model.Review;
 import com.cit.michael.sportshub.model.Search;
 import com.cit.michael.sportshub.model.Sport;
 import com.cit.michael.sportshub.model.SubscriptionsForUpdate;
@@ -20,6 +21,7 @@ import com.cit.michael.sportshub.rest.model.RestGroup;
 import com.cit.michael.sportshub.rest.model.RestLocation;
 import com.cit.michael.sportshub.rest.model.RestProfile;
 import com.cit.michael.sportshub.rest.model.RestRelationship;
+import com.cit.michael.sportshub.rest.model.RestReview;
 import com.cit.michael.sportshub.rest.model.RestSport;
 import com.cit.michael.sportshub.rest.model.RestSubscription;
 import com.cit.michael.sportshub.rest.model.RestUsers;
@@ -179,6 +181,14 @@ public interface NetworkService {
     @GET("subscriptions/getSubscription/")
     Observable<RestSubscription> getSubscribedSports(@Query("user_id") String userID);
 
+
+    //Review
+    @GET("review/getReview/")
+    Observable<RestReview> getReview(@Query("event_id") String eventID,
+                                     @Query("user_id") String userID);
+
+    @POST("review/updateReview/")
+    Call<RestReview> updateReview(@Body Review review);
 
 
 }

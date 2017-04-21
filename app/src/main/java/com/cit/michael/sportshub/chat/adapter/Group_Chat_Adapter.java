@@ -101,10 +101,10 @@ public class Group_Chat_Adapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 
         if(chat.getReceiverPictureUrl() == null){
-            Picasso.with(myChatViewHolder.profilePic.getContext()).load(R.drawable.fb_default_icon).placeholder(R.drawable.img_circle_placeholder).resize(200, 200).transform(new CircleTransform()).into(myChatViewHolder.profilePic);
+            Picasso.with(myChatViewHolder.profilePic.getContext()).load(R.drawable.fb_default_icon).placeholder(R.drawable.img_circle_placeholder).resize(150, 150).transform(new CircleTransform()).into(myChatViewHolder.profilePic);
         }
         else{
-            Picasso.with(myChatViewHolder.profilePic.getContext()).load(chat.getReceiverPictureUrl()).placeholder(R.drawable.img_circle_placeholder).resize(200, 200).transform(new CircleTransform()).into(myChatViewHolder.profilePic);
+            Picasso.with(myChatViewHolder.profilePic.getContext()).load(chat.getReceiverPictureUrl()).placeholder(R.drawable.img_circle_placeholder).resize(150, 150).transform(new CircleTransform()).into(myChatViewHolder.profilePic);
         }
 
         //Picasso.with(myChatViewHolder.profilePic.getContext()).load(chat.getProfilePictureUrl()).placeholder(R.drawable.img_circle_placeholder).resize(200, 200).transform(new CircleTransform()).into(myChatViewHolder.profilePic);

@@ -56,4 +56,8 @@ public class Constants {
     public final static String SP_NOTIFICATIONS = "notifications";
     public final static String SP_DISTANCE = "distance";
 
+    //Review
+    public final static int REVIEW_ATTENDED = 1;
+    public final static int REVIEW_ABSENT = 0;
+
 }

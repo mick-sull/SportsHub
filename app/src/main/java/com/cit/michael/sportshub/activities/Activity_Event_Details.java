@@ -24,6 +24,7 @@ import com.cit.michael.sportshub.rest.RestClient;
 import com.cit.michael.sportshub.rest.model.RestAttendee;
 import com.cit.michael.sportshub.rest.model.RestEventDetails;
 import com.cit.michael.sportshub.ui.ProfileViewFragment;
+import com.cit.michael.sportshub.ui.ReviewFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 
@@ -54,6 +55,7 @@ public class Activity_Event_Details extends AppCompatActivity  {
     private Boolean userAttending;
     ProgressDialog loading = null;
     ActionBar ab;
+    boolean review;
 
 
 
@@ -77,7 +79,12 @@ public class Activity_Event_Details extends AppCompatActivity  {
         setContentView(R.layout.activity__event__details);
         auth = FirebaseAuth.getInstance();
         service = RestClient.getSportsHubApiClient();
+        review = false;
         selectedEventID = getIntent().getIntExtra("eventSelected", 0);
+        if(getIntent().hasExtra("review")){
+            review = getIntent().getBooleanExtra("review", false);
+        }
+
         Log.d("CHATISSUE3", "NOTIFCATION_ACTIVITY1"  + selectedEventID);
         Log.d("CHATISSUE4", "Event ID: " + getIntent().getIntExtra("eventSelected", 0));
         listUserAttending = new ArrayList<User>();
@@ -263,11 +270,18 @@ public class Activity_Event_Details extends AppCompatActivity  {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
                 // WORKING
-               FragmentManager fm = getSupportFragmentManager();
-                //ProfileViewFragment editNameDialogFragment = new ProfileViewFragment(listUserAttending.get(position).getUserProfileUrl(), listUserAttending.get(position).getUserId());
+                FragmentManager fm = getSupportFragmentManager();
                 User user = listUserAttending.get(position);
-                ProfileViewFragment editNameDialogFragment = new ProfileViewFragment(user, getApplicationContext());
-                editNameDialogFragment.show(fm, "test");
+                if(!review) {
+                    //ProfileViewFragment editNameDialogFragment = new ProfileViewFragment(listUserAttending.get(position).getUserProfileUrl(), listUserAttending.get(position).getUserId());
+
+                    ProfileViewFragment editNameDialogFragment = new ProfileViewFragment(user, getApplicationContext());
+                    editNameDialogFragment.show(fm, "test");
+                }
+                else{
+                    ReviewFragment reviewFragment = new ReviewFragment(user,String.valueOf(selectedEventID), getApplicationContext());
+                    reviewFragment.show(fm,"test");
+                }
             }
         });
 

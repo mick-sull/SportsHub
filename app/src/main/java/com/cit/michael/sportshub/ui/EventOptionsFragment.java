@@ -101,10 +101,18 @@ public class EventOptionsFragment  extends android.support.v4.app.DialogFragment
 
                     }
                     else if(position ==2){//Edit Event
-                        intent = new Intent(ctx, Activity_Organize_Event.class);
-                        intent.putExtra("event", event);
-                        intent.putExtra("action", ACTION_EDIT_EVENT);
-                        startActivity(intent);
+                        if(options.get(position).toString().equals("Edit Event")) {
+                            intent = new Intent(ctx, Activity_Organize_Event.class);
+                            intent.putExtra("event", event);
+                            intent.putExtra("action", ACTION_EDIT_EVENT);
+                            startActivity(intent);
+                        }
+                        else if(options.get(position).toString().equals("Review Participants")){
+                            intent = new Intent(ctx, Activity_Event_Details.class);
+                            intent.putExtra("eventSelected", event.getEventId());
+                            intent.putExtra("review", true);
+                            startActivity(intent);
+                        }
                     }
                 }
             }
