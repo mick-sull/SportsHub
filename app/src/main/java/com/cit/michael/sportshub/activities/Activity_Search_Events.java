@@ -39,6 +39,7 @@ import com.crystal.crystalrangeseekbar.widgets.CrystalRangeSeekbar;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -118,7 +119,7 @@ public class Activity_Search_Events extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_save, menu);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        setTitle("Search Results");
+        setTitle("Search Events");
         return true;
     }
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -261,23 +262,24 @@ public class Activity_Search_Events extends AppCompatActivity {
     }
     private void dialogChooseSport() {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_item);
-        if(listOfSports.isEmpty()){
-            getSportData();
-        }
-        else {
-            for (int i = 0; i < listOfSports.size(); i++) {
-                adapter.add(listOfSports.get(i).getSportName());
-            }
-
-            AlertDialog.Builder builder = new AlertDialog.Builder( new ContextThemeWrapper(this, android.R.style.Theme_Holo_Light));
-            builder.setTitle("Sports");
-            builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int item) {
-                    txtSearchSport.setText(listOfSports.get(item).getSportName());
-                    selectedSportId = listOfSports.get(item).getSportId();
+        if (listOfSports != null) {
+            if (listOfSports.isEmpty()) {
+                getSportData();
+            } else {
+                for (int i = 0; i < listOfSports.size(); i++) {
+                    adapter.add(listOfSports.get(i).getSportName());
                 }
-            });
-            builder.show();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(this, android.R.style.Theme_Holo_Light));
+                builder.setTitle("Sports");
+                builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int item) {
+                        txtSearchSport.setText(listOfSports.get(item).getSportName());
+                        selectedSportId = listOfSports.get(item).getSportId();
+                    }
+                });
+                builder.show();
+            }
         }
     }
     private void getLocationData() {
@@ -348,13 +350,15 @@ public class Activity_Search_Events extends AppCompatActivity {
             int month = c.get(Calendar.MONTH);
             int day = c.get(Calendar.DAY_OF_MONTH);
 
-/*
-            DatePickerDialog dialog = new DatePickerDialog(getActivity(), this, year, month, day);
+
+            DatePickerDialog dialog = new DatePickerDialog(getActivity(),  this, year, month, day);
+            dialog.setTitle("");
             dialog.getDatePicker().setMinDate(new Date().getTime());
-*/
+            return  dialog;
+
 
             // Create a new instance of DatePickerDialog and return it
-            return new DatePickerDialog(getActivity(), this, year, month, day);
+            //return new DatePickerDialog(getActivity(), this, year, month, day);
         }
 
         @Override

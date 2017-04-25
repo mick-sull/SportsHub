@@ -77,7 +77,12 @@ public class Latest_Events_Adapter extends   RecyclerView.Adapter<Latest_Events_
 
     @Override
     public int getItemCount() {
-        return eventsList.size();
+        if(eventsList != null) {
+            return eventsList.size();
+        }
+        else{
+            return 0;
+        }
     }
 }
 

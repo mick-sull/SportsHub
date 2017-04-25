@@ -111,8 +111,9 @@ public class Activity_Profile extends AppCompatActivity {
             @Override
             public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
                 Log.w("TEST123 ACTIVITY", "JSON: " + new Gson().toJson(response));
-                
+                //Log.w("TESTPROFILE", "JSON: " + new Gson().toJson(response));
                 listEvents = response.body().getEvent();
+
                 listLocaton = response.body().getLocation();
                 user = response.body().getUser();
                 Toast.makeText(getApplicationContext(), "Activity Profile...", Toast.LENGTH_SHORT).show();

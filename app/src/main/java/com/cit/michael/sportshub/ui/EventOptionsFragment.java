@@ -65,6 +65,8 @@ public class EventOptionsFragment  extends android.support.v4.app.DialogFragment
         //options.add("Join Event");
         options.add("View Event");
         options.add("View Map");*/
+        Log.d("TEST1234", "EventOptionsFragment event ID: "  + event.getEventId());
+        Log.d("TEST1234", "EventOptionsFragment event name: "  + event.getEventName());
 
         recyclerView = (RecyclerView) dialog.findViewById(R.id.rvDialogOptions);
 

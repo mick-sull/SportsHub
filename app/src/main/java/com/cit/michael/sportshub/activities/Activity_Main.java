@@ -341,6 +341,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
                             //options.add("Join Event");
                             options.add("View Event");
                             options.add("View Map");
+                            Log.d("TEST1234", "Main Activity event ID: "  + latestEvents.get(position).getEventId());
                             FragmentTransaction fm = ((FragmentActivity) getActivity()).getSupportFragmentManager().beginTransaction();
                             EventOptionsFragment editNameDialogFragment = new EventOptionsFragment(latestEvents.get(position), getContext(), options, ACTION_FRAG_MAIN);
                             editNameDialogFragment.show(fm, "aaa");
@@ -431,41 +432,44 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
 
         private void getLatestEvents() {
             ArrayList<String> subIDs = new ArrayList<String>();
-            for (int i = 0; i < listOfSubs.size(); i++) {
-                subIDs.add(listOfSubs.get(i).getSportID().toString());
+            if (listOfSubs != null ) {
+                for (int i = 0; i < listOfSubs.size(); i++) {
+                    subIDs.add(listOfSubs.get(i).getSportID().toString());
+                }
             }
+           if(latestEvents != null){
+                RestArrayList list = new RestArrayList(subIDs);
 
-            RestArrayList list = new RestArrayList(subIDs);
+                if (!scChecked) {
+                    service.getLatestEventsByCreated(list).enqueue(new Callback<RestEvent>() {
+                        @Override
+                        public void onResponse(Call<RestEvent> call, Response<RestEvent> response) {
+                            Log.w("TESTEVENT", "JSON: " + new Gson().toJson(response));
+                            latestEvents = response.body().getEvent();
+//d                            Log.d("AUTH123", "latestEvents size: " + latestEvents.size());
+                            displayLatestEvents();
+                        }
 
-            if (!scChecked) {
-                service.getLatestEventsByCreated(list).enqueue(new Callback<RestEvent>() {
-                    @Override
-                    public void onResponse(Call<RestEvent> call, Response<RestEvent> response) {
-                        Log.w("TESTEVENT", "JSON: " + new Gson().toJson(response));
-                        latestEvents = response.body().getEvent();
-                        Log.d("AUTH123", "latestEvents size: " + latestEvents.size());
-                        displayLatestEvents();
-                    }
+                        @Override
+                        public void onFailure(Call<RestEvent> call, Throwable t) {
 
-                    @Override
-                    public void onFailure(Call<RestEvent> call, Throwable t) {
+                        }
+                    });
+                } else {
+                    service.getLatestEventsBySoon(list).enqueue(new Callback<RestEvent>() {
+                        @Override
+                        public void onResponse(Call<RestEvent> call, Response<RestEvent> response) {
+                            latestEvents = response.body().getEvent();
+                            //Log.d("AUTH123", "latestEvents size: " + latestEvents.size());
+                            displayLatestEvents();
+                        }
 
-                    }
-                });
-            } else {
-                service.getLatestEventsBySoon(list).enqueue(new Callback<RestEvent>() {
-                    @Override
-                    public void onResponse(Call<RestEvent> call, Response<RestEvent> response) {
-                        latestEvents = response.body().getEvent();
-                        Log.d("AUTH123", "latestEvents size: " + latestEvents.size());
-                        displayLatestEvents();
-                    }
+                        @Override
+                        public void onFailure(Call<RestEvent> call, Throwable t) {
 
-                    @Override
-                    public void onFailure(Call<RestEvent> call, Throwable t) {
-
-                    }
-                });
+                        }
+                    });
+                }
             }
         }
 
@@ -478,24 +482,26 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
                 Log.e(TAG, "onConnected - NOT NULL ...............: ");
                 locationA.setLatitude(mCurrentLocation.getLatitude());
                 locationA.setLongitude(mCurrentLocation.getLongitude());
-                if (!listOfLocations.isEmpty()) {
-                    for (int i = 0; i < listOfLocations.size(); i++) {
-                        for (int j = 0; j < latestEvents.size(); j++) {
-                            if (latestEvents.get(j).getLocationId().equals(listOfLocations.get(i).getLocationId())) {
-                                locationB.setLatitude(listOfLocations.get(i).getLatitude());
-                                locationB.setLongitude(listOfLocations.get(i).getLongitude());
-                                latestEvents.get(j).setDistance_to(locationA.distanceTo(locationB) / 1000);
-                                Log.e("GPS", "onConnected - FOUND ...............: " + locationA.distanceTo(locationB) / 1000 + "KM");
-                                if(latestEvents.get(j).getDistance_to() >= maxDistance) {
-                                    latestEvents.remove(j);
+                if (listOfLocations != null) {
+                    if (!listOfLocations.isEmpty()) {
+                        for (int i = 0; i < listOfLocations.size(); i++) {
+                            for (int j = 0; j < latestEvents.size(); j++) {
+                                if (latestEvents.get(j).getLocationId().equals(listOfLocations.get(i).getLocationId())) {
+                                    locationB.setLatitude(listOfLocations.get(i).getLatitude());
+                                    locationB.setLongitude(listOfLocations.get(i).getLongitude());
+                                    latestEvents.get(j).setDistance_to(locationA.distanceTo(locationB) / 1000);
+                                    Log.e("GPS", "onConnected - FOUND ...............: " + locationA.distanceTo(locationB) / 1000 + "KM");
+                                    if (latestEvents.get(j).getDistance_to() >= maxDistance) {
+                                        latestEvents.remove(j);
 
+                                    }
                                 }
                             }
                         }
                     }
+                } else {
+                    Log.e(TAG, "onConnected - NULL ...............: ");
                 }
-            } else {
-                Log.e(TAG, "onConnected - NULL ...............: ");
             }
             mSwipeRefreshLayout.setRefreshing(false);
             mAdapter = new Latest_Events_Adapter(latestEvents);

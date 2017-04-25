@@ -41,7 +41,7 @@ public class Setting_Adapter extends RecyclerView.Adapter<Setting_Adapter.Settin
     public Setting_Adapter(List<Sport> sports, Context context){
         this.sports = sports;
         this.context = context;
-        Log.d("SettingFragment", "Setting_Adapter .size(): " + sports.size());
+        //Log.d("SettingFragment", "Setting_Adapter .size(): " + sports.size());
 
     }
 
@@ -69,6 +69,11 @@ public class Setting_Adapter extends RecyclerView.Adapter<Setting_Adapter.Settin
 
     @Override
     public int getItemCount() {
-        return sports.size();
+        if (sports != null) {
+            return sports.size();
+        } else {
+            return 0;
+        }
     }
+
 }

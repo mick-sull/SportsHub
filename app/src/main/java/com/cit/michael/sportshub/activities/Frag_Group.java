@@ -174,75 +174,77 @@ public class Frag_Group extends Fragment {
     private void getGroups() {
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
         Log.d("FRAGGROUP ", "getting groups....");
-        listOfGroups.clear();
-        service = RestClient.getSportsHubApiClient();
-        service.getGroups(auth.getCurrentUser().getUid()).enqueue(new Callback<RestGroup>() {
-            @Override
-            public void onResponse(Call<RestGroup> call, Response<RestGroup> response) {
-                listOfGroups = response.body().getGroup();
-                //displayGroups();
-                if (response.body().getError()) {
-                    Log.d("Chat ID: ", "ERROR: " + response.body().getMessage());
-                } else {
-                    if (!listOfGroups.isEmpty()) {
-                        for (int i = 0; i < listOfGroups.size(); i++) {
-                            Query getLastMessages = databaseReference.child(ARG_CHAT_ROOMS).child(listOfGroups.get(i).getGroupId().toString())
-                                    .limitToLast(1);
+        if (listOfGroups != null) {
+            listOfGroups.clear();
+            service = RestClient.getSportsHubApiClient();
+            service.getGroups(auth.getCurrentUser().getUid()).enqueue(new Callback<RestGroup>() {
+                @Override
+                public void onResponse(Call<RestGroup> call, Response<RestGroup> response) {
+                    listOfGroups = response.body().getGroup();
+                    //displayGroups();
+                    if (response.body().getError()) {
+                        Log.d("Chat ID: ", "ERROR: " + response.body().getMessage());
+                    } else {
+                        if (!listOfGroups.isEmpty()) {
+                            for (int i = 0; i < listOfGroups.size(); i++) {
+                                Query getLastMessages = databaseReference.child(ARG_CHAT_ROOMS).child(listOfGroups.get(i).getGroupId().toString())
+                                        .limitToLast(1);
 
-                            getLastMessages.addChildEventListener(new ChildEventListener() {
-                                @Override
-                                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                                    if (dataSnapshot != null && dataSnapshot.getValue() != null) {
-                                        try {
+                                getLastMessages.addChildEventListener(new ChildEventListener() {
+                                    @Override
+                                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                                        if (dataSnapshot != null && dataSnapshot.getValue() != null) {
+                                            try {
 
-                                            Group_Chat model = dataSnapshot.getValue(Group_Chat.class);
-                                            // Log.d("FRAGCHAT ", "displayGroups getMessage" + model.getMessage());
-                                            Log.d("FRAG_GROUP12", "onChildAdded ChatList chat NAME: " + model.getChatName());
+                                                Group_Chat model = dataSnapshot.getValue(Group_Chat.class);
+                                                // Log.d("FRAGCHAT ", "displayGroups getMessage" + model.getMessage());
+                                                Log.d("FRAG_GROUP12", "onChildAdded ChatList chat NAME: " + model.getChatName());
 
-                                            onGetMessagesSuccess(model);
-                                            listOfChats.add(model);
-                                        } catch (Exception ex) {
-                                            Log.e(getTag(), ex.getMessage());
+                                                onGetMessagesSuccess(model);
+                                                listOfChats.add(model);
+                                            } catch (Exception ex) {
+                                                Log.e(getTag(), ex.getMessage());
+                                            }
                                         }
                                     }
-                                }
 
-                                @Override
-                                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                                    Group_Chat model = dataSnapshot.getValue(Group_Chat.class);
-                                    // Log.d("FRAGCHAT ", "onChildChanged ID:" + cID.getChatId() + "  message: " + model.getMessage());
-                                    Log.d("FRAGCHAT ", "onChildChanged sender name: " + model.getSender() + "  recevier name: " + model.getReceiver());
+                                    @Override
+                                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                                        Group_Chat model = dataSnapshot.getValue(Group_Chat.class);
+                                        // Log.d("FRAGCHAT ", "onChildChanged ID:" + cID.getChatId() + "  message: " + model.getMessage());
+                                        Log.d("FRAGCHAT ", "onChildChanged sender name: " + model.getSender() + "  recevier name: " + model.getReceiver());
 
-                                }
+                                    }
 
-                                @Override
-                                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                                    @Override
+                                    public void onChildRemoved(DataSnapshot dataSnapshot) {
 
-                                }
+                                    }
 
-                                @Override
-                                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                                    @Override
+                                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
 
-                                }
+                                    }
 
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
 
-                                }
+                                    }
 
-                            });
+                                });
 
+                            }
                         }
                     }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<RestGroup> call, Throwable t) {
+                @Override
+                public void onFailure(Call<RestGroup> call, Throwable t) {
 
-            }
-        });
-        mSwipeRefreshLayout.setRefreshing(false);
+                }
+            });
+            mSwipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event

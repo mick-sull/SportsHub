@@ -95,7 +95,7 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
         mFirebaseInstanceId = FirebaseInstanceId.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
-        service = service = RestClient.getSportsHubApiClient();
+        service = RestClient.getSportsHubApiClient();
 
         Intent intent = getIntent();
         receivingUser = intent.getParcelableExtra("receivingUser");

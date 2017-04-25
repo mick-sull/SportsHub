@@ -94,24 +94,28 @@ public class SettingFragment extends DialogFragment {
 
 
         //loadData();
-
-        for(int i = 0; i < listOfAllSport.size(); i++){
-            boolean found = false;
-            for(int j = 0; j< listOfSubs.size(); j++){
-                Log.d("SettingFragment", "FOUND:  " + listOfAllSport.get(i).getSportId() + " - " + listOfSubs.get(j).getSportID());
-                if(listOfAllSport.get(i).getSportId().equals(listOfSubs.get(j).getSportID()) && listOfSubs.get(j).getActive() == SUBSCRIPTION_SELECTED){
-                    found = true;
-                    Log.d("SettingFragment", "FOUND:  " + listOfAllSport.get(i).getSportName());
+        if(listOfAllSport != null) {
+            for (int i = 0; i < listOfAllSport.size(); i++) {
+                boolean found = false;
+                for (int j = 0; j < listOfSubs.size(); j++) {
+                    Log.d("SettingFragment", "FOUND:  " + listOfAllSport.get(i).getSportId() + " - " + listOfSubs.get(j).getSportID());
+                    if (listOfAllSport.get(i).getSportId().equals(listOfSubs.get(j).getSportID()) && listOfSubs.get(j).getActive() == SUBSCRIPTION_SELECTED) {
+                        found = true;
+                        Log.d("SettingFragment", "FOUND:  " + listOfAllSport.get(i).getSportName());
+                    }
+                }
+                if (found) {
+                    listOfAllSport.get(i).setStatus(SUBSCRIPTION_SELECTED);
+                    subscribedSports.add(listOfAllSport.get(i));
+                } else {
+                    listOfAllSport.get(i).setStatus(SUBSCRIPTION_NOT_SELECTED);
                 }
             }
-            if(found) {
-                listOfAllSport.get(i).setStatus(SUBSCRIPTION_SELECTED);
-                subscribedSports.add(listOfAllSport.get(i));
-            }
-            else {
-                listOfAllSport.get(i).setStatus(SUBSCRIPTION_NOT_SELECTED);
-            }
         }
+            else {
+            Toast.makeText(ctx, "Unable to retrevie subscription data...", Toast.LENGTH_SHORT).show();
+        }
+
 
         dialog = new Dialog(getActivity());
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
@@ -184,8 +188,8 @@ public class SettingFragment extends DialogFragment {
                 })
 
         );
-        Log.d("SettingFragment", "listOfAllSport.size(): " + listOfAllSport.size());
-        Log.d("SettingFragment", "listOfSubs.size(): " + listOfSubs.size());
+        //Log.d("SettingFragment", "listOfAllSport.size(): " + listOfAllSport.size());
+        //Log.d("SettingFragment", "listOfSubs.size(): " + listOfSubs.size());
         mAdapter = new Setting_Adapter(listOfAllSport, ctx);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(ctx);
         recyclerView.setLayoutManager(mLayoutManager);

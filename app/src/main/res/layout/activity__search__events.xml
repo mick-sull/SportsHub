@@ -65,11 +65,11 @@
             android:textColor="@color/colorTex" />
 
         <ImageView
+            android:id="@+id/txtSearchLocationSE"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@mipmap/location"
-            android:id="@+id/txtSearchLocationSE"
-            android:layout_weight="0.20" />
+            android:layout_weight="0.20"
+            app:srcCompat="@mipmap/location" />
     </LinearLayout>
 
     <View

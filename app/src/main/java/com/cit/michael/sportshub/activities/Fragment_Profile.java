@@ -43,6 +43,7 @@ import com.cit.michael.sportshub.ui.EventOptionsFragment;
 import com.cit.michael.sportshub.ui.SettingFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
@@ -243,7 +244,7 @@ public class Fragment_Profile extends Fragment implements SettingFragment.MyDial
             @Override
             public void onResponse(Call<RestProfile> call, Response<RestProfile> response) {
                 if (!response.body().getError()) {
-
+                    Log.w("TEST123 ACTIVITY", "JSON: " + new Gson().toJson(response));
                     listEventsParticipated = response.body().getEvent();
                     listLocatonParticipated = response.body().getLocation();
                     user = response.body().getUser();
