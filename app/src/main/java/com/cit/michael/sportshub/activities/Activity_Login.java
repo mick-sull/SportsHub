@@ -36,7 +36,6 @@ public class Activity_Login extends AppCompatActivity {
         }
         else{
             appLocationManager.showSettingsAlert();
-
         }
 
 

@@ -320,8 +320,8 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
                     txtInviteGroup.setText(selectedGroup.get(0).getGroupName());
                 }
                 else{
-                    //do nothing
-                    //txtInviteFriends.setText(selectedUsers.get(0).getUserFullName());
+
+                    txtInviteGroup.setText("");
                 }
             }
         }).setCancelable(false).setTitle("Select Groups").create().show();
@@ -366,8 +366,8 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
                     txtInviteFriends.setText(selectedUsers.get(0).getUserFullName());
                 }
                 else{
-                    //do nothing
-                    //txtInviteFriends.setText(selectedUsers.get(0).getUserFullName());
+                    //if no friends were selected
+                    txtInviteFriends.setText("");
                 }
             }
         }).setCancelable(false).setTitle("Select friends").create().show();
@@ -512,7 +512,7 @@ public class Activity_Organize_Event extends AppCompatActivity  implements Valid
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.home) {
+        if (id == android.R.id.home) {
             //NavUtils.navigateUpFromSameTask(this);
             finish();
         }

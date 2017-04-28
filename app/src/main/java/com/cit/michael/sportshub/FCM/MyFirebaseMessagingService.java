@@ -113,7 +113,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext())
-                .setSmallIcon(R.drawable.logo_googleg_color_18dp)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("SportsHub")
                 .setContentText(/*user.getUserFullName() +": " +*/ remoteMessage.getData().get("message"))
                 .setAutoCancel(true)
@@ -146,7 +146,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 PendingIntent.FLAG_ONE_SHOT);
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext())
-                .setSmallIcon(R.drawable.logo_googleg_color_18dp)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("SportsHub")
                 .setContentText(remoteMessage.getData().get("message"))
                 .setAutoCancel(true)
@@ -189,7 +189,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                 Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                 NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext())
-                        .setSmallIcon(R.drawable.logo_googleg_color_18dp)
+                        .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle("SportsHub")
                         .setContentText(/*user.getUserFullName() +": " +*/ remoteMessage.getData().get("message"))
                         .setAutoCancel(true)
@@ -242,7 +242,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                     Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                     NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext())
-                            .setSmallIcon(R.drawable.logo_googleg_color_18dp)
+                            .setSmallIcon(R.mipmap.ic_launcher)
                             .setContentTitle("SportsHub")
                             .setContentText(user.getUserFullName() +": " + remoteMessage.getData().get("message"))
                             .setAutoCancel(true)

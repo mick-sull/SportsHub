@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -104,6 +105,10 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
             rvListMessage.setLayoutManager(mLinearLayoutManager);
             rvListMessage.setAdapter(firebaseAdapter);
         }*/
+        android.support.v7.app.ActionBar ab = getSupportActionBar();
+        ab.setTitle(receivingUser.getUserFullName());
+        ab.setDisplayHomeAsUpEnabled(true);
+
 
         getMessageFromFirebaseUser(mFirebaseAuth.getCurrentUser().getUid(),  receivingUser.getUserId());
 
@@ -144,6 +149,19 @@ public class Activity_Chat extends AppCompatActivity implements GoogleApiClient.
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // app icon in action bar clicked; goto parent activity.
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override

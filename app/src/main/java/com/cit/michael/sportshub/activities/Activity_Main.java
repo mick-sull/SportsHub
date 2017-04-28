@@ -355,6 +355,7 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
                 @Override
                 public void onRefresh() {
                     // Refresh items
+                    loadSubData();
                     getLatestEvents();
                 }
             });
@@ -434,7 +435,9 @@ public class Activity_Main extends AppCompatActivity implements Fragment_Profile
             ArrayList<String> subIDs = new ArrayList<String>();
             if (listOfSubs != null ) {
                 for (int i = 0; i < listOfSubs.size(); i++) {
-                    subIDs.add(listOfSubs.get(i).getSportID().toString());
+                    if(listOfSubs.get(i).getActive()== 0){
+                        subIDs.add(listOfSubs.get(i).getSportID().toString());
+                    }
                 }
             }
            if(latestEvents != null){

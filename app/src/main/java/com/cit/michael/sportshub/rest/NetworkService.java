@@ -178,9 +178,6 @@ public interface NetworkService {
     Call<RestEvent> getLatestEventsBySoon(@Body RestArrayList subscription);
 
 
-    @GET("subscriptions/getSubscription/")
-    Observable<RestSubscription> getSubscribedSports(@Query("user_id") String userID);
-
 
     //Review
     @GET("review/getReview/")

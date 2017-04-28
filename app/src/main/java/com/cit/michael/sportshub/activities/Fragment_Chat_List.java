@@ -208,10 +208,6 @@ public class Fragment_Chat_List extends Fragment {
                                         try {
 
                                             Chat model = dataSnapshot.getValue(Chat.class);
-
-                                            Log.d("FRAGCHAT ", "addChildEventListener ID:" + cID.getChatId() + "  message: " + model.getMessage());
-                                            Log.d("FRAGCHAT ", "addChildEventListener sender name: " + model.getSender() + "  recevier name: " + model.getReceiver());
-
                                             onGetMessagesSuccess(model);
                                             listOfChats.add(model);
                                         } catch (Exception ex) {
@@ -223,8 +219,6 @@ public class Fragment_Chat_List extends Fragment {
                                 @Override
                                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                                     Chat model = dataSnapshot.getValue(Chat.class);
-                                    Log.d("FRAGCHAT ", "onChildChanged ID:" + cID.getChatId() + "  message: " + model.getMessage());
-                                    Log.d("FRAGCHAT ", "onChildChanged sender name: " + model.getSender() + "  recevier name: " + model.getReceiver());
 
                                 }
 
